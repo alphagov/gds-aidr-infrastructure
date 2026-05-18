@@ -1,7 +1,10 @@
 
 
+<!--date_created: mon-18-may-2026-->
+<!--date_updated: mon-18-may-2026-->
+
 ```
-govsynth-infra-core-tf/
+gds-aidr-infrastructure
 ├── modules/              # Reusable Gov-standard components
 ├── environments/
 │   ├── dev/              # Dev account overrides
