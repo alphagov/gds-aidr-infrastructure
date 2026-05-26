@@ -1,5 +1,5 @@
 
-# `GDS` Data Innovation and AI Readiness Team Cloud Infrastructure Repository (Placeholder)
+# GDS Data Innovation and AI Readiness Team Cloud Infrastructure Repository (Placeholder)
 
 <!--date_created: mon-18-may-2026-->
 <!--date_updated: tues-26-may-2026-->
