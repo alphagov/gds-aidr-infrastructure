@@ -1,8 +1,8 @@
 
-# GDS Data Innovation and AI Readiness Team Cloud Infrastructure Repository (Placeholder)
+# GDS Data Innovation and AI Readiness Team Cloud Infrastructure Repository
 
 <!--date_created: mon-18-may-2026-->
-<!--date_updated: tues-26-may-2026-->
+<!--date_updated: weds-27-may-2026-->
 
 
 **Index**
@@ -11,9 +11,10 @@
 
 ---
 
-There is no infrastructure in this repository. Code will be migrated once tested and necessary security parameters are in place 
+<!--There is no infrastructure in this repository. Code will be migrated once tested and necessary security parameters are in place-->
 
 ## Get access to the AIDR platform
+
 
 **Some mandatory disclaimers**
 * All users, with the exception of developer/engineer and admin users have access to the AIDR development environment.
