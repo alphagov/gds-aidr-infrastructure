@@ -6,12 +6,7 @@
       "Principal": {
         "AWS": "arn:aws:iam::PRODUCTION_ACCOUNT_ID:root"
       },
-      "Action": "sts:AssumeRole",
-      "Condition": {
-        "Bool": {
-          "aws:MultiFactorAuthPresent": "true"
-        }
-      }
+      "Action": "sts:AssumeRole"
     }
   ]
 }
