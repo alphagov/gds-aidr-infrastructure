@@ -4,6 +4,15 @@
 # Called once per account (development, staging, production) from the
 # production-iam environment using provider aliases.
 
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+
 # --------------------------------------------------------------------------
 # GitHub OIDC Identity Provider
 # --------------------------------------------------------------------------
