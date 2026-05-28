@@ -58,3 +58,9 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "terraform_cross_account_arns" {
+  description = "List of account root ARNs that can assume the terraform role without MFA. Used for cross-account Terraform provider aliases (e.g. production assuming into development)."
+  type        = list(string)
+  default     = []
+}
