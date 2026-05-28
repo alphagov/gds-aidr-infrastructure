@@ -56,7 +56,7 @@ provider "aws" {
   region = "eu-west-2"
 
   assume_role {
-    role_arn     = "arn:aws:iam::${var.development_account_id}:role/gds-aidr-terraform-bootstrap"
+    role_arn     = "arn:aws:iam::${var.development_account_id}:role/gds-aidr-terraform"
     session_name = "production-iam-terraform"
   }
 
@@ -79,7 +79,7 @@ provider "aws" {
   region = "eu-west-2"
 
   assume_role {
-    role_arn     = "arn:aws:iam::${var.staging_account_id}:role/gds-aidr-terraform-bootstrap"
+    role_arn     = "arn:aws:iam::${var.staging_account_id}:role/gds-aidr-terraform"
     session_name = "production-iam-terraform"
   }
 
