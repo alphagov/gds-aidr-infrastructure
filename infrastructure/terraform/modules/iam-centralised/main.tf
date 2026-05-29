@@ -33,7 +33,7 @@ resource "aws_iam_openid_connect_provider" "github" {
 # --------------------------------------------------------------------------
 # Full AdministratorAccess. Only created if create_admin_role = true.
 # Trust is restricted to specific named IAM user ARNs (not the broad account
-# root), so only you and your LM can assume it. MFA is always required.
+# root), so only admins. MFA is always required.
 
 resource "aws_iam_role" "admin" {
   count = var.create_admin_role ? 1 : 0
