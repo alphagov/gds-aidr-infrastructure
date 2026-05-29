@@ -111,7 +111,6 @@ This is a **public repository**
 3. Your profile in `.config` will look like this; one corresponds to the ROOT `gds-users` account which you assume role into the AIDR platform, and the other corresponds to your role
 
 ```~.aws/~.config
-
 # required by everyone
 [profile gds-users]
 region=eu-west-2
@@ -127,7 +126,6 @@ region = eu-west-2
 ```
 
 ```~.aws/~.credentials
-
 # required by everyone
 [default]
 aws_access_key_id=AWS_ACCESS_KEY_ID
@@ -166,7 +164,6 @@ aws sts assume-role \
     "AssumedRoleUser": {
         "AssumedRoleId": "",
         "Arn": "ROLE_ARN+LOCAL_SESSION_NAME"
-    
 ```
 
 ---
@@ -207,8 +204,8 @@ adds up.
 To share a single copy of the provider across all environments, add this to
 your shell configuration:
 
-```bash
-# Add to ~/.zshrc (macOS) or ~/.bashrc (Linux)
+```zsh
+# Add to ~/.zshrc (macOS) or ~/.zshrc (Linux)
 echo 'export TF_PLUGIN_CACHE_DIR="$HOME/.terraform.d/plugin-cache"' >> ~/.zshrc
 mkdir -p "$HOME/.terraform.d/plugin-cache"
 source ~/.zshrc
@@ -225,7 +222,7 @@ Terraform cannot handle interactive MFA prompts. When running Terraform
 locally, you need to assume into the target account first and export the
 session credentials:
 
-```bash
+```zsh
 eval $(aws sts assume-role \
   --role-arn "<ROLE_ARN>" \
   --role-session-name "TerraformSession" \
