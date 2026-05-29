@@ -35,7 +35,7 @@ variable "role_prefix" {
 }
 
 variable "admin_trusted_arns" {
-  description = "List of specific IAM user ARNs that can assume the admin role. Should be only you and your LM."
+  description = "List of specific IAM user ARNs that can assume the admin role."
   type        = list(string)
 }
 
