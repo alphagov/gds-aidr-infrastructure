@@ -27,19 +27,19 @@ This runs in the production account and uses provider aliases to assume into dev
 
 **Current layout (deployed)**
 ```
-gds-users (org root, 622626885786)
-├── gds-aidr-development (444083008220)
+gds-users
+├── gds-aidr-development
 │   ├── gds-aidr-admin          ← admins only (named ARNs + MFA)
 │   ├── gds-aidr-readonly
 │   ├── gds-aidr-security-audit
 │   ├── gds-aidr-terraform      ← human + GitHub OIDC
 │   └── GitHub OIDC provider
-├── gds-aidr-staging (577449503821)
+├── gds-aidr-staging
 │   ├── gds-aidr-readonly
 │   ├── gds-aidr-security-audit
 │   ├── gds-aidr-terraform      ← human + GitHub OIDC
 │   └── GitHub OIDC provider
-└── gds-aidr-production (052997916327)
+└── gds-aidr-production
     ├── gds-aidr-admin          ← admins only (named ARNs + MFA)
     ├── gds-aidr-readonly
     ├── gds-aidr-security-audit
@@ -49,8 +49,8 @@ gds-users (org root, 622626885786)
 
 **Proposed layout (pending LM review — see `iam-access-strategy.md`)**
 ```
-gds-users (org root, 622626885786)
-├── gds-aidr-development (444083008220)
+gds-users
+├── gds-aidr-development
 │   ├── gds-aidr-admin               ← admins only (named ARNs + MFA)
 │   ├── gds-aidr-admin-break-glass   ← emergency writes, 1hr session, SNS alert
 │   ├── gds-aidr-terraform           ← human + GitHub OIDC
@@ -63,7 +63,7 @@ gds-users (org root, 622626885786)
 │   ├── gds-aidr-readonly            ← retained
 │   ├── gds-aidr-security-audit
 │   └── GitHub OIDC provider
-├── gds-aidr-staging (577449503821)
+├── gds-aidr-staging
 │   ├── gds-aidr-admin               ← read-only by default; writes via break-glass only
 │   ├── gds-aidr-admin-break-glass
 │   ├── gds-aidr-terraform
@@ -75,7 +75,7 @@ gds-users (org root, 622626885786)
 │   ├── gds-aidr-readonly
 │   ├── gds-aidr-security-audit
 │   └── GitHub OIDC provider
-└── gds-aidr-production (052997916327)
+└── gds-aidr-production
     ├── gds-aidr-admin               ← read-only by default; writes via break-glass only
     ├── gds-aidr-admin-break-glass
     ├── gds-aidr-terraform
@@ -103,7 +103,7 @@ User (gds-users account, 622626885786)
   │     AWS checks: does gds-aidr-admin in production trust gds-users? Yes.
   │     Result: you get temporary credentials for production.
   │
-  ├─► production: gds-aidr-admin (052997916327)
+  ├─► production: gds-aidr-admin
   │     │
   │     │  2. Terraform starts. It reads provider aliases in main.tf.
   │     │     The development alias says: assume gds-aidr-terraform in dev.
@@ -111,11 +111,11 @@ User (gds-users account, 622626885786)
   │     │     (Your session still carries the gds-users origin.)
   │     │     Result: Terraform can create/modify resources in dev.
   │     │
-  │     ├─► development: gds-aidr-terraform (444083008220)
+  │     ├─► development: gds-aidr-terraform
   │     │
   │     │  3. Same for staging.
   │     │
-  │     ├─► staging: gds-aidr-terraform (577449503821)
+  │     ├─► staging: gds-aidr-terraform
   │     │
   │     │  4. Production resources use the default provider (no alias).
   │     │     No second hop needed — Terraform is already in production.
@@ -124,10 +124,10 @@ User (gds-users account, 622626885786)
   │
   │  For manual debugging (not Terraform):
   │
-  ├─► development: gds-aidr-readonly (444083008220)
+  ├─► development: gds-aidr-readonly
   │     View resources, check CloudWatch, verify deployments.
   │
-  └─► staging: gds-aidr-readonly (577449503821)
+  └─► staging: gds-aidr-readonly
         Same as above.
 ```
 
