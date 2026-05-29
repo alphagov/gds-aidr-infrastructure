@@ -161,6 +161,12 @@ resource "aws_iam_role_policy_attachment" "security_audit" {
 # and GitHub Actions (via OIDC). This is the role that plans and applies
 # infrastructure changes. The OIDC subject condition locks it to specific
 # repos and branches.
+#
+# When terraform_cross_account_arns is non-empty, a third trust statement
+# is added to allow the production account to assume this role directly.
+# This is needed because chained assume-role calls (gds-users → production
+# → development) do not carry the original gds-users identity, so the
+# production account root must be explicitly trusted.
 
 resource "aws_iam_role" "terraform" {
   count = var.create_terraform_role ? 1 : 0
@@ -169,48 +175,54 @@ resource "aws_iam_role" "terraform" {
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [
-      # Human access via gds-users with MFA
-      {
-        Sid    = "AllowHumanAssumeWithMFA"
-        Effect = "Allow"
-        Principal = {
-          AWS = var.trusted_account_arns
-        }
-        Action = "sts:AssumeRole"
-        Condition = {
-          Bool = {
-            "aws:MultiFactorAuthPresent" = "true"
+    Statement = concat(
+      [
+        # Human access via gds-users with MFA
+        {
+          Sid    = "AllowHumanAssumeWithMFA"
+          Effect = "Allow"
+          Principal = {
+            AWS = var.trusted_account_arns
+          }
+          Action = "sts:AssumeRole"
+          Condition = {
+            Bool = {
+              "aws:MultiFactorAuthPresent" = "true"
+            }
+          }
+        },
+        # GitHub Actions access via OIDC
+        {
+          Sid    = "AllowGitHubActionsOIDC"
+          Effect = "Allow"
+          Principal = {
+            Federated = aws_iam_openid_connect_provider.github.arn
+          }
+          Action = "sts:AssumeRoleWithWebIdentity"
+          Condition = {
+            StringEquals = {
+              "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+            }
+            StringLike = {
+              "token.actions.githubusercontent.com:sub" = var.github_oidc_allowed_subjects
+            }
           }
         }
-      },
-      # GitHub Actions access via OIDC
-      {
-        Sid    = "AllowGitHubActionsOIDC"
-        Effect = "Allow"
-        Principal = {
-          Federated = aws_iam_openid_connect_provider.github.arn
-        }
-        Action = "sts:AssumeRoleWithWebIdentity"
-        Condition = {
-          StringEquals = {
-            "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+      ],
+      # Cross-account access — only included when the list is non-empty.
+      # This allows the production account to assume into development and
+      # staging terraform roles during centralised Terraform runs.
+      length(var.terraform_cross_account_arns) > 0 ? [
+        {
+          Sid    = "AllowCrossAccountAssume"
+          Effect = "Allow"
+          Principal = {
+            AWS = var.terraform_cross_account_arns
           }
-          StringLike = {
-            "token.actions.githubusercontent.com:sub" = var.github_oidc_allowed_subjects
-          }
+          Action = "sts:AssumeRole"
         }
-      },
-      # Cross-account access from the production Terraform session
-      {
-        Sid    = "AllowCrossAccountAssume"
-        Effect = "Allow"
-        Principal = {
-          AWS = var.terraform_cross_account_arns
-        }
-        Action = "sts:AssumeRole"
-      }
-    ]
+      ] : []
+    )
   })
 
   max_session_duration = var.max_session_duration
