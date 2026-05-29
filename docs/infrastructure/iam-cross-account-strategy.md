@@ -27,19 +27,19 @@ This runs in the production account and uses provider aliases to assume into dev
 
 **Current layout (deployed)**
 ```
-gds-users (org root, GDS_USERS_ACCOUNT_ID)
-├── gds-aidr-development (DEVELOPMENT_ACCOUNT_ID)
+gds-users
+├── gds-aidr-development
 │   ├── gds-aidr-admin          ← admins only (named ARNs + MFA)
 │   ├── gds-aidr-readonly
 │   ├── gds-aidr-security-audit
 │   ├── gds-aidr-terraform      ← human + GitHub OIDC
 │   └── GitHub OIDC provider
-├── gds-aidr-staging (STAGING_ACCOUNT_ID)
+├── gds-aidr-staging
 │   ├── gds-aidr-readonly
 │   ├── gds-aidr-security-audit
 │   ├── gds-aidr-terraform      ← human + GitHub OIDC
 │   └── GitHub OIDC provider
-└── gds-aidr-production (PRODUCTION_ACCOUNT_ID)
+└── gds-aidr-production
     ├── gds-aidr-admin          ← admins only (named ARNs + MFA)
     ├── gds-aidr-readonly
     ├── gds-aidr-security-audit
@@ -49,8 +49,8 @@ gds-users (org root, GDS_USERS_ACCOUNT_ID)
 
 **Proposed layout (pending LM review — see `iam-access-strategy.md`)**
 ```
-gds-users (org root, GDS_USERS_ACCOUNT_ID)
-├── gds-aidr-development (DEVELOPMENT_ACCOUNT_ID)
+gds-users
+├── gds-aidr-development
 │   ├── gds-aidr-admin               ← admins only (named ARNs + MFA)
 │   ├── gds-aidr-admin-break-glass   ← emergency writes, 1hr session, SNS alert
 │   ├── gds-aidr-terraform           ← human + GitHub OIDC
@@ -63,7 +63,7 @@ gds-users (org root, GDS_USERS_ACCOUNT_ID)
 │   ├── gds-aidr-readonly            ← retained
 │   ├── gds-aidr-security-audit
 │   └── GitHub OIDC provider
-├── gds-aidr-staging (STAGING_ACCOUNT_ID)
+├── gds-aidr-staging
 │   ├── gds-aidr-admin               ← read-only by default; writes via break-glass only
 │   ├── gds-aidr-admin-break-glass
 │   ├── gds-aidr-terraform
@@ -75,7 +75,7 @@ gds-users (org root, GDS_USERS_ACCOUNT_ID)
 │   ├── gds-aidr-readonly
 │   ├── gds-aidr-security-audit
 │   └── GitHub OIDC provider
-└── gds-aidr-production (PRODUCTION_ACCOUNT_ID)
+└── gds-aidr-production
     ├── gds-aidr-admin               ← read-only by default; writes via break-glass only
     ├── gds-aidr-admin-break-glass
     ├── gds-aidr-terraform
@@ -103,7 +103,7 @@ User (gds-users account, GDS_USERS_ACCOUNT_ID)
   │     AWS checks: does gds-aidr-admin in production trust gds-users? Yes.
   │     Result: you get temporary credentials for production.
   │
-  ├─► production: gds-aidr-admin (PRODUCTION_ACCOUNT_ID)
+  ├─► production: gds-aidr-admin
   │     │
   │     │  2. Terraform starts. It reads provider aliases in main.tf.
   │     │     The development alias says: assume gds-aidr-terraform in dev.
@@ -111,11 +111,11 @@ User (gds-users account, GDS_USERS_ACCOUNT_ID)
   │     │     (Your session still carries the gds-users origin.)
   │     │     Result: Terraform can create/modify resources in dev.
   │     │
-  │     ├─► development: gds-aidr-terraform (DEVELOPMENT_ACCOUNT_ID)
+  │     ├─► development: gds-aidr-terraform
   │     │
   │     │  3. Same for staging.
   │     │
-  │     ├─► staging: gds-aidr-terraform (STAGING_ACCOUNT_ID)
+  │     ├─► staging: gds-aidr-terraform
   │     │
   │     │  4. Production resources use the default provider (no alias).
   │     │     No second hop needed — Terraform is already in production.
@@ -124,10 +124,10 @@ User (gds-users account, GDS_USERS_ACCOUNT_ID)
   │
   │  For manual debugging (not Terraform):
   │
-  ├─► development: gds-aidr-readonly (DEVELOPMENT_ACCOUNT_ID)
+  ├─► development: gds-aidr-readonly
   │     View resources, check CloudWatch, verify deployments.
   │
-  └─► staging: gds-aidr-readonly (STAGING_ACCOUNT_ID)
+  └─► staging: gds-aidr-readonly
         Same as above.
 ```
 
