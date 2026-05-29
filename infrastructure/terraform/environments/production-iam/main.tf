@@ -118,7 +118,8 @@ module "iam_development" {
 
   github_oidc_allowed_subjects = var.github_oidc_allowed_subjects
 
-  max_session_duration = var.max_session_duration
+  max_session_duration         = var.max_session_duration
+  terraform_cross_account_arns = ["arn:aws:iam::${var.production_account_id}:root"]
 
   tags = {
     Environment = "development"
@@ -151,7 +152,8 @@ module "iam_staging" {
 
   github_oidc_allowed_subjects = var.github_oidc_allowed_subjects
 
-  max_session_duration = var.max_session_duration
+  max_session_duration         = var.max_session_duration
+  terraform_cross_account_arns = ["arn:aws:iam::${var.production_account_id}:root"]
 
   tags = {
     Environment = "staging"
