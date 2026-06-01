@@ -249,6 +249,101 @@ Then run `terraform init`, `terraform plan`, or `terraform apply` as normal.
 The session lasts 4 hours (configured via `max_session_duration` on the IAM
 roles).
 
+#### Set up signed commits
+
+This repository requires verified (signed) commits on protected branches.
+The simplest way to sign commits is with SSH signing, which reuses the same
+SSH key you already use for GitHub authentication. No GPG setup needed.
+
+> Signed commits show a green **Verified** badge next to them on GitHub.
+> Unsigned commits show **Unverified** and may be blocked by branch
+> protection rules.
+
+##### One-off: configure signing for this repository
+
+Run these from the root of your local clone. This sets signing **locally**
+for this repository only, so personal projects on the same machine are not
+affected.
+
+```zsh
+# Tell Git to use SSH (not GPG) for signing
+git config --global gpg.format ssh
+
+# Point Git at your work SSH public key (adjust path/filename if different)
+git config --local user.signingkey ~/.ssh/id_ed25519_work.pub
+
+# Sign every commit automatically
+git config --local commit.gpgsign true
+
+# Your work email — must match a verified email on your GitHub work account
+git config --local user.email "<YOUR_WORK_EMAIL_OR_NOREPLY_EMAIL>"
+
+# Display name on commits
+git config --local user.name "<YOUR_NAME>"
+```
+
+> If you do not know your noreply email, find it on GitHub at
+> Settings → Emails → "Keep my email addresses private". It looks like
+> `12345678+username@users.noreply.github.com`.
+
+##### One-off: tell Git which keys to trust for local verification
+
+This lets `git log --show-signature` verify your own signed commits on
+your machine. It does not affect GitHub.
+
+```zsh
+mkdir -p ~/.config/git
+
+# Pair your work email with your work public key
+echo "$(git -C . config --local user.email) $(cat ~/.ssh/id_ed25519_work.pub)" > ~/.config/git/allowed_signers
+
+git config --global gpg.ssh.allowedSignersFile ~/.config/git/allowed_signers
+```
+
+##### One-off: register the key on GitHub as a signing key
+
+GitHub treats SSH keys for **authentication** and **signing** as separate,
+even if it is the same physical key. You need to add it again:
+
+```zsh
+# Copy your public key to clipboard (macOS)
+pbcopy < ~/.ssh/id_ed25519_work.pub
+```
+
+Then in GitHub (logged in as your **work** account):
+
+1. Settings → SSH and GPG keys → **New SSH key**
+2. Title: something like `MacBook — work signing`
+3. **Key type: Signing Key** (not Authentication Key — this is the easy
+   bit to miss)
+4. Paste the key and save
+
+##### Verify it works
+
+```zsh
+# Confirm the local config
+git config --local --list | grep -E "user\.|gpgsign|signingkey"
+
+# Make any commit, then check it is signed
+git log --show-signature -1
+```
+
+You should see `Good "git" signature for <your-work-email> with ED25519 key`.
+Push the commit and check GitHub shows a green **Verified** badge next to
+it.
+
+##### Notes
+
+- Config is **per-repository**, not per-branch. Once set up, every branch
+  you commit on in this repo is signed automatically.
+- Cloning this repository on a different machine requires running the setup
+  again on that machine. Git config does not sync via the repository.
+- Existing unsigned commits stay unsigned. Only new commits are signed.
+  No need to rewrite history.
+- If your work email is set globally to a personal email, make sure you set
+  `user.email` **locally** in this repo so commits attribute to your work
+  GitHub account.
+
 
 
 #### Repository structure (infrastructure)  
