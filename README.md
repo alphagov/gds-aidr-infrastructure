@@ -2,7 +2,7 @@
 # GDS Data Innovation and AI Readiness Team Cloud Infrastructure Repository
 
 <!--date_created: mon-18-may-2026-->
-<!--date_updated: fri-29-may-2026-->
+<!--date_updated: mon-01-june-2026-->
 
 
 **Index**
@@ -166,6 +166,13 @@ aws sts assume-role \
         "Arn": "ROLE_ARN+LOCAL_SESSION_NAME"
 ```
 
+### Cross-Account User Strategy
+
+<img src="docs/_static/aidr-architecture-blue-with-disclaimer.png" alt="Description" width="700" centre_align=True>
+
+
+You can also read a summarised version of this strategy **[here](docs/infrastructure/iam-cross-account-strategy.md)**
+
 ---
 
 ### For developers and platform admins
@@ -242,6 +249,8 @@ Then run `terraform init`, `terraform plan`, or `terraform apply` as normal.
 The session lasts 4 hours (configured via `max_session_duration` on the IAM
 roles).
 
+
+
 #### Repository structure (infrastructure)  
 
 ```
@@ -267,6 +276,5 @@ For detailed architecture documentation, see[`docs/infrastructure/iam-cross-acco
 
 ---
 
----
 
 <!--END-->
