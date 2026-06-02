@@ -19,3 +19,4 @@ infrastructure/terraform/bootstrap/README.pdf
 *.tfstate
 *.tfstate.backup
 
+tree_full.txt
