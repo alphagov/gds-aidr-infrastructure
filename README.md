@@ -2,7 +2,7 @@
 # GDS Data Innovation and AI Readiness Team Cloud Infrastructure Repository
 
 <!--date_created: mon-18-may-2026-->
-<!--date_updated: mon-01-june-2026-->
+<!--date_updated: tues-02-june-2026-->
 
 
 **Index**
@@ -19,10 +19,12 @@ This is a **public repository**
 *[(back)](#gds-data-innovation-and-ai-readiness-team-cloud-infrastructure-repository)*
 
 ```zsh
-.gds-aidr-platform
+./gds-aidr-infrastructure
+├── .DS_Store
 ├── .editorconfig
 ├── .eslintrc
 ├── .github
+│   ├── .DS_Store
 │   ├── CODEOWNERS
 │   ├── ISSUE_TEMPLATE
 │   │   ├── bug_report.md
@@ -33,13 +35,31 @@ This is a **public repository**
 ├── CONTRIBUTING.md
 ├── LICENSE
 ├── README.md
+├── docs
+│   ├── .DS_Store
+│   ├── _static
+│   │   └── aidr-architecture-blue-with-disclaimer.png
+│   └── infrastructure
+│       ├── .DS_Store
+│       └── iam-cross-account-strategy.md
 ├── infrastructure
+│   ├── .DS_Store
 │   └── terraform
+│       ├── .DS_Store
 │       ├── bootstrap
+│       │   ├── README.md
+│       │   ├── README.pdf
 │       │   ├── trust-policy-development.json
 │       │   └── trust-policy-staging.json
 │       ├── environments
+│       │   ├── .DS_Store
 │       │   └── production-iam
+│       │       ├── .DS_Store
+│       │       ├── .terraform
+│       │       │   ├── .DS_Store
+│       │       │   ├── modules
+│       │       │   │   └── modules.json
+│       │       │   └── terraform.tfstate
 │       │       ├── .terraform.lock.hcl
 │       │       ├── main.tf
 │       │       ├── outputs.tf
@@ -47,7 +67,9 @@ This is a **public repository**
 │       │       ├── terraform.tfvars.example
 │       │       └── variables.tf
 │       └── modules
+│           ├── .DS_Store
 │           └── iam-centralised
+│               ├── .DS_Store
 │               ├── main.tf
 │               ├── outputs.tf
 │               └── variables.tf
