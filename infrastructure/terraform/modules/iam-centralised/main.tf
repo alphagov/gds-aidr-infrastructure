@@ -33,7 +33,7 @@ resource "aws_iam_openid_connect_provider" "github" {
 # --------------------------------------------------------------------------
 # Full AdministratorAccess. Only created if create_admin_role = true.
 # Trust is restricted to specific named IAM user ARNs (not the broad account
-# root), so only admins. MFA is always required.
+# root), so admins can assume it. MFA is always required.
 
 resource "aws_iam_role" "admin" {
   count = var.create_admin_role ? 1 : 0
@@ -74,8 +74,8 @@ resource "aws_iam_role_policy_attachment" "admin" {
 # Readonly Role
 # --------------------------------------------------------------------------
 # AWS-managed ReadOnlyAccess. For viewing resources, debugging, verifying
-# deployments in CloudWatch, etc. Developer roles would use this for
-# staging and production. MFA required.
+# deployments in CloudWatch, etc. Develop[ers would use this for
+# Staging and Production. MFA required.
 
 resource "aws_iam_role" "readonly" {
   count = var.create_readonly_role ? 1 : 0
@@ -235,4 +235,95 @@ resource "aws_iam_role_policy_attachment" "terraform" {
 
   role       = aws_iam_role.terraform[0].name
   policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
+}
+
+# --------------------------------------------------------------------------
+# Data User Role
+# --------------------------------------------------------------------------
+# For data scientists, data engineers, analysts, and anyone who needs
+# hands-on access to AWS data services.
+#
+# Permissions vary by environment:
+#   - Development: PowerUserAccess (full minus IAM writes), heavy compute
+#     services allowed (Glue, SageMaker, Bedrock, EMR, Redshift).
+#   - Staging/Production: ReadOnlyAccess only, heavy compute services
+#     explicitly denied as belt-and-braces.
+#
+# Controlled by two variables:
+#   - data_user_full_access: true = PowerUserAccess, false = ReadOnlyAccess
+#   - data_user_allow_heavy_compute: true = no deny, false = deny policy attached
+#
+# Trust: gds-users account root with MFA. Anyone in gds-users can assume
+# this role without being individually named.
+
+resource "aws_iam_role" "data_user" {
+  count = var.create_data_user_role ? 1 : 0
+
+  name = "${var.role_prefix}-data-user"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          AWS = var.trusted_account_arns
+        }
+        Action = "sts:AssumeRole"
+        Condition = {
+          Bool = {
+            "aws:MultiFactorAuthPresent" = "true"
+          }
+        }
+      }
+    ]
+  })
+
+  max_session_duration = var.max_session_duration
+
+  tags = var.tags
+}
+
+# Attach PowerUserAccess in development (full minus IAM writes)
+resource "aws_iam_role_policy_attachment" "data_user_power" {
+  count = var.create_data_user_role && var.data_user_full_access ? 1 : 0
+
+  role       = aws_iam_role.data_user[0].name
+  policy_arn = "arn:aws:iam::aws:policy/PowerUserAccess"
+}
+
+# Attach ReadOnlyAccess in staging and production
+resource "aws_iam_role_policy_attachment" "data_user_readonly" {
+  count = var.create_data_user_role && !var.data_user_full_access ? 1 : 0
+
+  role       = aws_iam_role.data_user[0].name
+  policy_arn = "arn:aws:iam::aws:policy/ReadOnlyAccess"
+}
+
+# Deny heavy compute services in staging and production.
+# Belt-and-braces: ReadOnlyAccess already blocks writes, but this makes
+# the intent explicit and protects against future permission changes.
+resource "aws_iam_role_policy" "data_user_deny_heavy_compute" {
+  count = var.create_data_user_role && !var.data_user_allow_heavy_compute ? 1 : 0
+
+  name = "${var.role_prefix}-deny-heavy-compute"
+  role = aws_iam_role.data_user[0].name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "DenyHeavyComputeServices"
+        Effect = "Deny"
+        Action = [
+          "glue:*",
+          "sagemaker:*",
+          "bedrock:*",
+          "elasticmapreduce:*",
+          "redshift:*"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
 }
