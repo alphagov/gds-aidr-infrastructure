@@ -2,13 +2,14 @@
 # GDS Data Innovation and AI Readiness Team Cloud Infrastructure Repository
 
 <!--date_created: mon-18-may-2026-->
-<!--date_updated: tues-02-june-2026-->
+<!--date_updated: weds-03-june-2026-->
 
 
 **Index**
  - [Repository Structure](#repository-structure)
  - [Get access to AIDR platform](#get-access-to-the-aidr-platform)
-    *  [For developers and platform admins](#for-developers-and-platform-admins)
+    * [For developers and platform admins](#for-developers-and-platform-admins)
+    * [Console Access - All users](#console-access)
 
 > **Note:** to avoid confusion we will not use short forms of any of the environment names. Development and Production will be referred to as that in any code, variables, policies and documents, not *Dev* or *Prod*
 
@@ -24,55 +25,55 @@ This is a **public repository**
 ├── .editorconfig
 ├── .eslintrc
 ├── .github
-│   ├── .DS_Store
-│   ├── CODEOWNERS
-│   ├── ISSUE_TEMPLATE
-│   │   ├── bug_report.md
-│   │   └── feature_request.md
-│   └── workflows
+│   ├── .DS_Store
+│   ├── CODEOWNERS
+│   ├── ISSUE_TEMPLATE
+│   │   ├── bug_report.md
+│   │   └── feature_request.md
+│   └── workflows
 ├── .gitignore
 ├── .prettierrc
 ├── CONTRIBUTING.md
 ├── LICENSE
 ├── README.md
 ├── docs
-│   ├── .DS_Store
-│   ├── _static
-│   │   └── aidr-architecture-blue-with-disclaimer.png
-│   └── infrastructure
-│       ├── .DS_Store
-│       └── iam-cross-account-strategy.md
+│   ├── .DS_Store
+│   ├── _static
+│   │   └── aidr-architecture-blue-with-disclaimer.png
+│   └── infrastructure
+│       ├── .DS_Store
+│       └── iam-cross-account-strategy.md
 ├── infrastructure
-│   ├── .DS_Store
-│   └── terraform
-│       ├── .DS_Store
-│       ├── bootstrap
-│       │   ├── README.md
-│       │   ├── README.pdf
-│       │   ├── trust-policy-development.json
-│       │   └── trust-policy-staging.json
-│       ├── environments
-│       │   ├── .DS_Store
-│       │   └── production-iam
-│       │       ├── .DS_Store
-│       │       ├── .terraform
-│       │       │   ├── .DS_Store
-│       │       │   ├── modules
-│       │       │   │   └── modules.json
-│       │       │   └── terraform.tfstate
-│       │       ├── .terraform.lock.hcl
-│       │       ├── main.tf
-│       │       ├── outputs.tf
-│       │       ├── terraform.tfvars
-│       │       ├── terraform.tfvars.example
-│       │       └── variables.tf
-│       └── modules
-│           ├── .DS_Store
-│           └── iam-centralised
-│               ├── .DS_Store
-│               ├── main.tf
-│               ├── outputs.tf
-│               └── variables.tf
+│   ├── .DS_Store
+│   └── terraform
+│       ├── .DS_Store
+│       ├── bootstrap
+│       │   ├── README.md
+│       │   ├── README.pdf
+│       │   ├── trust-policy-development.json
+│       │   └── trust-policy-staging.json
+│       ├── environments
+│       │   ├── .DS_Store
+│       │   └── production-iam
+│       │       ├── .DS_Store
+│       │       ├── .terraform
+│       │       │   ├── .DS_Store
+│       │       │   ├── modules
+│       │       │   │   └── modules.json
+│       │       │   └── terraform.tfstate
+│       │       ├── .terraform.lock.hcl
+│       │       ├── main.tf
+│       │       ├── outputs.tf
+│       │       ├── terraform.tfvars
+│       │       ├── terraform.tfvars.example
+│       │       └── variables.tf
+│       └── modules
+│           ├── .DS_Store
+│           └── iam-centralised
+│               ├── .DS_Store
+│               ├── main.tf
+│               ├── outputs.tf
+│               └── variables.tf
 ├── package.json
 └── tree.txt
 ```
@@ -190,10 +191,66 @@ aws sts assume-role \
 
 ### Cross-Account User Strategy
 
-<img src="docs/_static/aidr-architecture-blue-with-disclaimer.png" alt="Description" width="700" centre_align=True>
+<!--<img src="docs/_static/aidr-architecture-blue-with-disclaimer.png" alt="Description" width="700" centre_align=True>-->
+
+![alt text](docs/_static/aidr-architecture-blue-with-disclaimer.png)
 
 
 You can also read a summarised version of this strategy **[here](docs/infrastructure/iam-cross-account-strategy.md)**
+
+#### How users access the AIDR platform (proposed)
+
+> **Note:** The role taxonomy below is **proposed**.
+> The only roles currently deployed are admin, terraform, readonly and security-audit.
+
+#### Console access (proposed)
+
+All users access the AIDR accounts by assuming a role from their `gds-users` identity:
+
+1. Log into the AWS console as your `gds-users` account (with MFA)
+2. Top-right corner → **Switch Role**
+3. Enter the account ID and role name (e.g. `gds-aidr-data-scientist`)
+4. You are now in the target account with that role's permissions
+
+No Terraform changes are needed to onboard someone to a role that trusts the 
+`gds-users` account root. They just need a `gds-users` account (managed by 
+GDS Engineering Enablement) and to know the account ID and role name.
+
+The only exception is the **admin** role, which trusts specific named IAM 
+user ARNs rather than the account root. To grant someone admin access, their 
+ARN must be added to `admin_trusted_arns` in `terraform.tfvars` and applied 
+via Terraform.
+
+#### Two types of trust
+
+| Trust type | Roles | Who can assume | To add someone |
+|---|---|---|---|
+| Account root (`gds-users:root`) | data-scientist, data-engineer, developer, analyst, explorer, readonly, security-audit | Anyone in gds-users with MFA | Nothing — they already can |
+| Named ARNs | admin | Only the specific people listed | Add their ARN to `admin_trusted_arns`, run `terraform apply` |
+
+#### Checking your IAM username
+
+Your IAM username in `gds-users` includes your email domain. To check yours:
+
+```zsh
+aws sts get-caller-identity --profile gds-users
+```
+
+The `Arn` field shows the exact format, e.g. `arn:aws:iam::ACCOUNT_ID:user/firstname.surname@digital.cabinet-office.gov.uk`. This must match exactly when adding someone to `admin_trusted_arns`.
+
+#### Why shared roles, not per-person roles
+
+Some teams create individual roles per person (e.g. `john.smith-admin`, 
+`jane.doe-readonly`). This works but creates role sprawl — 10 people across 
+3 environments and 2 role types means 60 roles to manage. Changing a 
+permission means updating multiple roles.
+
+The AIDR platform uses shared roles with trust scoping instead. One 
+`gds-aidr-data-scientist` role exists per account, and who can assume it is 
+controlled by the trust policy. CloudTrail still records exactly who assumed 
+the role (the session includes their `gds-users` identity). This is the 
+pattern used by `alphagov/govuk-infrastructure` and 
+`alphagov/cyber-security-shared-terraform-modules`.
 
 ---
 
