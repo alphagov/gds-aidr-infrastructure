@@ -27,7 +27,7 @@ terraform {
 }
 
 # --------------------------------------------------------------------------
-# Provider: production (default — no alias needed)
+# Provider: Production (default — no alias needed)
 # --------------------------------------------------------------------------
 # This is the account you are already assumed into when you run terraform.
 
@@ -93,7 +93,8 @@ provider "aws" {
 # --------------------------------------------------------------------------
 # Module: IAM for Development account
 # --------------------------------------------------------------------------
-# Admin role enabled — this is the `sandbox` account.
+# Admin role enabled — this is the sandbox account. Data-user gets full
+# access (PowerUserAccess) with heavy compute services allowed.
 
 module "iam_development" {
   source = "../../modules/iam-centralised"
@@ -112,10 +113,15 @@ module "iam_development" {
   create_security_audit_role = true
   create_terraform_role      = true
 
+  terraform_cross_account_arns = ["arn:aws:iam::${var.production_account_id}:root"]
+
+  create_data_user_role         = true
+  data_user_full_access         = true
+  data_user_allow_heavy_compute = true
+
   github_oidc_allowed_subjects = var.github_oidc_allowed_subjects
 
-  max_session_duration         = var.max_session_duration
-  terraform_cross_account_arns = ["arn:aws:iam::${var.production_account_id}:root"]
+  max_session_duration = var.max_session_duration
 
   tags = {
     Environment = "development"
@@ -127,7 +133,7 @@ module "iam_development" {
 # Module: IAM for Staging account
 # --------------------------------------------------------------------------
 # No admin role — staging is a pre-production mirror. Changes go through
-# Terraform only. Readonly for humans to verify deployments.
+# Terraform only. Data-user gets read-only access, heavy compute denied.
 
 module "iam_staging" {
   source = "../../modules/iam-centralised"
@@ -146,10 +152,15 @@ module "iam_staging" {
   create_security_audit_role = true
   create_terraform_role      = true
 
+  terraform_cross_account_arns = ["arn:aws:iam::${var.production_account_id}:root"]
+
+  create_data_user_role         = true
+  data_user_full_access         = false
+  data_user_allow_heavy_compute = false
+
   github_oidc_allowed_subjects = var.github_oidc_allowed_subjects
 
-  max_session_duration         = var.max_session_duration
-  terraform_cross_account_arns = ["arn:aws:iam::${var.production_account_id}:root"]
+  max_session_duration = var.max_session_duration
 
   tags = {
     Environment = "staging"
@@ -161,12 +172,12 @@ module "iam_staging" {
 # Module: IAM for Production account
 # --------------------------------------------------------------------------
 # Admin role enabled but restricted to named users only.
-# This is the most sensitive account.
+# Data-user gets read-only access, heavy compute denied.
 
 module "iam_production" {
   source = "../../modules/iam-centralised"
 
-  # No provider alias — uses the default ([Production) provider.
+  # No provider alias — uses the default (production) provider.
 
   role_prefix          = var.role_prefix
   trusted_account_arns = [var.gds_users_account_arn]
@@ -177,6 +188,10 @@ module "iam_production" {
   create_readonly_role       = true
   create_security_audit_role = true
   create_terraform_role      = true
+
+  create_data_user_role         = true
+  data_user_full_access         = false
+  data_user_allow_heavy_compute = false
 
   github_oidc_allowed_subjects = var.github_oidc_allowed_subjects
 
