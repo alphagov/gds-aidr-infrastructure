@@ -24,3 +24,8 @@ output "terraform_role_arn" {
   description = "ARN of the terraform role, if created."
   value       = var.create_terraform_role ? aws_iam_role.terraform[0].arn : null
 }
+
+output "data_user_role_arn" {
+  description = "ARN of the data-user role, if created."
+  value       = var.create_data_user_role ? aws_iam_role.data_user[0].arn : null
+}
