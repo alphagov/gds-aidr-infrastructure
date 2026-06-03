@@ -24,6 +24,11 @@ output "development_terraform_role_arn" {
   value       = module.iam_development.terraform_role_arn
 }
 
+output "development_data_user_role_arn" {
+  description = "Data-user role ARN in the development account."
+  value       = module.iam_development.data_user_role_arn
+}
+
 # --------------------------------------------------------------------------
 # Staging account
 # --------------------------------------------------------------------------
@@ -41,6 +46,11 @@ output "staging_readonly_role_arn" {
 output "staging_terraform_role_arn" {
   description = "Terraform role ARN in the staging account."
   value       = module.iam_staging.terraform_role_arn
+}
+
+output "staging_data_user_role_arn" {
+  description = "Data-user role ARN in the staging account."
+  value       = module.iam_staging.data_user_role_arn
 }
 
 # --------------------------------------------------------------------------
@@ -65,4 +75,9 @@ output "production_readonly_role_arn" {
 output "production_terraform_role_arn" {
   description = "Terraform role ARN in the production account."
   value       = module.iam_production.terraform_role_arn
+}
+
+output "production_data_user_role_arn" {
+  description = "Data-user role ARN in the production account."
+  value       = module.iam_production.data_user_role_arn
 }
