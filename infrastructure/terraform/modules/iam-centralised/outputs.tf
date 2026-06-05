@@ -25,7 +25,7 @@ output "terraform_role_arn" {
   value       = var.create_terraform_role ? aws_iam_role.terraform[0].arn : null
 }
 
-output "data_user_role_arn" {
-  description = "ARN of the data-user role, if created."
-  value       = var.create_data_user_role ? aws_iam_role.data_user[0].arn : null
+output "team_role_arns" {
+  description = "Map of team role names to their ARNs."
+  value       = { for k, v in aws_iam_role.team : k => v.arn }
 }
