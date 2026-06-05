@@ -26,3 +26,18 @@ github_oidc_allowed_subjects = [
 ]
 
 max_session_duration = 14400
+
+
+# --------------------------------------------------------------------------
+# terraform.tfvars.example
+# note: ask admins for this information, unlikely to need if you have been 
+# privately shared the full vars file
+# --------------------------------------------------------------------------
+
+# budget_development_usd = ""
+# budget_staging_usd     = ""
+# budget_production_usd  = ""
+#
+# budget_alert_emails = [
+#   "your.name@dsit.gov.uk"
+# ]
