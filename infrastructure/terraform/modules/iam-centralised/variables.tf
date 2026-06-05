@@ -53,22 +53,29 @@ variable "create_terraform_role" {
   default     = true
 }
 
-variable "create_data_user_role" {
-  description = "Whether to create the data-user role in this account."
-  type        = bool
-  default     = false
-}
+variable "team_roles" {
+  description = <<-EOT
+    Map of team roles to create. Each entry creates a role named
+    {role_prefix}-{key} with configurable permissions.
 
-variable "data_user_full_access" {
-  description = "When true, data-user gets PowerUserAccess (full minus IAM writes). When false, gets ReadOnlyAccess. Set true for development, false for staging and production."
-  type        = bool
-  default     = false
-}
+    full_access:         true = PowerUserAccess (full minus IAM writes)
+                         false = ReadOnlyAccess
+    allow_heavy_compute: true = no deny on Glue, SageMaker, Bedrock, EMR, Redshift
+                         false = explicit deny on these services
 
-variable "data_user_allow_heavy_compute" {
-  description = "When true, data-user can use heavy compute services (Glue, SageMaker, Bedrock, EMR, Redshift). When false, these services are explicitly denied. Set true for development, false for staging and production."
-  type        = bool
-  default     = false
+    Example:
+      team_roles = {
+        data-scientist = { full_access = true,  allow_heavy_compute = true }
+        developer      = { full_access = true,  allow_heavy_compute = false }
+        analyst        = { full_access = false, allow_heavy_compute = false }
+        explorer       = { full_access = false, allow_heavy_compute = false }
+      }
+  EOT
+  type = map(object({
+    full_access         = bool
+    allow_heavy_compute = bool
+  }))
+  default = {}
 }
 
 variable "max_session_duration" {
