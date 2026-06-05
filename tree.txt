@@ -1,9 +1,7 @@
-./gds-aidr-infrastructure
-├── .DS_Store
+.
 ├── .editorconfig
 ├── .eslintrc
 ├── .github
-│   ├── .DS_Store
 │   ├── CODEOWNERS
 │   ├── ISSUE_TEMPLATE
 │   │   ├── bug_report.md
@@ -15,27 +13,15 @@
 ├── LICENSE
 ├── README.md
 ├── docs
-│   ├── .DS_Store
 │   ├── _static
 │   │   └── aidr-architecture-blue-with-disclaimer.png
 │   └── infrastructure
-│       ├── .DS_Store
 │       └── iam-cross-account-strategy.md
 ├── infrastructure
-│   ├── .DS_Store
 │   └── terraform
-│       ├── .DS_Store
-│       ├── bootstrap
-│       │   ├── README.md
-│       │   ├── README.pdf
-│       │   ├── trust-policy-development.json
-│       │   └── trust-policy-staging.json
 │       ├── environments
-│       │   ├── .DS_Store
 │       │   └── production-iam
-│       │       ├── .DS_Store
 │       │       ├── .terraform
-│       │       │   ├── .DS_Store
 │       │       │   ├── modules
 │       │       │   │   └── modules.json
 │       │       │   └── terraform.tfstate
@@ -44,15 +30,19 @@
 │       │       ├── outputs.tf
 │       │       ├── terraform.tfvars
 │       │       ├── terraform.tfvars.example
+│       │       ├── tree.txt
 │       │       └── variables.tf
 │       └── modules
-│           ├── .DS_Store
+│           ├── budget-alerts
+│           │   ├── main.tf
+│           │   ├── outputs.tf
+│           │   └── variables.tf
 │           └── iam-centralised
-│               ├── .DS_Store
 │               ├── main.tf
 │               ├── outputs.tf
 │               └── variables.tf
 ├── package.json
-└── tree.txt
+├── tree.txt
+└── tree_full.txt
 
-16 directories, 41 files
+16 directories, 30 files
