@@ -1,0 +1,20 @@
+.
+├── .terraform
+│   ├── modules
+│   │   └── modules.json
+│   ├── providers
+│   │   └── registry.terraform.io
+│   │       └── hashicorp
+│   │           └── aws
+│   │               └── 5.100.0
+│   │                   └── darwin_arm64 -> /Users/victoriamckinney/.terraform.d/plugin-cache/registry.terraform.io/hashicorp/aws/5.100.0/darwin_arm64
+│   └── terraform.tfstate
+├── .terraform.lock.hcl
+├── main.tf
+├── outputs.tf
+├── terraform.tfvars
+├── terraform.tfvars.example
+├── tree.txt
+└── variables.tf
+
+9 directories, 9 files

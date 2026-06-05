@@ -2,7 +2,7 @@
 # GDS Data Innovation and AI Readiness Team Cloud Infrastructure Repository
 
 <!--date_created: mon-18-may-2026-->
-<!--date_updated: weds-03-june-2026-->
+<!--date_updated: fri-05-june-2026-->
 
 
 **Index**
@@ -57,14 +57,10 @@ This is a **public repository**
 │       │   └── production-iam
 │       │       ├── .DS_Store
 │       │       ├── .terraform
-│       │       │   ├── .DS_Store
-│       │       │   ├── modules
-│       │       │   │   └── modules.json
-│       │       │   └── terraform.tfstate
 │       │       ├── .terraform.lock.hcl
 │       │       ├── main.tf
 │       │       ├── outputs.tf
-│       │       ├── terraform.tfvars
+│       │       ├── terraform.tfvars # Admins will be provided
 │       │       ├── terraform.tfvars.example
 │       │       └── variables.tf
 │       └── modules
@@ -90,6 +86,42 @@ This is a **public repository**
 * You will not have any rights to create iam roles on any account.
 * Only `eu-west-2` region is permitted **by default**, without exception for anyone on the platform, including developer/engineer/platform admins. 
 
+### Role mappings per environment
+
+> IAM roles are maintained **centrally**, ie one place 
+
+```
+gds-users
+├── GDS AIDR Development Acct (gds-aidr-development)
+│   ├── gds-aidr-admin               ← admins only (named ARNs + MFA)
+│   ├── gds-aidr-terraform           ← human + GitHub OIDC
+│   ├── gds-aidr-data-scientist      ← PowerUserAccess, heavy compute allowed
+│   ├── gds-aidr-developer           ← PowerUserAccess, heavy compute denied
+│   ├── gds-aidr-analyst             ← ReadOnlyAccess, heavy compute denied
+│   ├── gds-aidr-explorer            ← ReadOnlyAccess, heavy compute denied
+│   ├── gds-aidr-readonly
+│   ├── gds-aidr-security-audit
+│   └── GitHub OIDC provider
+├── GDS AIDR Staging Acct (gds-aidr-staging)
+│   ├── gds-aidr-terraform
+│   ├── gds-aidr-data-scientist      ← ReadOnlyAccess, heavy compute denied
+│   ├── gds-aidr-developer           ← ReadOnlyAccess, heavy compute denied
+│   ├── gds-aidr-analyst             ← ReadOnlyAccess, heavy compute denied
+│   ├── gds-aidr-explorer            ← ReadOnlyAccess, heavy compute denied
+│   ├── gds-aidr-readonly
+│   ├── gds-aidr-security-audit
+│   └── GitHub OIDC provider
+└── GDS AIDR Production Acct (gds-aidr-production) 
+    ├── gds-aidr-admin               ← admins only (named ARNs + MFA)
+    ├── gds-aidr-terraform
+    ├── gds-aidr-data-scientist      ← ReadOnlyAccess, heavy compute denied
+    ├── gds-aidr-developer           ← ReadOnlyAccess, heavy compute denied
+    ├── gds-aidr-analyst             ← ReadOnlyAccess, heavy compute denied
+    ├── gds-aidr-explorer            ← ReadOnlyAccess, heavy compute denied
+    ├── gds-aidr-readonly
+    ├── gds-aidr-security-audit
+    └── GitHub OIDC provider
+```
 ### Access the AIDR platform
 
 0. If you are not currently a user on `gds-users` you will not be able to access the AIDR accounts
@@ -198,12 +230,9 @@ aws sts assume-role \
 
 You can also read a summarised version of this strategy **[here](docs/infrastructure/iam-cross-account-strategy.md)**
 
-#### How users access the AIDR platform (proposed)
+#### How users access the AIDR platform
 
-> **Note:** The role taxonomy below is **proposed**.
-> The only roles currently deployed are admin, terraform, readonly and security-audit.
-
-#### Console access (proposed)
+##### Console access
 
 All users access the AIDR accounts by assuming a role from their `gds-users` identity:
 
@@ -225,7 +254,7 @@ via Terraform.
 
 | Trust type | Roles | Who can assume | To add someone |
 |---|---|---|---|
-| Account root (`gds-users:root`) | data-scientist, data-engineer, developer, analyst, explorer, readonly, security-audit | Anyone in gds-users with MFA | Nothing — they already can |
+| Account root (`gds-users:root`) | data-scientist, developer, analyst, explorer, readonly, security-audit | Anyone in gds-users with MFA | Nothing — they already can |
 | Named ARNs | admin | Only the specific people listed | Add their ARN to `admin_trusted_arns`, run `terraform apply` |
 
 #### Checking your IAM username
@@ -236,7 +265,7 @@ Your IAM username in `gds-users` includes your email domain. To check yours:
 aws sts get-caller-identity --profile gds-users
 ```
 
-The `Arn` field shows the exact format, e.g. `arn:aws:iam::ACCOUNT_ID:user/firstname.surname@digital.cabinet-office.gov.uk`. This must match exactly when adding someone to `admin_trusted_arns`.
+The `Arn` field shows the exact format, e.g. `arn:aws:iam::ACCOUNT_ID:user/firstname.surname@digital.cabinet-office.gov.uk` or `arn:aws:iam::ACCOUNT_ID:user/firstname.surname@dsit.gov.uk` This must match exactly when adding someone to `admin_trusted_arns`.
 
 #### Why shared roles, not per-person roles
 
@@ -424,7 +453,6 @@ it.
   GitHub account.
 
 
-
 #### Repository structure (infrastructure)  
 
 ```
@@ -439,6 +467,11 @@ infrastructure/terraform/
 │       ├── outputs.tf
 │       └── terraform.tfvars.example
 └── modules/
+    └── budget-alerts/            # configures the budget alerts sent to admins
+        ├── main.tf
+        ├── variables.tf
+        ├── outputs.tf
+        └── README.md
     └── iam-centralised/            # reusable module for OIDC + IAM roles
         ├── main.tf
         ├── variables.tf

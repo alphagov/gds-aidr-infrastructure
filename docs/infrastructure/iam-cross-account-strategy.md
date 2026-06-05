@@ -1,7 +1,7 @@
 # IAM Cross-Account Strategy (Centralised)
 
 <!--date_added:thurs-28-may-2026-->
-<!--date_updated:fri-29-may-2026-->
+<!--date_updated:fri-05-june-2026-->
 
 **date_updated:** fri-29-may-2026
 
@@ -25,70 +25,42 @@ This runs in the production account and uses provider aliases to assume into dev
 - **Single PR**: a change to any role goes through one pull request with one review.
 - **Auditability**: `terraform state list` shows every role in the organisation.
 
-**Current layout (deployed)**
-```
-gds-users
-├── gds-aidr-development
-│   ├── gds-aidr-admin          ← admins only (named ARNs + MFA)
-│   ├── gds-aidr-readonly
-│   ├── gds-aidr-security-audit
-│   ├── gds-aidr-terraform      ← human + GitHub OIDC
-│   └── GitHub OIDC provider
-├── gds-aidr-staging
-│   ├── gds-aidr-readonly
-│   ├── gds-aidr-security-audit
-│   ├── gds-aidr-terraform      ← human + GitHub OIDC
-│   └── GitHub OIDC provider
-└── gds-aidr-production
-    ├── gds-aidr-admin          ← admins only (named ARNs + MFA)
-    ├── gds-aidr-readonly
-    ├── gds-aidr-security-audit
-    ├── gds-aidr-terraform      ← human + GitHub OIDC
-    └── GitHub OIDC provider
-```
+### Role mappings per environment
 
-**Proposed layout**
+> IAM roles are maintained **centrally**, ie one place 
+
 ```
 gds-users
-├── gds-aidr-development
+├── GDS AIDR Development Acct (gds-aidr-development)
 │   ├── gds-aidr-admin               ← admins only (named ARNs + MFA)
-│   ├── gds-aidr-admin-break-glass   ← emergency writes, 1hr session, SNS alert
 │   ├── gds-aidr-terraform           ← human + GitHub OIDC
-│   ├── gds-aidr-data-scientist      ← full development  access excl. IAM writes
-│   ├── gds-aidr-data-engineer       ← same as data-scientist + CI/CD trigger
-│   ├── gds-aidr-developer           ← broad development  access excl. IAM writes
-│   ├── gds-aidr-analyst             ← Athena, S3 scoped, Glue catalog, QuickSight
-│   ├── gds-aidr-explorer            ← console read-only
-│   ├── gds-aidr-external-xgov       ← resource-scoped, S3 prefix + Athena workgroup
-│   ├── gds-aidr-readonly            ← retained
-│   ├── gds-aidr-security-audit
-│   └── GitHub OIDC provider
-├── gds-aidr-staging
-│   ├── gds-aidr-admin               ← read-only by default; writes via break-glass only
-│   ├── gds-aidr-admin-break-glass
-│   ├── gds-aidr-terraform
-│   ├── gds-aidr-data-scientist      ← read-only
-│   ├── gds-aidr-data-engineer       ← read + CI/CD trigger
-│   ├── gds-aidr-developer           ← read + deploy via OIDC
-│   ├── gds-aidr-analyst             ← read-only
-│   ├── gds-aidr-explorer            ← read-only
+│   ├── gds-aidr-data-scientist      ← PowerUserAccess, heavy compute allowed
+│   ├── gds-aidr-developer           ← PowerUserAccess, heavy compute denied
+│   ├── gds-aidr-analyst             ← ReadOnlyAccess, heavy compute denied
+│   ├── gds-aidr-explorer            ← ReadOnlyAccess, heavy compute denied
 │   ├── gds-aidr-readonly
 │   ├── gds-aidr-security-audit
 │   └── GitHub OIDC provider
-└── gds-aidr-production
-    ├── gds-aidr-admin               ← read-only by default; writes via break-glass only
-    ├── gds-aidr-admin-break-glass
+├── GDS AIDR Staging Acct (gds-aidr-staging)
+│   ├── gds-aidr-terraform
+│   ├── gds-aidr-data-scientist      ← ReadOnlyAccess, heavy compute denied
+│   ├── gds-aidr-developer           ← ReadOnlyAccess, heavy compute denied
+│   ├── gds-aidr-analyst             ← ReadOnlyAccess, heavy compute denied
+│   ├── gds-aidr-explorer            ← ReadOnlyAccess, heavy compute denied
+│   ├── gds-aidr-readonly
+│   ├── gds-aidr-security-audit
+│   └── GitHub OIDC provider
+└── GDS AIDR Production Acct (gds-aidr-production) 
+    ├── gds-aidr-admin               ← admins only (named ARNs + MFA)
     ├── gds-aidr-terraform
-    ├── gds-aidr-data-scientist      ← read-only + cross-account data lake read
-    ├── gds-aidr-data-engineer       ← read + CI/CD trigger
-    ├── gds-aidr-developer           ← read + deploy via OIDC
-    ├── gds-aidr-analyst             ← read-only
-    ├── gds-aidr-explorer            ← read-only
+    ├── gds-aidr-data-scientist      ← ReadOnlyAccess, heavy compute denied
+    ├── gds-aidr-developer           ← ReadOnlyAccess, heavy compute denied
+    ├── gds-aidr-analyst             ← ReadOnlyAccess, heavy compute denied
+    ├── gds-aidr-explorer            ← ReadOnlyAccess, heavy compute denied
     ├── gds-aidr-readonly
     ├── gds-aidr-security-audit
     └── GitHub OIDC provider
 ```
-
 ## How the cross-account assumption works
 
 ### The trust chain
