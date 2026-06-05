@@ -1,7 +1,7 @@
 # iam-centralised/main.tf
 #
 # Creates the GitHub OIDC provider and IAM roles in a single target account.
-# Called once per account (development, staging, production) from the
+# Called once per account (Development, Staging, Production) from the
 # production-iam environment using provider aliases.
 
 terraform {
@@ -33,7 +33,7 @@ resource "aws_iam_openid_connect_provider" "github" {
 # --------------------------------------------------------------------------
 # Full AdministratorAccess. Only created if create_admin_role = true.
 # Trust is restricted to specific named IAM user ARNs (not the broad account
-# root), so admins can assume it. MFA is always required.
+# root), so admins assume it. MFA is always required.
 
 resource "aws_iam_role" "admin" {
   count = var.create_admin_role ? 1 : 0
@@ -74,8 +74,7 @@ resource "aws_iam_role_policy_attachment" "admin" {
 # Readonly Role
 # --------------------------------------------------------------------------
 # AWS-managed ReadOnlyAccess. For viewing resources, debugging, verifying
-# deployments in CloudWatch, etc. Develop[ers would use this for
-# Staging and Production. MFA required.
+# deployments in CloudWatch, etc. MFA required.
 
 resource "aws_iam_role" "readonly" {
   count = var.create_readonly_role ? 1 : 0
@@ -163,7 +162,8 @@ resource "aws_iam_role_policy_attachment" "security_audit" {
 # repos and branches.
 #
 # When terraform_cross_account_arns is non-empty, a third trust statement
-# is added to allow the production account to assume this role directly.
+# is added to allow the Production account to assume this role directly.
+#
 # This is needed because chained assume-role calls (gds-users → production
 # → development) do not carry the original gds-users identity, so the
 # production account root must be explicitly trusted.
@@ -210,8 +210,8 @@ resource "aws_iam_role" "terraform" {
         }
       ],
       # Cross-account access — only included when the list is non-empty.
-      # This allows the production account to assume into development and
-      # staging terraform roles during centralised Terraform runs.
+      # This allows the production account to assume into Development and
+      # Staging terraform roles during centralised Terraform runs.
       length(var.terraform_cross_account_arns) > 0 ? [
         {
           Sid    = "AllowCrossAccountAssume"
@@ -238,28 +238,40 @@ resource "aws_iam_role_policy_attachment" "terraform" {
 }
 
 # --------------------------------------------------------------------------
-# Data User Role
+# Team Roles (map-based)
 # --------------------------------------------------------------------------
-# For data scientists, data engineers, analysts, and anyone who needs
-# hands-on access to AWS data services.
+# These are the roles for team members: data-scientist, developer, analyst,
+# explorer, etc. They are defined as a map in the calling environment, so
+# adding a new role is one line (ie no other module code changes needed).
 #
-# Permissions vary by environment:
-#   - Development: PowerUserAccess (full minus IAM writes), heavy compute
-#     services allowed (Glue, SageMaker, Bedrock, EMR, Redshift).
-#   - Staging/Production: ReadOnlyAccess only, heavy compute services
-#     explicitly denied as belt-and-braces.
-#
-# Controlled by two variables:
-#   - data_user_full_access: true = PowerUserAccess, false = ReadOnlyAccess
-#   - data_user_allow_heavy_compute: true = no deny, false = deny policy attached
+# Each role has two toggles:
+#   full_access:         true = PowerUserAccess (full minus IAM writes)
+#                        false = ReadOnlyAccess
+#   allow_heavy_compute: true = no restrictions on Glue, SageMaker, etc.
+#                        false = explicit deny on heavy compute services
 #
 # Trust: gds-users account root with MFA. Anyone in gds-users can assume
-# this role without being individually named.
+# these roles without being individually-named; so long as they are added to
+# the specific role trust policy when they have their gds-users login
+#
+# Example input from the environment:
+#   team_roles = {
+#     data-scientist = { full_access = true,  allow_heavy_compute = true }
+#     developer      = { full_access = true,  allow_heavy_compute = false }
+#     analyst        = { full_access = false, allow_heavy_compute = false }
+#     explorer       = { full_access = false, allow_heavy_compute = false }
+#   }
 
-resource "aws_iam_role" "data_user" {
-  count = var.create_data_user_role ? 1 : 0
+locals {
+  # Filter to only roles that are defined (all entries in the map are created)
+  team_roles = var.team_roles
+}
 
-  name = "${var.role_prefix}-data-user"
+# The role itself — one per entry in the map
+resource "aws_iam_role" "team" {
+  for_each = local.team_roles
+
+  name = "${var.role_prefix}-${each.key}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -281,33 +293,33 @@ resource "aws_iam_role" "data_user" {
 
   max_session_duration = var.max_session_duration
 
-  tags = var.tags
+  tags = merge(var.tags, {
+    RoleType = each.key
+  })
 }
 
-# Attach PowerUserAccess in development (full minus IAM writes)
-resource "aws_iam_role_policy_attachment" "data_user_power" {
-  count = var.create_data_user_role && var.data_user_full_access ? 1 : 0
+# PowerUserAccess — attached to roles where full_access = true
+resource "aws_iam_role_policy_attachment" "team_power" {
+  for_each = { for k, v in local.team_roles : k => v if v.full_access }
 
-  role       = aws_iam_role.data_user[0].name
+  role       = aws_iam_role.team[each.key].name
   policy_arn = "arn:aws:iam::aws:policy/PowerUserAccess"
 }
 
-# Attach ReadOnlyAccess in staging and production
-resource "aws_iam_role_policy_attachment" "data_user_readonly" {
-  count = var.create_data_user_role && !var.data_user_full_access ? 1 : 0
+# ReadOnlyAccess — attached to roles where full_access = false
+resource "aws_iam_role_policy_attachment" "team_readonly" {
+  for_each = { for k, v in local.team_roles : k => v if !v.full_access }
 
-  role       = aws_iam_role.data_user[0].name
+  role       = aws_iam_role.team[each.key].name
   policy_arn = "arn:aws:iam::aws:policy/ReadOnlyAccess"
 }
 
-# Deny heavy compute services in staging and production.
-# Belt-and-braces: ReadOnlyAccess already blocks writes, but this makes
-# the intent explicit and protects against future permission changes.
-resource "aws_iam_role_policy" "data_user_deny_heavy_compute" {
-  count = var.create_data_user_role && !var.data_user_allow_heavy_compute ? 1 : 0
+# Deny heavy compute — attached to roles where allow_heavy_compute = false
+resource "aws_iam_role_policy" "team_deny_heavy_compute" {
+  for_each = { for k, v in local.team_roles : k => v if !v.allow_heavy_compute }
 
   name = "${var.role_prefix}-deny-heavy-compute"
-  role = aws_iam_role.data_user[0].name
+  role = aws_iam_role.team[each.key].name
 
   policy = jsonencode({
     Version = "2012-10-17"
