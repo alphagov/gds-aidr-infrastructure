@@ -21,57 +21,46 @@ This is a **public repository**
 
 ```zsh
 ./gds-aidr-infrastructure
-├── .DS_Store
 ├── .editorconfig
 ├── .eslintrc
 ├── .github
-│   ├── .DS_Store
 │   ├── CODEOWNERS
 │   ├── ISSUE_TEMPLATE
 │   │   ├── bug_report.md
 │   │   └── feature_request.md
-│   └── workflows
 ├── .gitignore
 ├── .prettierrc
 ├── CONTRIBUTING.md
 ├── LICENSE
 ├── README.md
 ├── docs
-│   ├── .DS_Store
 │   ├── _static
 │   │   └── aidr-architecture-blue-with-disclaimer.png
 │   └── infrastructure
-│       ├── .DS_Store
 │       └── iam-cross-account-strategy.md
 ├── infrastructure
-│   ├── .DS_Store
 │   └── terraform
-│       ├── .DS_Store
 │       ├── bootstrap
-│       │   ├── README.md
-│       │   ├── README.pdf
 │       │   ├── trust-policy-development.json
 │       │   └── trust-policy-staging.json
 │       ├── environments
-│       │   ├── .DS_Store
 │       │   └── production-iam
-│       │       ├── .DS_Store
-│       │       ├── .terraform
-│       │       ├── .terraform.lock.hcl
 │       │       ├── main.tf
 │       │       ├── outputs.tf
-│       │       ├── terraform.tfvars # Admins will be provided
 │       │       ├── terraform.tfvars.example
 │       │       └── variables.tf
 │       └── modules
-│           ├── .DS_Store
+│           ├── budget-alerts
+│           │   ├── main.tf
+│           │   ├── outputs.tf
+│           │   └── variables.tf
 │           └── iam-centralised
-│               ├── .DS_Store
 │               ├── main.tf
 │               ├── outputs.tf
 │               └── variables.tf
 ├── package.json
-└── tree.txt
+├── tree.txt
+
 ```
 ---
 
@@ -250,14 +239,28 @@ user ARNs rather than the account root. To grant someone admin access, their
 ARN must be added to `admin_trusted_arns` in `terraform.tfvars` and applied 
 via Terraform.
 
-#### Two types of trust
+
+##### Role summary
+
+| Role | Development | Staging | Production | Heavy compute |
+|---|---|---|---|---|
+| `admin` | Full access | Read (break-glass for write) | Read (break-glass for write) | Yes |
+| `terraform` | Deploy via OIDC | Deploy via OIDC | Deploy via OIDC | n/a |
+| `data-scientist` | Full minus IAM writes | Read only | Read only | Dev only |
+| `developer` | Full minus IAM writes | Read only | Read only | No |
+| `analyst` | Read only | Read only | Read only | No |
+| `explorer` | Read only | Read only | Read only | No |
+| `readonly` | Read only | Read only | Read only | No |
+| `security-audit` | Audit only | Audit only | Audit only | No |
+
+##### Two types of trust
 
 | Trust type | Roles | Who can assume | To add someone |
 |---|---|---|---|
 | Account root (`gds-users:root`) | data-scientist, developer, analyst, explorer, readonly, security-audit | Anyone in gds-users with MFA | Nothing — they already can |
 | Named ARNs | admin | Only the specific people listed | Add their ARN to `admin_trusted_arns`, run `terraform apply` |
 
-#### Checking your IAM username
+##### Checking your IAM username
 
 Your IAM username in `gds-users` includes your email domain. To check yours:
 
@@ -267,7 +270,7 @@ aws sts get-caller-identity --profile gds-users
 
 The `Arn` field shows the exact format, e.g. `arn:aws:iam::ACCOUNT_ID:user/firstname.surname@digital.cabinet-office.gov.uk` or `arn:aws:iam::ACCOUNT_ID:user/firstname.surname@dsit.gov.uk` This must match exactly when adding someone to `admin_trusted_arns`.
 
-#### Why shared roles, not per-person roles
+##### Why shared roles, not per-person roles
 
 Some teams create individual roles per person (e.g. `john.smith-admin`, 
 `jane.doe-readonly`). This works but creates role sprawl — 10 people across 
@@ -467,11 +470,11 @@ infrastructure/terraform/
 │       ├── outputs.tf
 │       └── terraform.tfvars.example
 └── modules/
-    └── budget-alerts/            # configures the budget alerts sent to admins
+    └── budget-alerts/              # monthly budget alerts per account (admins only)
+    │   ├── main.tfsent to admins
         ├── main.tf
         ├── variables.tf
-        ├── outputs.tf
-        └── README.md
+        └── outputs.tf
     └── iam-centralised/            # reusable module for OIDC + IAM roles
         ├── main.tf
         ├── variables.tf
@@ -479,8 +482,7 @@ infrastructure/terraform/
         └── README.md
 ```
 
-For detailed architecture documentation, see[`docs/infrastructure/iam-cross-account-strategy.md`.](docs/infrastructure/iam-cross-account-strategy.md)
-
+For detailed architecture documentation, see [`docs/infrastructure/iam-cross-account-strategy.md`](docs/infrastructure/iam-cross-account-strategy.md).
 ---
 
 
