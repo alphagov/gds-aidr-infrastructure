@@ -483,6 +483,7 @@ infrastructure/terraform/
 ```
 
 For detailed architecture documentation, see [`docs/infrastructure/iam-cross-account-strategy.md`](docs/infrastructure/iam-cross-account-strategy.md).
+
 ---
 
 
