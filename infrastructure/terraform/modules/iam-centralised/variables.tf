@@ -17,14 +17,21 @@ variable "admin_trusted_arns" {
   default     = []
 }
 
-variable "github_oidc_allowed_subjects" {
-  description = "List of GitHub OIDC subject claims allowed to assume the terraform role. Format: 'repo:org/repo-name:ref:refs/heads/branch' or 'repo:org/repo-name:*' for any branch."
-  type        = list(string)
-  default     = []
+# --------------------------------------------------------------------------
+# gds-users account ID for constructing user ARNs
+# --------------------------------------------------------------------------
+# Used by team role trust policies to build ARNs from the usernames stored
+# in SSM Parameter Store. Kept as a separate variable (not derived from
+# trusted_account_arns) because trusted_account_arns contains the full
+# root ARN and may include multiple entries in future.
+
+variable "gds_users_account_id" {
+  description = "AWS account ID of the gds-users organisation root account. Used to construct IAM user ARNs for team role trust policies."
+  type        = string
 }
 
-variable "terraform_cross_account_arns" {
-  description = "List of account root ARNs that can assume the terraform role without MFA. Used for cross-account Terraform provider aliases (e.g. production assuming into development)."
+variable "github_oidc_allowed_subjects" {
+  description = "List of GitHub OIDC subject claims allowed to assume the terraform role. Format: 'repo:org/repo-name:ref:refs/heads/branch' or 'repo:org/repo-name:*' for any branch."
   type        = list(string)
   default     = []
 }
@@ -53,29 +60,55 @@ variable "create_terraform_role" {
   default     = true
 }
 
+# --------------------------------------------------------------------------
+# Team roles
+# --------------------------------------------------------------------------
+# UPDATED MON-15-JUNE-2026 added allowed_users field to the object type.
+#
+# Before:
+#   team_roles = map(object({
+#     full_access         = bool
+#     allow_heavy_compute = bool
+#   }))
+#
+# After:
+#   team_roles = map(object({
+#     full_access         = bool
+#     allow_heavy_compute = bool
+#     allowed_users       = list(string)
+#   }))
+#
+# allowed_users contains gds-users IAM usernames (not full ARNs).
+# The module constructs full ARNs using gds_users_account_id.
+
 variable "team_roles" {
   description = <<-EOT
-    Map of team roles to create. Each entry creates a role named
-    {role_prefix}-{key} with configurable permissions.
-
-    full_access:         true = PowerUserAccess (full minus IAM writes)
-                         false = ReadOnlyAccess
-    allow_heavy_compute: true = no deny on Glue, SageMaker, Bedrock, EMR, Redshift
-                         false = explicit deny on these services
+    Map of team roles to create. Each role specifies:
+      - full_access:         true = PowerUserAccess, false = ReadOnlyAccess
+      - allow_heavy_compute: true = no restrictions, false = deny Glue/SageMaker/Bedrock/EMR/Redshift
+      - allowed_users:       list of gds-users IAM usernames who may assume this role
 
     Example:
       team_roles = {
-        data-scientist = { full_access = true,  allow_heavy_compute = true }
-        developer      = { full_access = true,  allow_heavy_compute = false }
-        analyst        = { full_access = false, allow_heavy_compute = false }
-        explorer       = { full_access = false, allow_heavy_compute = false }
+        data-scientist = {
+          full_access         = true
+          allow_heavy_compute = true
+          allowed_users       = ["victoria.mckinney", "an.nguyen", "piers.walker"]
+        }
       }
   EOT
   type = map(object({
     full_access         = bool
     allow_heavy_compute = bool
+    allowed_users       = list(string)
   }))
   default = {}
+}
+
+variable "terraform_cross_account_arns" {
+  description = "Additional account root ARNs that can assume the terraform role (for cross-account Terraform runs)."
+  type        = list(string)
+  default     = []
 }
 
 variable "max_session_duration" {

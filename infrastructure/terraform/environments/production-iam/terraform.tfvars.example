@@ -3,6 +3,7 @@
 # Copy this file to terraform.tfvars and fill in correct values.
 # DO NOT commit terraform.tfvars — it contains account-specific values.
 # The .gitignore should exclude *.tfvars files.
+#
 
 development_account_id = ""
 staging_account_id     = ""
@@ -10,6 +11,11 @@ production_account_id  = ""
 
 # The gds-users org root account. Replace with correct org account ID.
 gds_users_account_arn = "arn:aws:iam::REPLACE_WITH_GDS_USERS_ACCOUNT_ID:root"
+gds_users_account_id = "<GDS_USERS_ACCOUNT_ID"
+
+# The raw account ID (same account as above, without the ARN wrapper).
+# Used to construct IAM user ARNs for team role trust policies.
+gds_users_account_id = "REPLACE_WITH_GDS_USERS_ACCOUNT_ID"
 
 role_prefix = "gds-aidr"
 
@@ -25,19 +31,10 @@ github_oidc_allowed_subjects = [
   "repo:alphagov/gds-aidr-infrastructure:ref:refs/heads/main"
 ]
 
-max_session_duration = 14400
+max_session_duration = 14400 # ie 4 hours
 
-
-# --------------------------------------------------------------------------
-# terraform.tfvars.example
-# note: ask admins for this information, unlikely to need if you have been 
-# privately shared the full vars file
-# --------------------------------------------------------------------------
-
-# budget_development_usd = ""
-# budget_staging_usd     = ""
-# budget_production_usd  = ""
-#
-# budget_alert_emails = [
-#   "your.name@dsit.gov.uk"
-# ]
+# NOTE: team_roles (data-scientist, developer, analyst, explorer) and their
+# allowed_users are now read from SSM Parameter Store at plan time.
+# See: /gds-aidr/iam/team-role-assignments in the Production account.
+# To update who has access to which role, update the SSM parameter and
+# run terraform apply.

@@ -15,12 +15,25 @@ variable "staging_account_id" {
 }
 
 variable "production_account_id" {
-  description = "AWS account ID for the Production account."
+  description = "AWS account ID for the production account."
   type        = string
 }
 
 variable "gds_users_account_arn" {
   description = "ARN of the gds-users organisation root account. Format: arn:aws:iam::ACCOUNT_ID:root"
+  type        = string
+}
+
+# --------------------------------------------------------------------------
+# NEW: gds-users account ID
+# --------------------------------------------------------------------------
+# The raw account ID (not the full ARN). Used by the iam-centralised module
+# to construct IAM user ARNs from the usernames stored in SSM.
+# This is the same account as gds_users_account_arn but without the
+# arn:aws:iam:: prefix and :root suffix.
+
+variable "gds_users_account_id" {
+  description = "AWS account ID of the gds-users organisation root account. Used to construct IAM user ARNs for team role trust policies."
   type        = string
 }
 
@@ -35,7 +48,7 @@ variable "role_prefix" {
 }
 
 variable "admin_trusted_arns" {
-  description = "List of specific IAM user ARNs that can assume the admin role."
+  description = "List of specific IAM user ARNs that can assume the admin role. Should be only admins."
   type        = list(string)
 }
 
@@ -55,21 +68,18 @@ variable "max_session_duration" {
 # --------------------------------------------------------------------------
 
 variable "budget_development_usd" {
-  description = "Monthly budget limit for the Development account in USD."
+  description = "Monthly budget limit in USD for the Development account."
   type        = string
-  default     = "762"
 }
 
 variable "budget_staging_usd" {
-  description = "Monthly budget limit for the Staging account in USD."
+  description = "Monthly budget limit in USD for the Staging account."
   type        = string
-  default     = "127"
 }
 
 variable "budget_production_usd" {
-  description = "Monthly budget limit for the Production account in USD."
+  description = "Monthly budget limit in USD for the Production account."
   type        = string
-  default     = "381"
 }
 
 variable "budget_alert_emails" {
