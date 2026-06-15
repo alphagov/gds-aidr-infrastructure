@@ -33,7 +33,7 @@ resource "aws_iam_openid_connect_provider" "github" {
 # --------------------------------------------------------------------------
 # Full AdministratorAccess. Only created if create_admin_role = true.
 # Trust is restricted to specific named IAM user ARNs (not the broad account
-# root), so admins assume it. MFA is always required.
+# root), so only admins can assume it. MFA is always required.
 
 resource "aws_iam_role" "admin" {
   count = var.create_admin_role ? 1 : 0
@@ -74,7 +74,8 @@ resource "aws_iam_role_policy_attachment" "admin" {
 # Readonly Role
 # --------------------------------------------------------------------------
 # AWS-managed ReadOnlyAccess. For viewing resources, debugging, verifying
-# deployments in CloudWatch, etc. MFA required.
+# deployments in CloudWatch, etc. Your contractor developer would use this for
+# Staging and production. MFA required.
 
 resource "aws_iam_role" "readonly" {
   count = var.create_readonly_role ? 1 : 0
@@ -160,13 +161,6 @@ resource "aws_iam_role_policy_attachment" "security_audit" {
 # and GitHub Actions (via OIDC). This is the role that plans and applies
 # infrastructure changes. The OIDC subject condition locks it to specific
 # repos and branches.
-#
-# When terraform_cross_account_arns is non-empty, a third trust statement
-# is added to allow the Production account to assume this role directly.
-#
-# This is needed because chained assume-role calls (gds-users → production
-# → development) do not carry the original gds-users identity, so the
-# production account root must be explicitly trusted.
 
 resource "aws_iam_role" "terraform" {
   count = var.create_terraform_role ? 1 : 0
@@ -175,54 +169,51 @@ resource "aws_iam_role" "terraform" {
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
-    Statement = concat(
-      [
-        # Human access via gds-users with MFA
-        {
-          Sid    = "AllowHumanAssumeWithMFA"
-          Effect = "Allow"
-          Principal = {
-            AWS = var.trusted_account_arns
-          }
-          Action = "sts:AssumeRole"
-          Condition = {
-            Bool = {
-              "aws:MultiFactorAuthPresent" = "true"
-            }
-          }
-        },
-        # GitHub Actions access via OIDC
-        {
-          Sid    = "AllowGitHubActionsOIDC"
-          Effect = "Allow"
-          Principal = {
-            Federated = aws_iam_openid_connect_provider.github.arn
-          }
-          Action = "sts:AssumeRoleWithWebIdentity"
-          Condition = {
-            StringEquals = {
-              "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
-            }
-            StringLike = {
-              "token.actions.githubusercontent.com:sub" = var.github_oidc_allowed_subjects
-            }
+    Statement = [
+      # Human access via gds-users with MFA
+      {
+        Sid    = "AllowHumanAssumeWithMFA"
+        Effect = "Allow"
+        Principal = {
+          AWS = var.trusted_account_arns
+        }
+        Action = "sts:AssumeRole"
+        Condition = {
+          Bool = {
+            "aws:MultiFactorAuthPresent" = "true"
           }
         }
-      ],
-      # Cross-account access — only included when the list is non-empty.
-      # This allows the production account to assume into Development and
-      # Staging terraform roles during centralised Terraform runs.
-      length(var.terraform_cross_account_arns) > 0 ? [
-        {
-          Sid    = "AllowCrossAccountAssume"
-          Effect = "Allow"
-          Principal = {
-            AWS = var.terraform_cross_account_arns
-          }
-          Action = "sts:AssumeRole"
+      },
+      # GitHub Actions access via OIDC
+      {
+        Sid    = "AllowGitHubActionsOIDC"
+        Effect = "Allow"
+        Principal = {
+          Federated = aws_iam_openid_connect_provider.github.arn
         }
-      ] : []
-    )
+        Action = "sts:AssumeRoleWithWebIdentity"
+        Condition = {
+          StringEquals = {
+            "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+          }
+          StringLike = {
+            "token.actions.githubusercontent.com:sub" = var.github_oidc_allowed_subjects
+          }
+        }
+      },
+      # Cross-account assume (Production → Development/Staging)
+      # Allows the Production account to assume this role for centralised
+      # Terraform runs. The human already authenticated with MFA when
+      # assuming into Production, so MFA is not required again here.
+      {
+        Sid    = "AllowCrossAccountAssume"
+        Effect = "Allow"
+        Principal = {
+          AWS = var.terraform_cross_account_arns
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
   })
 
   max_session_duration = var.max_session_duration
@@ -238,33 +229,42 @@ resource "aws_iam_role_policy_attachment" "terraform" {
 }
 
 # --------------------------------------------------------------------------
-# Team Roles (map-based)
+# Team Roles (data-scientist, developer, analyst, explorer)
 # --------------------------------------------------------------------------
-# These are the roles for team members: data-scientist, developer, analyst,
-# explorer, etc. They are defined as a map in the calling environment, so
-# adding a new role is one line (ie no other module code changes needed).
+# CHANGED: trust policy now uses named IAM user ARNs instead of account root.
 #
-# Each role has two toggles:
+# Before (trusted gds-users account root — anyone in gds-users could assume):
+#   Principal = { AWS = var.trusted_account_arns }
+#
+# After (trusts only named users — constructed from allowed_users + account ID):
+#   Principal = { AWS = [
+#     "arn:aws:iam::<gds_users_account_id>:user/<username1>",
+#     "arn:aws:iam::<gds_users_account_id>:user/<username2>",
+#   ] }
+#
+# They are defined as a map in the calling environment, so
+# adding a new role is one line — no module code changes needed.
+#
+# Each role has three fields:
 #   full_access:         true = PowerUserAccess (full minus IAM writes)
 #                        false = ReadOnlyAccess
 #   allow_heavy_compute: true = no restrictions on Glue, SageMaker, etc.
 #                        false = explicit deny on heavy compute services
+#   allowed_users:       list of gds-users IAM usernames who may assume this role
 #
-# Trust: gds-users account root with MFA. Anyone in gds-users can assume
-# these roles without being individually-named; so long as they are added to
-# the specific role trust policy when they have their gds-users login
-#
-# Example input from the environment:
-#   team_roles = {
-#     data-scientist = { full_access = true,  allow_heavy_compute = true }
-#     developer      = { full_access = true,  allow_heavy_compute = false }
-#     analyst        = { full_access = false, allow_heavy_compute = false }
-#     explorer       = { full_access = false, allow_heavy_compute = false }
-#   }
+# Trust: specific named users in gds-users with MFA required.
 
 locals {
-  # Filter to only roles that are defined (all entries in the map are created)
   team_roles = var.team_roles
+
+  # Build a map of role_name => list of full IAM user ARNs
+  # from the short usernames stored in SSM / passed via allowed_users.
+  team_role_user_arns = {
+    for role_name, role_config in var.team_roles : role_name => [
+      for username in role_config.allowed_users :
+      "arn:aws:iam::${var.gds_users_account_id}:user/${username}"
+    ]
+  }
 }
 
 # The role itself — one per entry in the map
@@ -279,7 +279,9 @@ resource "aws_iam_role" "team" {
       {
         Effect = "Allow"
         Principal = {
-          AWS = var.trusted_account_arns
+          # CHANGED: was var.trusted_account_arns (account root)
+          # Now uses named user ARNs from allowed_users
+          AWS = local.team_role_user_arns[each.key]
         }
         Action = "sts:AssumeRole"
         Condition = {
