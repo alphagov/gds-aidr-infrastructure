@@ -247,11 +247,13 @@ resource "aws_iam_role_policy_attachment" "terraform" {
 # They are defined as a map in the calling environment, so
 # adding a new role is one line — no module code changes needed.
 #
-# Each role has three fields:
+# Each role has four fields:
 #   full_access:         true = PowerUserAccess (full minus IAM writes)
 #                        false = ReadOnlyAccess
 #   allow_heavy_compute: true = no restrictions on Glue, SageMaker, etc.
 #                        false = explicit deny on heavy compute services
+#   allow_deployment:    true = no restrictions on VPC, EC2, ECS, Lambda, etc.
+#                        false = explicit deny on deployment/infrastructure services
 #   allowed_users:       list of gds-users IAM usernames who may assume this role
 #
 # Trust: specific named users in gds-users with MFA required.
@@ -337,6 +339,67 @@ resource "aws_iam_role_policy" "team_deny_heavy_compute" {
           "bedrock:*",
           "elasticmapreduce:*",
           "redshift:*"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+# Deny deployment services — attached to roles where allow_deployment = false.
+# Blocks creating or launching infrastructure: VPCs, EC2 instances, containers,
+# serverless functions, load balancers, CI/CD pipelines, and CloudFormation stacks.
+# Read-only access to these services is unaffected (users can still view resources
+# in the console and CloudWatch). Data services (S3, Athena, etc.) are unaffected.
+resource "aws_iam_role_policy" "team_deny_deployment" {
+  for_each = { for k, v in local.team_roles : k => v if !v.allow_deployment }
+
+  name = "${var.role_prefix}-deny-deployment"
+  role = aws_iam_role.team[each.key].name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "DenyDeploymentServices"
+        Effect = "Deny"
+        Action = [
+          # VPC and networking
+          "ec2:RunInstances",
+          "ec2:CreateVpc",
+          "ec2:CreateSubnet",
+          "ec2:CreateSecurityGroup",
+          "ec2:CreateNatGateway",
+          "ec2:CreateInternetGateway",
+          "ec2:CreateLaunchTemplate",
+          "ec2:CreateRouteTable",
+          "ec2:CreateRoute",
+          # Containers
+          "ecs:CreateCluster",
+          "ecs:CreateService",
+          "ecs:RegisterTaskDefinition",
+          "eks:CreateCluster",
+          "eks:CreateNodegroup",
+          # Serverless
+          "lambda:CreateFunction",
+          "lambda:UpdateFunctionCode",
+          "lambda:PublishVersion",
+          # Load balancing and autoscaling
+          "elasticloadbalancing:CreateLoadBalancer",
+          "elasticloadbalancing:CreateTargetGroup",
+          "autoscaling:CreateAutoScalingGroup",
+          "autoscaling:CreateLaunchConfiguration",
+          # Infrastructure as code
+          "cloudformation:CreateStack",
+          "cloudformation:UpdateStack",
+          # CI/CD and deployment services
+          "codedeploy:*",
+          "codepipeline:*",
+          "codebuild:*",
+          # Application hosting
+          "elasticbeanstalk:Create*",
+          "elasticbeanstalk:Update*",
+          "apprunner:*"
         ]
         Resource = "*"
       }
