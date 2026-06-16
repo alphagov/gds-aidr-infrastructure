@@ -169,53 +169,55 @@ resource "aws_iam_role" "terraform" {
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [
-      # Human access via gds-users with MFA
-      {
-        Sid    = "AllowHumanAssumeWithMFA"
-        Effect = "Allow"
-        Principal = {
-          AWS = var.trusted_account_arns
-        }
-        Action = "sts:AssumeRole"
-        Condition = {
-          Bool = {
-            "aws:MultiFactorAuthPresent" = "true"
+    Statement = concat(
+      [
+        # Human access via gds-users with MFA
+        {
+          Sid    = "AllowHumanAssumeWithMFA"
+          Effect = "Allow"
+          Principal = {
+            AWS = var.trusted_account_arns
+          }
+          Action = "sts:AssumeRole"
+          Condition = {
+            Bool = {
+              "aws:MultiFactorAuthPresent" = "true"
+            }
+          }
+        },
+        # GitHub Actions access via OIDC
+        {
+          Sid    = "AllowGitHubActionsOIDC"
+          Effect = "Allow"
+          Principal = {
+            Federated = aws_iam_openid_connect_provider.github.arn
+          }
+          Action = "sts:AssumeRoleWithWebIdentity"
+          Condition = {
+            StringEquals = {
+              "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+            }
+            StringLike = {
+              "token.actions.githubusercontent.com:sub" = var.github_oidc_allowed_subjects
+            }
           }
         }
-      },
-      # GitHub Actions access via OIDC
-      {
-        Sid    = "AllowGitHubActionsOIDC"
-        Effect = "Allow"
-        Principal = {
-          Federated = aws_iam_openid_connect_provider.github.arn
-        }
-        Action = "sts:AssumeRoleWithWebIdentity"
-        Condition = {
-          StringEquals = {
-            "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+      ],
+      # Cross-account assume — only included when terraform_cross_account_arns
+      # is non-empty. Avoids empty-principal error on accounts that do not
+      # need cross-account trust (e.g. Production).
+      length(var.terraform_cross_account_arns) > 0 ? [
+        {
+          Sid    = "AllowCrossAccountAssume"
+          Effect = "Allow"
+          Principal = {
+            AWS = var.terraform_cross_account_arns
           }
-          StringLike = {
-            "token.actions.githubusercontent.com:sub" = var.github_oidc_allowed_subjects
-          }
+          Action = "sts:AssumeRole"
         }
-      },
-      # Cross-account assume (Production → Development/Staging)
-      # Allows the Production account to assume this role for centralised
-      # Terraform runs. The human already authenticated with MFA when
-      # assuming into Production, so MFA is not required again here.
-      {
-        Sid    = "AllowCrossAccountAssume"
-        Effect = "Allow"
-        Principal = {
-          AWS = var.terraform_cross_account_arns
-        }
-        Action = "sts:AssumeRole"
-      }
-    ]
+      ] : []
+    )
   })
-
   max_session_duration = var.max_session_duration
 
   tags = var.tags
@@ -231,7 +233,7 @@ resource "aws_iam_role_policy_attachment" "terraform" {
 # --------------------------------------------------------------------------
 # Team Roles (data-scientist, developer, analyst, explorer)
 # --------------------------------------------------------------------------
-# CHANGED: trust policy now uses named IAM user ARNs instead of account root.
+# This trust policy now uses named IAM user ARNs instead of account root.
 #
 # Before (trusted gds-users account root — anyone in gds-users could assume):
 #   Principal = { AWS = var.trusted_account_arns }
@@ -279,7 +281,7 @@ resource "aws_iam_role" "team" {
       {
         Effect = "Allow"
         Principal = {
-          # CHANGED: was var.trusted_account_arns (account root)
+          # This was var.trusted_account_arns (account root)
           # Now uses named user ARNs from allowed_users
           AWS = local.team_role_user_arns[each.key]
         }
