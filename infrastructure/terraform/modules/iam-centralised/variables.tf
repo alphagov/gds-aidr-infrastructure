@@ -64,19 +64,15 @@ variable "create_terraform_role" {
 # Team roles
 # --------------------------------------------------------------------------
 # UPDATED MON-15-JUNE-2026 added allowed_users field to the object type.
+# UPDATED MON-16-JUNE-2026 added allow_deployment field to the object type.
 #
-# Before:
+# Changelog:
 #   team_roles = map(object({
 #     full_access         = bool
 #     allow_heavy_compute = bool
 #   }))
-#
-# After:
-#   team_roles = map(object({
-#     full_access         = bool
-#     allow_heavy_compute = bool
-#     allowed_users       = list(string)
-#   }))
+#   → added allowed_users (15 June 2026)
+#   → added allow_deployment (16 June 2026)
 #
 # allowed_users contains gds-users IAM usernames (not full ARNs).
 # The module constructs full ARNs using gds_users_account_id.
@@ -86,6 +82,7 @@ variable "team_roles" {
     Map of team roles to create. Each role specifies:
       - full_access:         true = PowerUserAccess, false = ReadOnlyAccess
       - allow_heavy_compute: true = no restrictions, false = deny Glue/SageMaker/Bedrock/EMR/Redshift
+      - allow_deployment:    true = no restrictions, false = deny VPC/EC2/ECS/EKS/Lambda/ALB/CloudFormation/CI-CD
       - allowed_users:       list of gds-users IAM usernames who may assume this role
 
     Example:
@@ -93,6 +90,7 @@ variable "team_roles" {
         data-scientist = {
           full_access         = true
           allow_heavy_compute = true
+          allow_deployment    = false
           allowed_users       = ["victoria.mckinney", "an.nguyen", "piers.walker"]
         }
       }
@@ -100,6 +98,7 @@ variable "team_roles" {
   type = map(object({
     full_access         = bool
     allow_heavy_compute = bool
+    allow_deployment    = bool
     allowed_users       = list(string)
   }))
   default = {}
