@@ -2,7 +2,7 @@
 # GDS Data Innovation and AI Readiness Team Cloud Infrastructure Repository
 
 <!--date_created: mon-18-may-2026-->
-<!--date_updated: mon-09-june-2026-->
+<!--date_updated: weds-17-june-2026-->
 
 
 **Index**
@@ -10,6 +10,7 @@
  - [Get access to AIDR platform](#get-access-to-the-aidr-platform)
     * [For developers and platform admins](#for-developers-and-platform-admins)
     * [Console Access - All users](#console-access)
+ - [Accessing Claude Code in Bedrock](#accessing-claude-code-in-bedrock)
 
 > **Note:** to avoid confusion we will not use short forms of any of the environment names. Development and Production will be referred to as that in any code, variables, policies and documents, not *Dev* or *Prod*
 
@@ -455,6 +456,10 @@ it.
   `user.email` **locally** in this repo so commits attribute to your work
   GitHub account.
 
+### Accessing Claude Code in Bedrock
+*[(back)](#gds-data-innovation-and-ai-readiness-team-cloud-infrastructure-repository)*
+
+A full guide is provided on root [claude_code_bedrock_guide.md](./claude_code_bedrock_guide.md)
 
 #### Repository structure (infrastructure)  
 
