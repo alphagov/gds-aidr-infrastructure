@@ -336,7 +336,6 @@ resource "aws_iam_role_policy" "team_deny_heavy_compute" {
         Action = [
           "glue:*",
           "sagemaker:*",
-          "bedrock:*",
           "elasticmapreduce:*",
           "redshift:*"
         ]
