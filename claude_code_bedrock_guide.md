@@ -3,6 +3,8 @@
 <!--date_created:sun-14-jun-2026-->
 <!--date_updated:weds-17-jun-2026-->
 
+--- 
+
 **Description:** This guide exists to help AIDR team members (data scientists, developers, analysts) and platform admins to connect Claude Code to Bedrock
 
 # Contents
@@ -61,48 +63,15 @@ Claude Code supports both the terminal CLI and the VS Code extension.
 > *under review* Claude Sonnet 4.6 availability is exists in the in `eu-west-1` (Ireland) in-region. 
 > For `eu-west-2` (London), you need to use the EU cross-region inference profile (`eu.anthropic.claude-sonnet-4-6`).
 
-<!--### 3.2 Create a Bedrock access IAM policy
+### 3.2 Bedrock access
 
-Create a managed policy in the Development account that grants the minimum permissions needed for Claude Code to call Bedrock. This policy will be attached to the data-scientist and developer roles.
+All team roles (`gds-aidr-data-scientist`, `gds-aidr-developer`, `gds-aidr-analyst`, `gds-aidr-explorer`) have Bedrock access in the Development account. Bedrock is excluded from the heavy compute deny policy, so no additional IAM policy is needed for roles with `PowerUserAccess`.
 
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "AllowBedrockModelInvocation",
-      "Effect": "Allow",
-      "Action": [
-        "bedrock:InvokeModel",
-        "bedrock:InvokeModelWithResponseStream",
-        "bedrock:ListInferenceProfiles",
-        "bedrock:GetInferenceProfile"
-      ],
-      "Resource": [
-        "arn:aws:bedrock:*:*:inference-profile/*",
-        "arn:aws:bedrock:*:*:application-inference-profile/*",
-        "arn:aws:bedrock:*:*:foundation-model/*"
-      ]
-    },
-    {
-      "Sid": "AllowMarketplaceSubscription",
-      "Effect": "Allow",
-      "Action": [
-        "aws-marketplace:ViewSubscriptions",
-        "aws-marketplace:Subscribe"
-      ],
-      "Resource": "*",
-      "Condition": {
-        "StringEquals": {
-          "aws:CalledViaLast": "bedrock.amazonaws.com"
-        }
-      }
-    }
-  ]
-}
-```-->
+For roles with `ReadOnlyAccess` (analyst, explorer), Bedrock invoke permissions are included implicitly via the base policy in the Development account. If this changes in future (e.g. moving to an allowlist model), a dedicated Bedrock policy will need to be created and attached to those roles.
 
-> **Future Terraform:** This policy should be added to the `iam-centralised` module and attached to the data-scientist and developer team roles. For now, create it manually via the console or CLI and attach it to the relevant roles.
+> **Note:** Bedrock access is Development account only. In Staging and Production, all team roles are read-only and cannot invoke models.
+
+> **Future Terraform:** When the IAM model moves to an allowlist approach, a dedicated Bedrock policy should be added to the `iam-centralised` module. The policy JSON is preserved in the commented-out block above for reference.
 
 ### 3.3 Verify model availability
 
@@ -363,7 +332,7 @@ which claude      # Should show the claude binary path
 |---|---|
 | Permitted region | `eu-west-2` (London) |
 | EU inference profile prefix | `eu.` |
-| Relevant IAM roles | `gds-aidr-data-scientist`|
+| Relevant IAM roles | `gds-aidr-data-scientist`, `gds-aidr-developer`, `gds-aidr-analyst`, `gds-aidr-explorer` |
 
 
 --- 
