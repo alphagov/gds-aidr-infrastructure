@@ -19,7 +19,7 @@ This is a **public repository**
 
 > **Note to developers:** 
 > 1. Commit messages follow either the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#specification) or [Angular Commit](https://github.com/angular/angular/blob/main/contributing-docs/commit-message-guidelines.md) specification. Use one commit per logical change — a commit can include multiple file edits, but they must all relate to the same underlying change.
-> 2. All branches must follow the same pattern as commit messages, ie `cicd(sub-topic): < your-commit-msg-here >`
+> 2. All branches must follow the same pattern as commit messages, ie `topic(sub-topic): < your-commit-msg-here >`
 > 3. We use [Semantic Versioning](https://semver.org/) for releases
 > 4. All changes must be submitted by PR. No direct merges to main
 
