@@ -2,7 +2,7 @@
 # GDS Data Innovation and AI Readiness Team Cloud Infrastructure Repository
 
 <!--date_created: mon-18-may-2026-->
-<!--date_updated: weds-17-june-2026-->
+<!--date_updated: thurs-18-june-2026-->
 
 
 **Index**
@@ -11,10 +11,17 @@
     * [For developers and platform admins](#for-developers-and-platform-admins)
     * [Console Access - All users](#console-access)
  - [Accessing Claude Code in Bedrock](#accessing-claude-code-in-bedrock)
+ - [Contributing](#contributing)
 
 > **Note:** to avoid confusion we will not use short forms of any of the environment names. Development and Production will be referred to as that in any code, variables, policies and documents, not *Dev* or *Prod*
 
 This is a **public repository**
+
+> **Note to developers:** 
+> 1. Commit messages follow either the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#specification) or [Angular Commit](https://github.com/angular/angular/blob/main/contributing-docs/commit-message-guidelines.md) specification. Use one commit per logical change — a commit can include multiple file edits, but they must all relate to the same underlying change.
+> 2. All branches must follow the same pattern as commit messages, ie `cicd(sub-topic): < your-commit-msg-here >`
+> 3. We use [Semantic Versioning](https://semver.org/) for releases
+> 4. All changes must be submitted by PR. No direct merges to main
 
 ---
 ## Repository Structure
@@ -25,6 +32,8 @@ This is a **public repository**
 ├── .editorconfig
 ├── .eslintrc
 ├── .github
+│   ├── workflows/
+│   │   ├── linter.yml
 │   ├── CODEOWNERS
 │   ├── ISSUE_TEMPLATE
 │   │   ├── bug_report.md
@@ -488,6 +497,12 @@ infrastructure/terraform/
 ```
 
 For detailed architecture documentation, see [`docs/infrastructure/iam-cross-account-strategy.md`](docs/infrastructure/iam-cross-account-strategy.md).
+
+
+## Contributing
+*[(back)](#gds-data-innovation-and-ai-readiness-team-cloud-infrastructure-repository)*
+
+A full guide is provided on root [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 ---
 
