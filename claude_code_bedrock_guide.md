@@ -11,7 +11,7 @@
 
 1. [What this is](#1-what-this-is)
 2. [Prerequisites](#2-prerequisites)
-3. [Platform admin setup (one-time)](#3-platform-admin-setup-one-time)
+3. [Bedrock Acces)](#3-bedrock-access)
 4. [User setup](#4-user-setup)
 5. [Verifying it works](#5-verifying-it-works)
 6. [Troubleshooting](#6-troubleshooting)
