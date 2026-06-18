@@ -11,7 +11,7 @@
 
 1. [What this is](#1-what-this-is)
 2. [Prerequisites](#2-prerequisites)
-3. [Bedrock Acces)](#3-bedrock-access)
+3. [Bedrock Access](#3-bedrock-access)
 4. [User setup](#4-user-setup)
 5. [Verifying it works](#5-verifying-it-works)
 6. [Troubleshooting](#6-troubleshooting)
@@ -45,18 +45,6 @@ Claude Code supports both the terminal CLI and the VS Code extension.
 - Admin or terraform role access to the Development account
 
 > This guide assumes you are able to self-serve in accessing and setting up the prerequisites. If you have difficulty with any of these things, please reach out to a team member to ask directly for support. 
-
-<!--## 3. Platform admin setup (one-time)
-## This step is no longer required as AWS has now enabled model access by default in Bedrock.
-
-### 3.1 Enable Anthropic models in Bedrock
-
-1. Assume into the **Development** account (``)
-2. Open the [Amazon Bedrock console](https://eu-west-2.console.aws.amazon.com/bedrock/) in `eu-west-2`
-3. Go to **Model catalog** in the left sidebar
-4. Select each Anthropic model you want to enable (start with Claude Sonnet 4.6)
-5. Click **Request model access** and complete the use case form
-6. Access is granted immediately after submission-->
 
 ## 3. Bedrock access
 
