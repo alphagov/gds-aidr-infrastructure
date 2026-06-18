@@ -16,7 +16,7 @@
 5. [Verifying it works](#5-verifying-it-works)
 6. [Troubleshooting](#6-troubleshooting)
 7. [Cost and usage notes](#7-cost-and-usage-notes)
-8. [Reference](#8-reference)
+8. [References](#8-reference)
 
 **Note:** Items marked *under review* have not been verified; they may not be required. 
 
@@ -49,16 +49,16 @@ Claude Code supports both the terminal CLI and the VS Code extension.
 ## 3. Bedrock access
 
 > **Region note:** 
-> The GDS-AIDR team implements region lock on **all global regions except `eu-west-2`. 
+> The GDS-AIDR team implements region lock on **all global regions except `eu-west-2`**.
+> 
 > *under review* Claude Sonnet 4.6 availability is exists in the in `eu-west-1` (Ireland) in-region. 
+>
 > For `eu-west-2` (London), you need to use the EU cross-region inference profile (`eu.anthropic.claude-sonnet-4-6`).
 
 
 All team roles (`gds-aidr-data-scientist`, `gds-aidr-developer`, `gds-aidr-analyst`, `gds-aidr-explorer`) have Bedrock access in the Development account. Bedrock is excluded from the heavy compute deny policy, so no additional IAM policy is needed for roles with `PowerUserAccess`.
 
-For roles with `ReadOnlyAccess` (analyst, explorer), Bedrock invoke permissions are included implicitly via the base policy in the Development account. If this changes in future (e.g. moving to an allowlist model), a dedicated Bedrock policy will need to be created and attached to those roles.
-
-> **Note:** Bedrock access is Development account only. In Staging and Production, all non-admin team roles (ie) are read-only and cannot invoke models.
+> **Note:** Bedrock access is Development account only. In Staging and Production, all non-admin team roles (ie `gds-aidr-data-scientist`, `gds-aidr-developer`, `gds-aidr-analyst`, `gds-aidr-explorer`) are read-only and cannot invoke models.
 
 <!-->> **Future Terraform:** When the IAM model moves to an allowlist approach, a dedicated Bedrock policy should be added to the `iam-centralised` module. The policy JSON is preserved in the commented-out block above for reference.-->
 
