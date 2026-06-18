@@ -58,33 +58,21 @@ Claude Code supports both the terminal CLI and the VS Code extension.
 5. Click **Request model access** and complete the use case form
 6. Access is granted immediately after submission-->
 
+## 3. Bedrock access
+
 > **Region note:** 
 > The GDS-AIDR team implements region lock on **all global regions except `eu-west-2`. 
 > *under review* Claude Sonnet 4.6 availability is exists in the in `eu-west-1` (Ireland) in-region. 
 > For `eu-west-2` (London), you need to use the EU cross-region inference profile (`eu.anthropic.claude-sonnet-4-6`).
 
-### 3.2 Bedrock access
 
 All team roles (`gds-aidr-data-scientist`, `gds-aidr-developer`, `gds-aidr-analyst`, `gds-aidr-explorer`) have Bedrock access in the Development account. Bedrock is excluded from the heavy compute deny policy, so no additional IAM policy is needed for roles with `PowerUserAccess`.
 
 For roles with `ReadOnlyAccess` (analyst, explorer), Bedrock invoke permissions are included implicitly via the base policy in the Development account. If this changes in future (e.g. moving to an allowlist model), a dedicated Bedrock policy will need to be created and attached to those roles.
 
-> **Note:** Bedrock access is Development account only. In Staging and Production, all team roles are read-only and cannot invoke models.
+> **Note:** Bedrock access is Development account only. In Staging and Production, all non-admin team roles (ie) are read-only and cannot invoke models.
 
-> **Future Terraform:** When the IAM model moves to an allowlist approach, a dedicated Bedrock policy should be added to the `iam-centralised` module. The policy JSON is preserved in the commented-out block above for reference.
-
-### 3.3 Verify model availability
-
-```zsh
-# Assume into Development account
-# Then list available inference profiles
-aws bedrock list-inference-profiles \
-  --region eu-west-2 \
-  --query 'inferenceProfileSummaries[?contains(inferenceProfileId, `anthropic`)].[inferenceProfileId, status]' \
-  --output table
-```
-
-You should see profiles like `eu.anthropic.claude-sonnet-4-6` listed as `ACTIVE`.
+<!-->> **Future Terraform:** When the IAM model moves to an allowlist approach, a dedicated Bedrock policy should be added to the `iam-centralised` module. The policy JSON is preserved in the commented-out block above for reference.-->
 
 ## 4. User setup
 
@@ -290,12 +278,25 @@ which claude      # Should show the claude binary path
 - Budget alerts are configured.
 - **Be mindful of large context windows** — sending entire repositories or very large files to Claude Code consumes significant tokens
 
-### Usage guidelines
+### Useful notes
 
 - Use the **Development** account for Claude Code usage. Do not assume into staging or production for LLM work.
 - Prefer **Sonnet** for day-to-day coding tasks (good balance of capability and cost)
 - Use **Haiku** for lightweight tasks like commit message generation (cheaper, faster)
 - Opus is available but significantly more expensive — use only when Sonnet is insufficient
+
+#### Verify model availability
+
+```zsh
+# Assume into Development account
+# Then list available inference profiles
+aws bedrock list-inference-profiles \
+  --region eu-west-2 \
+  --query 'inferenceProfileSummaries[?contains(inferenceProfileId, `anthropic`)].[inferenceProfileId, status]' \
+  --output table
+```
+
+You should see profiles like `eu.anthropic.claude-sonnet-4-6` listed as `ACTIVE`.
 
 ## 8. Reference
 
