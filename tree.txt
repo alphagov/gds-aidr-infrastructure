@@ -7,42 +7,18 @@
 │   │   ├── bug_report.md
 │   │   └── feature_request.md
 │   └── workflows
+│       └── linter.yml
 ├── .gitignore
 ├── .prettierrc
 ├── CONTRIBUTING.md
 ├── LICENSE
 ├── README.md
+├── claude_code_bedrock_guide.md
 ├── docs
-│   ├── _static
-│   │   └── aidr-architecture-blue-with-disclaimer.png
 │   └── infrastructure
 │       └── iam-cross-account-strategy.md
 ├── infrastructure
-│   └── terraform
-│       ├── environments
-│       │   └── production-iam
-│       │       ├── .terraform
-│       │       │   ├── modules
-│       │       │   │   └── modules.json
-│       │       │   └── terraform.tfstate
-│       │       ├── .terraform.lock.hcl
-│       │       ├── main.tf
-│       │       ├── outputs.tf
-│       │       ├── terraform.tfvars
-│       │       ├── terraform.tfvars.example
-│       │       ├── tree.txt
-│       │       └── variables.tf
-│       └── modules
-│           ├── budget-alerts
-│           │   ├── main.tf
-│           │   ├── outputs.tf
-│           │   └── variables.tf
-│           └── iam-centralised
-│               ├── main.tf
-│               ├── outputs.tf
-│               └── variables.tf
 ├── package.json
-├── tree.txt
-└── tree_full.txt
+└── tree.txt
 
-16 directories, 30 files
+7 directories, 15 files
