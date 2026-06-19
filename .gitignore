@@ -24,4 +24,8 @@ replacements.txt
 **/replacements.txt
 
 tree_full.txt
+<<<<<<< HEAD
 scripts/*
+=======
+scripts/**
+>>>>>>> 079c447 (chore: add shell script to gitignore)
