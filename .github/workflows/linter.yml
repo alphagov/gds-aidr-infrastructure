@@ -17,10 +17,6 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.15.3
-          
-      - name: Run TFLint
-        run: tflint --recursive
-        working-directory: infrastructure/terraform/environments
 
       - name: Setup TFLint
         uses: terraform-linters/setup-tflint@v4
@@ -29,4 +25,9 @@ jobs:
 
       - name: Run TFLint
         run: tflint --recursive
-        working-directory: infrastructure/terraform
+        working-directory: infrastructure/terraform/environments
+
+      # --- COMMENTED OUT — superseded by step above which lints environments only ---
+      # - name: Run TFLint
+      #   run: tflint --recursive
+      #   working-directory: infrastructure/terraform
