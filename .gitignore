@@ -19,5 +19,9 @@ infrastructure/terraform/bootstrap/README.pdf
 *.tfstate
 *.tfstate.backup
 
+# History-purge replacement files (contain sensitive strings being redacted)
+replacements.txt
+**/replacements.txt
+
 tree_full.txt
 scripts/**
