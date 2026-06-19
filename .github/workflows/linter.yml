@@ -27,7 +27,8 @@ jobs:
         run: tflint --recursive
         working-directory: infrastructure/terraform/environments
 
-      # --- COMMENTED OUT — superseded by step above which lints environments only ---
+      # superseded by step above which lints environments only, and the 
+      # below block was breaking the workflow
       # - name: Run TFLint
       #   run: tflint --recursive
       #   working-directory: infrastructure/terraform
