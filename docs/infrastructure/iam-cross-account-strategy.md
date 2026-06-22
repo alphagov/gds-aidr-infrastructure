@@ -59,6 +59,9 @@ gds-users
     ├── gds-aidr-security-audit
     └── GitHub OIDC provider
 ```
+
+**See also** [`role_scopes`](./../../role_scopes.pdf)
+
 ## How the cross-account assumption works
 
 ### The trust chain
