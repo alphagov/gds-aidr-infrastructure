@@ -121,6 +121,9 @@ gds-users
     ├── gds-aidr-security-audit
     └── GitHub OIDC provider
 ```
+
+**See also** [`role_scopes`](./../../role_scopes.pdf)
+
 ### Access the AIDR platform
 
 0. If you are not currently a user on `gds-users` you will not be able to access the AIDR accounts
