@@ -2,7 +2,7 @@
 # GDS Data Innovation and AI Readiness Team Cloud Infrastructure Repository
 
 <!--date_created: mon-18-may-2026-->
-<!--date_updated: thurs-18-june-2026-->
+<!--date_updated: mon-22-june-2026-->
 
 
 **Index**
@@ -468,7 +468,18 @@ it.
 ### Accessing Claude Code in Bedrock
 *[(back)](#gds-data-innovation-and-ai-readiness-team-cloud-infrastructure-repository)*
 
-A full guide is provided on root [claude_code_bedrock_guide.md](./claude_code_bedrock_guide.md)
+**Please note:** A full guide is provided on root [claude_code_bedrock_guide.md](./claude_code_bedrock_guide.md)
+
+All team roles (`data-scientist`, `developer`, `analyst`, `explorer`) have access to Amazon Bedrock in the Development account. This allows team members to use Claude Code (Anthropic's command-line coding assistant) routed through AWS Bedrock, with no separate API key or subscription required.
+
+**Quick start (for users who already have CLI access):**
+
+1. Assume into the Development account with your team role
+2. Install Claude Code: `npm install -g @anthropic-ai/claude-code`
+3. Run `claude` and follow the Bedrock setup wizard
+4. Select **3rd-party platform** → **Amazon Bedrock** → **Credentials already in environment**
+
+Bedrock usage is billed to the Development account. Budget alerts are configured and platform admins are notified when thresholds are reached. Be mindful of large context windows.
 
 #### Repository structure (infrastructure)  
 
