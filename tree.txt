@@ -13,12 +13,15 @@
 ├── CONTRIBUTING.md
 ├── LICENSE
 ├── README.md
+├── role_scopes.pdf
 ├── claude_code_bedrock_guide.md
 ├── docs
 │   └── infrastructure
 │       └── iam-cross-account-strategy.md
 ├── infrastructure
 ├── package.json
+├── scripts
+│   └── purge.sh
 └── tree.txt
 
-7 directories, 15 files
+8 directories, 17 files
