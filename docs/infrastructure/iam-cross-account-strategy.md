@@ -1,9 +1,7 @@
 # IAM Cross-Account Strategy (Centralised)
 
 <!--date_added:thurs-28-may-2026-->
-<!--date_updated:fri-05-june-2026-->
-
-**date_updated:** fri-29-may-2026
+<!--date_updated:mon-22-june-2026--->
 
 **Description:** Our account strategy is built in conjunction with GDS Engineering Enablement Cloud Platform Team and Secure by Design processes.
 
@@ -34,29 +32,29 @@ gds-users
 ├── GDS AIDR Development Acct (gds-aidr-development)
 │   ├── gds-aidr-admin               ← admins only (named ARNs + MFA)
 │   ├── gds-aidr-terraform           ← human + GitHub OIDC
-│   ├── gds-aidr-data-scientist      ← PowerUserAccess, heavy compute allowed
-│   ├── gds-aidr-developer           ← PowerUserAccess, heavy compute denied
-│   ├── gds-aidr-analyst             ← ReadOnlyAccess, heavy compute denied
-│   ├── gds-aidr-explorer            ← ReadOnlyAccess, heavy compute denied
+│   ├── gds-aidr-data-scientist      ← PowerUserAccess, heavy compute allowed, deployment denied, Bedrock allowed
+│   ├── gds-aidr-developer           ← PowerUserAccess, heavy compute denied, deployment denied, Bedrock allowed
+│   ├── gds-aidr-analyst             ← ReadOnlyAccess, heavy compute denied, deployment denied, Bedrock allowed
+│   ├── gds-aidr-explorer            ← ReadOnlyAccess, heavy compute denied, deployment denied, Bedrock allowed
 │   ├── gds-aidr-readonly
 │   ├── gds-aidr-security-audit
 │   └── GitHub OIDC provider
 ├── GDS AIDR Staging Acct (gds-aidr-staging)
 │   ├── gds-aidr-terraform
-│   ├── gds-aidr-data-scientist      ← ReadOnlyAccess, heavy compute denied
-│   ├── gds-aidr-developer           ← ReadOnlyAccess, heavy compute denied
-│   ├── gds-aidr-analyst             ← ReadOnlyAccess, heavy compute denied
-│   ├── gds-aidr-explorer            ← ReadOnlyAccess, heavy compute denied
+│   ├── gds-aidr-data-scientist      ← ReadOnlyAccess, heavy compute denied, deployment denied
+│   ├── gds-aidr-developer           ← ReadOnlyAccess, heavy compute denied, deployment denied
+│   ├── gds-aidr-analyst             ← ReadOnlyAccess, heavy compute denied, deployment denied
+│   ├── gds-aidr-explorer            ← ReadOnlyAccess, heavy compute denied, deployment denied
 │   ├── gds-aidr-readonly
 │   ├── gds-aidr-security-audit
 │   └── GitHub OIDC provider
 └── GDS AIDR Production Acct (gds-aidr-production) 
     ├── gds-aidr-admin               ← admins only (named ARNs + MFA)
     ├── gds-aidr-terraform
-    ├── gds-aidr-data-scientist      ← ReadOnlyAccess, heavy compute denied
-    ├── gds-aidr-developer           ← ReadOnlyAccess, heavy compute denied
-    ├── gds-aidr-analyst             ← ReadOnlyAccess, heavy compute denied
-    ├── gds-aidr-explorer            ← ReadOnlyAccess, heavy compute denied
+    ├── gds-aidr-data-scientist      ← ReadOnlyAccess, heavy compute denied, deployment denied
+    ├── gds-aidr-developer           ← ReadOnlyAccess, heavy compute denied, deployment denied
+    ├── gds-aidr-analyst             ← ReadOnlyAccess, heavy compute denied, deployment denied
+    ├── gds-aidr-explorer            ← ReadOnlyAccess, heavy compute denied, deployment denied
     ├── gds-aidr-readonly
     ├── gds-aidr-security-audit
     └── GitHub OIDC provider
@@ -219,9 +217,14 @@ terraform apply
 8. **Write-deny on staging and production** (proposed) — human-assumed roles
    cannot write to staging or production. Emergency writes use the break-glass
    role with mandatory logging and SNS notification.
-9. **Heavy compute gated** (proposed) — Glue, SageMaker, Bedrock, EMR, Redshift
+9. **Heavy compute gated** (proposed) — Glue, SageMaker, EMR, Redshift
    blocked for most roles in all environments; available to data-scientist and
-   data-engineer in development only.
+   data-engineer in Development only. Bedrock is separated from the heavy compute
+   gate and is available to all team roles in Development.
+10. **Deployment services gated** — VPC creation, EC2 instances, containers,
+    serverless functions, load balancers, CI/CD pipelines, and CloudFormation
+    blocked for all team roles across all environments. Only admin and terraform
+    roles can deploy infrastructure.
 10. **Session tagging enforced** (proposed) — every assumption requires tags
     `User`, `Team`, `Purpose`. Tags propagate into CloudTrail and Cost Explorer.
 11. **Trust policies are parameterised** — all trusted ARNs are Terraform
