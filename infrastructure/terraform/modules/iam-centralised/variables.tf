@@ -139,3 +139,38 @@ variable "metadata_prefix" {
   type        = string
   default     = ""
 }
+
+# --------------------------------------------------------------------------
+# Data reader role for synthetic data engine
+# --------------------------------------------------------------------------
+
+
+variable "create_data_reader_role" {
+  description = "Whether to create the scoped data-reader role in this account."
+  type        = bool
+  default     = false
+}
+
+variable "data_reader_trusted_arns" {
+  description = "List of account root ARNs that can assume the data-reader role. The gds-users org root for internal use, plus cross-government department account roots for cross-government use."
+  type        = list(string)
+  default     = []
+}
+
+variable "data_lake_bucket_arn" {
+  description = "ARN of the data lake bucket the data-reader role reads from."
+  type        = string
+  default     = ""
+}
+
+variable "dataset_prefix" {
+  description = "Prefix for dataset files the data-reader role may read, for example datasets/email/v1/."
+  type        = string
+  default     = ""
+}
+
+variable "metadata_prefix" {
+  description = "Prefix for metadata files the data-reader role may read, for example metadata/email/v1/."
+  type        = string
+  default     = ""
+}
