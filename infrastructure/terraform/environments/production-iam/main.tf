@@ -270,7 +270,7 @@ module "iam_production" {
   create_security_audit_role = true
   create_terraform_role      = true
 
-  # Enable the scoped data-reader role in Production
+  # Enable the data-reader role in Production
   create_data_reader_role  = true
   data_reader_trusted_arns = var.data_reader_trusted_arns
   data_lake_bucket_arn     = var.data_lake_bucket_arn
