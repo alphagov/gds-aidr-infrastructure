@@ -63,19 +63,6 @@ variable "create_terraform_role" {
 # --------------------------------------------------------------------------
 # Team roles
 # --------------------------------------------------------------------------
-# UPDATED MON-15-JUNE-2026 added allowed_users field to the object type.
-# UPDATED MON-16-JUNE-2026 added allow_deployment field to the object type.
-#
-# Changelog:
-#   team_roles = map(object({
-#     full_access         = bool
-#     allow_heavy_compute = bool
-#   }))
-#   → added allowed_users (15 June 2026)
-#   → added allow_deployment (16 June 2026)
-#
-# allowed_users contains gds-users IAM usernames (not full ARNs).
-# The module constructs full ARNs using gds_users_account_id.
 
 variable "team_roles" {
   description = <<-EOT
@@ -91,7 +78,7 @@ variable "team_roles" {
           full_access         = true
           allow_heavy_compute = true
           allow_deployment    = false
-          allowed_users       = ["victoria.mckinney", "an.nguyen", "piers.walker"]
+          allowed_users       = ["firstname1.surname1", "firstname2.surname2", "firstname3.surname3"]
         }
       }
   EOT
@@ -120,4 +107,35 @@ variable "tags" {
   description = "Tags applied to all resources created by this module."
   type        = map(string)
   default     = {}
+}
+
+
+variable "create_data_reader_role" {
+  description = "Whether to create the scoped data-reader role in this account."
+  type        = bool
+  default     = false
+}
+
+variable "data_reader_trusted_arns" {
+  description = "List of account root ARNs that can assume the data-reader role. The gds-users org root for internal use, plus cross-government department account roots for cross-government use."
+  type        = list(string)
+  default     = []
+}
+
+variable "data_lake_bucket_arn" {
+  description = "ARN of the data lake bucket the data-reader role reads from."
+  type        = string
+  default     = ""
+}
+
+variable "dataset_prefix" {
+  description = "Prefix for dataset files the data-reader role may read, for example datasets/email/v1/."
+  type        = string
+  default     = ""
+}
+
+variable "metadata_prefix" {
+  description = "Prefix for metadata files the data-reader role may read, for example metadata/email/v1/."
+  type        = string
+  default     = ""
 }
