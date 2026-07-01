@@ -25,7 +25,7 @@ variable "gds_users_account_arn" {
 }
 
 # --------------------------------------------------------------------------
-# NEW: gds-users account ID
+# gds-users account ID
 # --------------------------------------------------------------------------
 # The raw account ID (not the full ARN). Used by the iam-centralised module
 # to construct IAM user ARNs from the usernames stored in SSM.
@@ -85,4 +85,34 @@ variable "budget_production_usd" {
 variable "budget_alert_emails" {
   description = "List of email addresses to receive budget alerts."
   type        = list(string)
+}
+
+
+
+# --------------------------------------------------------------------------
+# Data reader role for synthetic data lake
+# --------------------------------------------------------------------------
+
+variable "data_reader_trusted_arns" {
+  description = "Account root ARNs that can assume the data-reader role. The gds-users org root for internal use, plus cross-government department account roots. Cross-government roots are only added after the dataset is classified and approved for sharing."
+  type        = list(string)
+  default     = []
+}
+
+variable "data_lake_bucket_arn" {
+  description = "ARN of the synthetic data lake bucket. Defined elsewhere in the platform infrastructure."
+  type        = string
+  default     = ""
+}
+
+variable "dataset_prefix" {
+  description = "Prefix for dataset files, for example datasets/email/v1/."
+  type        = string
+  default     = "datasets/email/v1/"
+}
+
+variable "metadata_prefix" {
+  description = "Prefix for metadata files, for example metadata/email/v1/."
+  type        = string
+  default     = "metadata/email/v1/"
 }

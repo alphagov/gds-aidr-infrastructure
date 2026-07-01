@@ -92,7 +92,7 @@ provider "aws" {
 # --------------------------------------------------------------------------
 # SSM Parameter: team role assignments
 # --------------------------------------------------------------------------
-# NEW: reads the user-to-role mapping from SSM Parameter Store.
+# Reads the user-to-role mapping from SSM Parameter Store.
 # The parameter is a SecureString containing JSON like:
 #   {
 #     "data-scientist": ["victoria.mckinney", "an.nguyen", "piers.walker"],
@@ -110,7 +110,7 @@ data "aws_ssm_parameter" "team_role_assignments" {
 
 locals {
   # Decode the JSON from SSM into a Terraform map
-  # Result: { "data-scientist" = ["victoria.mckinney", ...], ... }
+  # Result: { "data-scientist" = ["firstname.surname", ...], ... }
   team_role_assignments = jsondecode(data.aws_ssm_parameter.team_role_assignments.value)
 }
 
@@ -269,6 +269,13 @@ module "iam_production" {
   create_readonly_role       = true
   create_security_audit_role = true
   create_terraform_role      = true
+
+  # Enable the scoped data-reader role in Production
+  create_data_reader_role  = true
+  data_reader_trusted_arns = var.data_reader_trusted_arns
+  data_lake_bucket_arn     = var.data_lake_bucket_arn
+  dataset_prefix           = var.dataset_prefix
+  metadata_prefix          = var.metadata_prefix
 
   # All roles are read-only in Production with heavy compute and deployment denied.
   team_roles = {
