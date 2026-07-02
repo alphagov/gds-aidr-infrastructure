@@ -2,7 +2,7 @@
 # GDS Data Innovation and AI Readiness Team Cloud Infrastructure Repository
 
 <!--date_created: mon-18-may-2026-->
-<!--date_updated: mon-22-june-2026-->
+<!--date_updated: thurs-02-july-2026-->
 
 
 **Index**
@@ -29,47 +29,70 @@ This is a **public repository**
 
 ```zsh
 ./gds-aidr-infrastructure
+.gds-aidr-infrastructure
 ├── .editorconfig
 ├── .eslintrc
 ├── .github
-│   ├── workflows/
-│   │   ├── linter.yml
-│   ├── CODEOWNERS
-│   ├── ISSUE_TEMPLATE
-│   │   ├── bug_report.md
-│   │   └── feature_request.md
+│   ├── CODEOWNERS
+│   ├── ISSUE_TEMPLATE
+│   │   ├── bug_report.md
+│   │   └── feature_request.md
+│   └── workflows
+│       └── linter.yml
 ├── .gitignore
 ├── .prettierrc
 ├── CONTRIBUTING.md
 ├── LICENSE
 ├── README.md
+├── claude_code_bedrock_guide.md
 ├── docs
-│   ├── _static
-│   │   └── aidr-architecture-blue-with-disclaimer.png
-│   └── infrastructure
-│       └── iam-cross-account-strategy.md
+│   ├── _static
+│   │   └── aidr-architecture-blue-with-disclaimer.png
+│   └── infrastructure
+│       └── iam-cross-account-strategy.md
 ├── infrastructure
-│   └── terraform
-│       ├── bootstrap
-│       │   ├── trust-policy-development.json
-│       │   └── trust-policy-staging.json
-│       ├── environments
-│       │   └── production-iam
-│       │       ├── main.tf
-│       │       ├── outputs.tf
-│       │       ├── terraform.tfvars.example
-│       │       └── variables.tf
-│       └── modules
-│           ├── budget-alerts
-│           │   ├── main.tf
-│           │   ├── outputs.tf
-│           │   └── variables.tf
-│           └── iam-centralised
-│               ├── main.tf
-│               ├── outputs.tf
-│               └── variables.tf
+│   └── terraform
+│       ├── environments
+│       │   ├── data-lake
+│       │   │   ├── .terraform
+│       │   │   │   ├── modules
+│       │   │   │   │   └── modules.json
+│       │   │   │   └── terraform.tfstate
+│       │   │   ├── .terraform.lock.hcl
+│       │   │   ├── main.tf
+│       │   │   ├── outputs.tf
+│       │   │   ├── terraform.tfvars
+│       │   │   └── variables.tf
+│       │   └── production-iam
+│       │       ├── .terraform
+│       │       │   ├── modules
+│       │       │   │   └── modules.json
+│       │       │   └── terraform.tfstate
+│       │       ├── .terraform.lock.hcl
+│       │       ├── main.tf
+│       │       ├── outputs.tf
+│       │       ├── terraform.tfvars
+│       │       ├── tree.txt
+│       │       └── variables.tf
+│       └── modules
+│           ├── budget-alerts
+│           │   ├── main.tf
+│           │   ├── outputs.tf
+│           │   └── variables.tf
+│           ├── data-lake
+│           │   ├── main.tf
+│           │   ├── outputs.tf
+│           │   └── variables.tf
+│           └── iam-centralised
+│               ├── main.tf
+│               ├── outputs.tf
+│               └── variables.tf
 ├── package.json
+├── role_scopes.pdf
+├── scripts
+│   └── purge.sh
 ├── tree.txt
+└── tree_full.txt
 
 ```
 ---
@@ -487,27 +510,44 @@ Bedrock usage is billed to the Development account. Budget alerts are configured
 #### Repository structure (infrastructure)  
 
 ```
-infrastructure/terraform/
-├── bootstrap/                      # one-time setup for cross-account trust
-│   ├── trust-policy-development.json
-│   └── trust-policy-staging.json
-├── environments/
-│   └── production-iam/             # centralised IAM (runs in production)
-│       ├── main.tf
-│       ├── variables.tf
-│       ├── outputs.tf
-│       └── terraform.tfvars.example
-└── modules/
-    └── budget-alerts/              # monthly budget alerts per account (admins only)
-    │   ├── main.tfsent to admins
-        ├── main.tf
-        ├── variables.tf
-        └── outputs.tf
-    └── iam-centralised/            # reusable module for OIDC + IAM roles
-        ├── main.tf
-        ├── variables.tf
-        ├── outputs.tf
-        └── README.md
+├── infrastructure
+│   └── terraform
+│       ├── environments
+│           ├── data-lake              # application-specific data storeed in Production
+│       │   ├── data-lake
+│       │   │   ├── .terraform
+│       │   │   │   ├── modules
+│       │   │   │   │   └── modules.json
+│       │   │   │   └── terraform.tfstate
+│       │   │   ├── .terraform.lock.hcl
+│       │   │   ├── main.tf
+│       │   │   ├── outputs.tf
+│       │   │   ├── terraform.tfvars
+│       │   │   └── variables.tf
+│       │   │   └── production-iam/             # centralised IAM (runs in Production) 
+│       │       ├── .terraform
+│       │       │   ├── modules
+│       │       │   │   └── modules.json
+│       │       │   └── terraform.tfstate
+│       │       ├── .terraform.lock.hcl
+│       │       ├── main.tf
+│       │       ├── outputs.tf
+│       │       ├── terraform.tfvars
+│       │       ├── tree.txt
+│       │       └── variables.tf
+│       └── modules
+│           ├── budget-alerts/              # monthly budget alerts per account (strictly admins only)
+│           │   ├── main.tf
+│           │   ├── outputs.tf
+│           │   └── variables.tf
+│           ├── data-lake
+│           │   ├── main.tf
+│           │   ├── outputs.tf
+│           │   └── variables.tf
+│           └──  iam-centralised/            # reusable module for OIDC + IAM roles
+│               ├── main.tf
+│               ├── outputs.tf
+│               └── variables.tf
 ```
 
 For detailed architecture documentation, see [`docs/infrastructure/iam-cross-account-strategy.md`](docs/infrastructure/iam-cross-account-strategy.md).
