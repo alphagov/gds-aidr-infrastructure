@@ -1,0 +1,25 @@
+# environments/data-lake/terraform.tfvars.example
+#
+# Copy this file to terraform.tfvars and fill in correct values.
+# DO NOT commit terraform.tfvars. The .gitignore excludes *.tfvars files.
+
+production_account_id = "REPLACE_WITH_PRODUCTION_ACCOUNT_ID"
+
+bucket_name     = "gds-aidr-synthetic-data-library"
+dataset_prefix  = "datasets/email/v1/"
+metadata_prefix = "metadata/email/v1/"
+
+# Development and Staging account roots for internal cross-account read.
+# Cross-government roots are added here only after the dataset is classified
+# and approved for sharing.
+reader_account_arns = [
+  "arn:aws:iam::REPLACE_WITH_DEVELOPMENT_ACCOUNT_ID:root",
+  "arn:aws:iam::REPLACE_WITH_STAGING_ACCOUNT_ID:root"
+]
+
+create_lakeformation_register_role = true
+
+# Data lake formation role
+lakeformation_register_role_arn    = ""
+
+audit_log_retention_days = 365
