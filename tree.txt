@@ -23,7 +23,6 @@
 │   └── terraform
 │       ├── environments
 │           ├── data-lake              # application-specific data storeed in Production
-│       │   ├── data-lake
 │       │   │   ├── .terraform
 │       │   │   │   ├── modules
 │       │   │   │   │   └── modules.json

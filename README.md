@@ -514,7 +514,6 @@ Bedrock usage is billed to the Development account. Budget alerts are configured
 │   └── terraform
 │       ├── environments
 │           ├── data-lake              # application-specific data storeed in Production
-│       │   ├── data-lake
 │       │   │   ├── .terraform
 │       │   │   │   ├── modules
 │       │   │   │   │   └── modules.json
