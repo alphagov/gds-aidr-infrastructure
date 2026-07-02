@@ -1,4 +1,4 @@
-.
+.gds-aidr-infrastructure
 ├── .editorconfig
 ├── .eslintrc
 ├── .github
@@ -13,15 +13,55 @@
 ├── CONTRIBUTING.md
 ├── LICENSE
 ├── README.md
-├── role_scopes.pdf
 ├── claude_code_bedrock_guide.md
 ├── docs
+│   ├── _static
+│   │   └── aidr-architecture-blue-with-disclaimer.png
 │   └── infrastructure
 │       └── iam-cross-account-strategy.md
 ├── infrastructure
+│   └── terraform
+│       ├── environments
+│           ├── data-lake              # application-specific data storeed in Production
+│       │   ├── data-lake
+│       │   │   ├── .terraform
+│       │   │   │   ├── modules
+│       │   │   │   │   └── modules.json
+│       │   │   │   └── terraform.tfstate
+│       │   │   ├── .terraform.lock.hcl
+│       │   │   ├── main.tf
+│       │   │   ├── outputs.tf
+│       │   │   ├── terraform.tfvars
+│       │   │   └── variables.tf
+│       │   │   └── production-iam/             # centralised IAM (runs in Production) 
+│       │       ├── .terraform
+│       │       │   ├── modules
+│       │       │   │   └── modules.json
+│       │       │   └── terraform.tfstate
+│       │       ├── .terraform.lock.hcl
+│       │       ├── main.tf
+│       │       ├── outputs.tf
+│       │       ├── terraform.tfvars
+│       │       ├── tree.txt
+│       │       └── variables.tf
+│       └── modules
+│           ├── budget-alerts/              # monthly budget alerts per account (strictly admins only)
+│           │   ├── main.tf
+│           │   ├── outputs.tf
+│           │   └── variables.tf
+│           ├── data-lake
+│           │   ├── main.tf
+│           │   ├── outputs.tf
+│           │   └── variables.tf
+│           └──  iam-centralised/            # reusable module for OIDC + IAM roles
+│               ├── main.tf
+│               ├── outputs.tf
+│               └── variables.tf
 ├── package.json
+├── role_scopes.pdf
 ├── scripts
 │   └── purge.sh
-└── tree.txt
+├── tree.txt
+└── tree_full.txt
 
-8 directories, 17 files
+21 directories, 43 files
