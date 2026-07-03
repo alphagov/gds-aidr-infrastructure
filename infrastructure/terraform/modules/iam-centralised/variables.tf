@@ -36,6 +36,12 @@ variable "github_oidc_allowed_subjects" {
   default     = []
 }
 
+variable "chained_trusted_account_arns" {
+  description = "Account root ARNs allowed to assume the terraform role via cross-account chaining, e.g. the production account root so it can chain into development and staging without a bootstrap role."
+  type        = list(string)
+  default     = []
+}
+
 variable "create_admin_role" {
   description = "Whether to create the admin role in this account."
   type        = bool
@@ -114,32 +120,32 @@ variable "tags" {
 # --------------------------------------------------------------------------
 
 
-variable "create_data_reader_role" {
-  description = "Whether to create the scoped data-reader role in this account."
-  type        = bool
-  default     = false
-}
+# variable "create_data_reader_role" {
+#  description = "Whether to create the scoped data-reader role in this account."
+#  type        = bool
+#  default     = false
+#}
 
-variable "data_reader_trusted_arns" {
-  description = "List of account root ARNs that can assume the data-reader role. The gds-users org root for internal use, plus cross-government department account roots for cross-government use."
-  type        = list(string)
-  default     = []
-}
+#variable "data_reader_trusted_arns" {
+#  description = "List of account root ARNs that can assume the data-reader role. The gds-users org root for internal use, plus cross-government department account roots for cross-government use."
+#  type        = list(string)
+#  default     = []
+#}
 
-variable "data_lake_bucket_arn" {
-  description = "ARN of the data lake bucket the data-reader role reads from."
-  type        = string
-  default     = ""
-}
+#variable "data_lake_bucket_arn" {
+#  description = "ARN of the data lake bucket the data-reader role reads from."
+#  type        = string
+#  default     = ""
+#}
 
-variable "dataset_prefix" {
-  description = "Prefix for dataset files the data-reader role may read, for example datasets/email/v1/."
-  type        = string
-  default     = ""
-}
+#variable "dataset_prefix" {
+#  description = "Prefix for dataset files the data-reader role may read, for example datasets/email/v1/."
+#  type        = string
+#  default     = ""
+#}
 
-variable "metadata_prefix" {
-  description = "Prefix for metadata files the data-reader role may read, for example metadata/email/v1/."
-  type        = string
-  default     = ""
-}
+#variable "metadata_prefix" {
+#  description = "Prefix for metadata files the data-reader role may read, for example metadata/email/v1/."
+#  type        = string
+#  default     = ""
+#}

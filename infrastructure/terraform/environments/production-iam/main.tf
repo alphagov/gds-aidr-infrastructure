@@ -175,6 +175,8 @@ module "iam_development" {
   }
 
   github_oidc_allowed_subjects = var.github_oidc_allowed_subjects
+  chained_trusted_account_arns = ["arn:aws:iam::${var.production_account_id}:root"]
+
 
   max_session_duration = var.max_session_duration
 
@@ -239,6 +241,8 @@ module "iam_staging" {
   }
 
   github_oidc_allowed_subjects = var.github_oidc_allowed_subjects
+  chained_trusted_account_arns = ["arn:aws:iam::${var.production_account_id}:root"]
+
 
   max_session_duration = var.max_session_duration
 
@@ -271,11 +275,8 @@ module "iam_production" {
   create_terraform_role      = true
 
   # Enable the data-reader role in Production
-  create_data_reader_role  = true
-  data_reader_trusted_arns = var.data_reader_trusted_arns
-  data_lake_bucket_arn     = var.data_lake_bucket_arn
-  dataset_prefix           = var.dataset_prefix
-  metadata_prefix          = var.metadata_prefix
+  # create_data_reader_role  = true
+  # data_reader_trusted_arns = var.data_reader_trusted_arns
 
   # All roles are read-only in Production with heavy compute and deployment denied.
   team_roles = {

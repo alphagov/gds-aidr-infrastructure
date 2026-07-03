@@ -162,62 +162,73 @@ resource "aws_iam_role_policy_attachment" "security_audit" {
 # infrastructure changes. The OIDC subject condition locks it to specific
 # repos and branches.
 
+locals {
+  # Base trust statements, always present.
+  terraform_role_base_statements = [
+    # Human access via gds-users with MFA
+    {
+      Sid    = "AllowHumanAssumeWithMFA"
+      Effect = "Allow"
+      Principal = {
+        AWS = var.trusted_account_arns
+      }
+      Action = "sts:AssumeRole"
+      Condition = {
+        Bool = {
+          "aws:MultiFactorAuthPresent" = "true"
+        }
+      }
+    },
+    # GitHub Actions access via OIDC
+    {
+      Sid    = "AllowGitHubActionsOIDC"
+      Effect = "Allow"
+      Principal = {
+        Federated = aws_iam_openid_connect_provider.github.arn
+      }
+      Action = "sts:AssumeRoleWithWebIdentity"
+      Condition = {
+        StringEquals = {
+          "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+        }
+        StringLike = {
+          "token.actions.githubusercontent.com:sub" = var.github_oidc_allowed_subjects
+        }
+      }
+    }
+  ]
+
+  # Chaining statement, only added when chained_trusted_account_arns is set.
+  # No MFA condition here — MFA is not propagated through role chaining, so
+  # requiring it would block legitimate chained sessions that already passed
+  # MFA on the first hop.
+  terraform_role_chaining_statement = length(var.chained_trusted_account_arns) > 0 ? [
+    {
+      Sid    = "AllowChainedAssumeFromTrustedAccounts"
+      Effect = "Allow"
+      Principal = {
+        AWS = var.chained_trusted_account_arns
+      }
+      Action = "sts:AssumeRole"
+    }
+  ] : []
+
+  terraform_role_statements = concat(
+    local.terraform_role_base_statements,
+    local.terraform_role_chaining_statement
+  )
+}
+
 resource "aws_iam_role" "terraform" {
   count = var.create_terraform_role ? 1 : 0
 
   name = "${var.role_prefix}-terraform"
 
   assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = concat(
-      [
-        # Human access via gds-users with MFA
-        {
-          Sid    = "AllowHumanAssumeWithMFA"
-          Effect = "Allow"
-          Principal = {
-            AWS = var.trusted_account_arns
-          }
-          Action = "sts:AssumeRole"
-          Condition = {
-            Bool = {
-              "aws:MultiFactorAuthPresent" = "true"
-            }
-          }
-        },
-        # GitHub Actions access via OIDC
-        {
-          Sid    = "AllowGitHubActionsOIDC"
-          Effect = "Allow"
-          Principal = {
-            Federated = aws_iam_openid_connect_provider.github.arn
-          }
-          Action = "sts:AssumeRoleWithWebIdentity"
-          Condition = {
-            StringEquals = {
-              "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
-            }
-            StringLike = {
-              "token.actions.githubusercontent.com:sub" = var.github_oidc_allowed_subjects
-            }
-          }
-        }
-      ],
-      # Cross-account assume — only included when terraform_cross_account_arns
-      # is non-empty. Avoids empty-principal error on accounts that do not
-      # need cross-account trust (e.g. Production).
-      length(var.terraform_cross_account_arns) > 0 ? [
-        {
-          Sid    = "AllowCrossAccountAssume"
-          Effect = "Allow"
-          Principal = {
-            AWS = var.terraform_cross_account_arns
-          }
-          Action = "sts:AssumeRole"
-        }
-      ] : []
-    )
+    Version   = "2012-10-17"
+    Statement = local.terraform_role_statements
   })
+
   max_session_duration = var.max_session_duration
 
   tags = var.tags
@@ -413,74 +424,74 @@ resource "aws_iam_role_policy" "team_deny_deployment" {
 # the gds-users org root. For cross-government use this is the other
 # department's account root, added to the same list. MFA is always required.
 
-resource "aws_iam_role" "data_reader" {
-  count = var.create_data_reader_role ? 1 : 0
+#resource "aws_iam_role" "data_reader" {
+# count = var.create_data_reader_role ? 1 : 0
 
-  name = "${var.role_prefix}-data-reader"
+#name = "${var.role_prefix}-data-reader"
 
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Principal = {
-          AWS = var.data_reader_trusted_arns
-        }
-        Action = "sts:AssumeRole"
-        Condition = {
-          Bool = {
-            "aws:MultiFactorAuthPresent" = "true"
-          }
-        }
-      }
-    ]
-  })
-
-  max_session_duration = var.max_session_duration
-
-  tags = var.tags
-}
+#  assume_role_policy = jsonencode({
+#    Version = "2012-10-17"
+#    Statement = [
+#      {
+#        Effect = "Allow"
+#        Principal = {
+#          AWS = var.data_reader_trusted_arns
+#        }
+#        Action = "sts:AssumeRole"
+#        Condition = {
+#          Bool = {
+#            "aws:MultiFactorAuthPresent" = "true"
+#          }
+#        }
+#     }
+#    ]
+#  })
+#
+#  max_session_duration = var.max_session_duration
+#
+#  tags = var.tags
+#}
 
 # Read access scoped to the dataset and metadata prefixes of the data lake
 # bucket. ListBucket is scoped with a condition so a caller can only list the
 # permitted prefixes, not the whole bucket.
 
-resource "aws_iam_role_policy" "data_reader" {
-  count = var.create_data_reader_role ? 1 : 0
-
-  name = "${var.role_prefix}-data-reader"
-  role = aws_iam_role.data_reader[0].id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid    = "ReadObjects"
-        Effect = "Allow"
-        Action = [
-          "s3:GetObject"
-        ]
-        Resource = [
-          "${var.data_lake_bucket_arn}/${var.dataset_prefix}*",
-          "${var.data_lake_bucket_arn}/${var.metadata_prefix}*"
-        ]
-      },
-      {
-        Sid    = "ListPermittedPrefixes"
-        Effect = "Allow"
-        Action = [
-          "s3:ListBucket"
-        ]
-        Resource = var.data_lake_bucket_arn
-        Condition = {
-          StringLike = {
-            "s3:prefix" = [
-              "${var.dataset_prefix}*",
-              "${var.metadata_prefix}*"
-            ]
-          }
-        }
-      }
-    ]
-  })
-}
+#resource "aws_iam_role_policy" "data_reader" {
+#  count = var.create_data_reader_role ? 1 : 0
+#
+#  name = "${var.role_prefix}-data-reader"
+#  role = aws_iam_role.data_reader[0].id
+#
+#  policy = jsonencode({
+#    Version = "2012-10-17"
+#    Statement = [
+#      {
+#        Sid    = "ReadObjects"
+#        Effect = "Allow"
+#        Action = [
+#          "s3:GetObject"
+#        ]
+#        Resource = [
+#          "${var.data_lake_bucket_arn}/${var.dataset_prefix}*",
+#          "${var.data_lake_bucket_arn}/${var.metadata_prefix}*"
+#        ]
+#      },
+#      {
+#        Sid    = "ListPermittedPrefixes"
+#        Effect = "Allow"
+#        Action = [
+#          "s3:ListBucket"
+#        ]
+#        Resource = var.data_lake_bucket_arn
+#        Condition = {
+#          StringLike = {
+#            "s3:prefix" = [
+#              "${var.dataset_prefix}*",
+#              "${var.metadata_prefix}*"
+#            ]
+#          }
+#        }
+#      }
+#    ]
+#  })
+#}
