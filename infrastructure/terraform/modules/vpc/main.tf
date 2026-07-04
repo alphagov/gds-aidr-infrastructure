@@ -25,7 +25,7 @@ resource "aws_vpc" "this" {
   enable_dns_hostnames = true
 
   tags = merge(var.tags, {
-    Name = "${var.environment_name}-vpc"
+    Name = "${lower(var.environment_name)}-vpc"
   })
 }
 
@@ -33,7 +33,7 @@ resource "aws_internet_gateway" "this" {
   vpc_id = aws_vpc.this.id
 
   tags = merge(var.tags, {
-    Name = "${var.environment_name}-igw"
+    Name = "${lower(var.environment_name)}-igw"
   })
 }
 
@@ -46,12 +46,12 @@ resource "aws_subnet" "public" {
   count = length(var.public_subnet_cidrs)
 
   vpc_id                  = aws_vpc.this.id
-  cidr_block              = var.public_subnet_cidrs[count.index]
-  availability_zone       = var.azs[count.index]
-  map_public_ip_on_launch = true
+  cidr_block               = var.public_subnet_cidrs[count.index]
+  availability_zone        = var.azs[count.index]
+  map_public_ip_on_launch  = true
 
   tags = merge(var.tags, {
-    Name = "${var.environment_name}-public-${var.azs[count.index]}"
+    Name = "${lower(var.environment_name)}-public-${var.azs[count.index]}"
   })
 }
 
@@ -64,7 +64,7 @@ resource "aws_route_table" "public" {
   }
 
   tags = merge(var.tags, {
-    Name = "${var.environment_name}-public-rt"
+    Name = "${lower(var.environment_name)}-public-rt"
   })
 }
 
@@ -87,7 +87,7 @@ resource "aws_eip" "nat" {
   domain = "vpc"
 
   tags = merge(var.tags, {
-    Name = "${var.environment_name}-nat-eip-${count.index}"
+    Name = "${lower(var.environment_name)}-nat-eip-${count.index}"
   })
 }
 
@@ -98,7 +98,7 @@ resource "aws_nat_gateway" "this" {
   subnet_id     = aws_subnet.public[count.index].id
 
   tags = merge(var.tags, {
-    Name = "${var.environment_name}-nat-${count.index}"
+    Name = "${lower(var.environment_name)}-nat-${count.index}"
   })
 
   depends_on = [aws_internet_gateway.this]
@@ -121,7 +121,7 @@ resource "aws_subnet" "private_app" {
   availability_zone = var.azs[count.index]
 
   tags = merge(var.tags, {
-    Name = "${var.environment_name}-private-app-${var.azs[count.index]}"
+    Name = "${lower(var.environment_name)}-private-app-${var.azs[count.index]}"
   })
 }
 
@@ -136,7 +136,7 @@ resource "aws_route_table" "private_app" {
   }
 
   tags = merge(var.tags, {
-    Name = "${var.environment_name}-private-app-rt-${var.azs[count.index]}"
+    Name = "${lower(var.environment_name)}-private-app-rt-${var.azs[count.index]}"
   })
 }
 
@@ -161,7 +161,7 @@ resource "aws_subnet" "private_data" {
   availability_zone = var.azs[count.index]
 
   tags = merge(var.tags, {
-    Name = "${var.environment_name}-private-data-${var.azs[count.index]}"
+    Name = "${lower(var.environment_name)}-private-data-${var.azs[count.index]}"
   })
 }
 
@@ -169,7 +169,7 @@ resource "aws_route_table" "private_data" {
   vpc_id = aws_vpc.this.id
 
   tags = merge(var.tags, {
-    Name = "${var.environment_name}-private-data-rt"
+    Name = "${lower(var.environment_name)}-private-data-rt"
   })
 }
 
@@ -189,7 +189,7 @@ resource "aws_route_table_association" "private_data" {
 # needs to talk to the others.
 
 resource "aws_security_group" "vpc_endpoints" {
-  name        = "${var.environment_name}-vpc-endpoints"
+  name        = "${lower(var.environment_name)}-vpc-endpoints"
   description = "Allows HTTPS traffic from the VPC to interface VPC endpoints."
   vpc_id      = aws_vpc.this.id
 
@@ -210,12 +210,12 @@ resource "aws_security_group" "vpc_endpoints" {
   }
 
   tags = merge(var.tags, {
-    Name = "${var.environment_name}-vpc-endpoints-sg"
+    Name = "${lower(var.environment_name)}-vpc-endpoints-sg"
   })
 }
 
 resource "aws_security_group" "ecs_task" {
-  name        = "${var.environment_name}-ecs-task"
+  name        = "${lower(var.environment_name)}-ecs-task"
   description = "Attached to ECS Fargate tasks. No ingress by default."
   vpc_id      = aws_vpc.this.id
 
@@ -228,30 +228,30 @@ resource "aws_security_group" "ecs_task" {
   }
 
   tags = merge(var.tags, {
-    Name = "${var.environment_name}-ecs-task-sg"
+    Name = "${lower(var.environment_name)}-ecs-task-sg"
   })
 }
 
 resource "aws_security_group" "private_data" {
-  name        = "${var.environment_name}-private-data"
+  name        = "${lower(var.environment_name)}-private-data"
   description = "Attached to future Redshift or Aurora resources. Ingress restricted to the ECS task security group."
   vpc_id      = aws_vpc.this.id
 
   ingress {
     description     = "Data-layer traffic from ECS tasks"
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
-    security_groups = [aws_security_group.ecs_task.id]
+    from_port        = 0
+    to_port           = 0
+    protocol          = "-1"
+    security_groups   = [aws_security_group.ecs_task.id]
   }
 
   tags = merge(var.tags, {
-    Name = "${var.environment_name}-private-data-sg"
+    Name = "${lower(var.environment_name)}-private-data-sg"
   })
 }
 
 resource "aws_security_group" "alb" {
-  name        = "${var.environment_name}-alb"
+  name        = "${lower(var.environment_name)}-alb"
   description = "Reserved for a future Application Load Balancer. No listeners exist yet."
   vpc_id      = aws_vpc.this.id
 
@@ -272,7 +272,7 @@ resource "aws_security_group" "alb" {
   }
 
   tags = merge(var.tags, {
-    Name = "${var.environment_name}-alb-sg"
+    Name = "${lower(var.environment_name)}-alb-sg"
   })
 }
 
@@ -287,7 +287,7 @@ resource "aws_vpc_endpoint" "s3" {
   route_table_ids   = aws_route_table.private_app[*].id
 
   tags = merge(var.tags, {
-    Name = "${var.environment_name}-vpce-s3"
+    Name = "${lower(var.environment_name)}-vpce-s3"
   })
 }
 
@@ -298,7 +298,7 @@ resource "aws_vpc_endpoint" "dynamodb" {
   route_table_ids   = aws_route_table.private_app[*].id
 
   tags = merge(var.tags, {
-    Name = "${var.environment_name}-vpce-dynamodb"
+    Name = "${lower(var.environment_name)}-vpce-dynamodb"
   })
 }
 
@@ -325,12 +325,12 @@ resource "aws_vpc_endpoint" "interface" {
 
   vpc_id              = aws_vpc.this.id
   service_name        = "com.amazonaws.${data.aws_region.current.name}.${each.value}"
-  vpc_endpoint_type   = "Interface"
-  subnet_ids          = aws_subnet.private_app[*].id
-  security_group_ids  = [aws_security_group.vpc_endpoints.id]
-  private_dns_enabled = true
+  vpc_endpoint_type    = "Interface"
+  subnet_ids           = aws_subnet.private_app[*].id
+  security_group_ids   = [aws_security_group.vpc_endpoints.id]
+  private_dns_enabled  = true
 
   tags = merge(var.tags, {
-    Name = "${var.environment_name}-vpce-${each.value}"
+    Name = "${lower(var.environment_name)}-vpce-${each.value}"
   })
 }
