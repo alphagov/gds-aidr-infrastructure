@@ -18,7 +18,7 @@ resource "aws_s3_bucket" "this" {
   bucket = var.bucket_name
 
   tags = merge(var.tags, {
-    Name = "${var.environment_name}-${var.bucket_name}"
+    Name = "${lower(var.environment_name)}-${var.bucket_name}"
   })
 }
 
