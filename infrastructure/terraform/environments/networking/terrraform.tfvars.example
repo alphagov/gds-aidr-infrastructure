@@ -1,0 +1,12 @@
+# environments/networking/terraform.tfvars.example
+#
+# Copy this file to terraform.tfvars and fill in account IDs.
+# DO NOT commit terraform.tfvars.
+# Subnet CIDRs and VPC CIDRs have sensible defaults in variables.tf —
+# override here only if the agreed ranges need to change.
+
+development_account_id = ""
+staging_account_id     = ""
+production_account_id  = ""
+
+role_prefix = "gds-aidr"
