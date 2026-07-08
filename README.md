@@ -2,11 +2,12 @@
 # GDS Data Innovation and AI Readiness Team Cloud Infrastructure Repository
 
 <!--date_created: mon-18-may-2026-->
-<!--date_updated: thurs-02-july-2026-->
+<!--date_updated: weds-08-july-2026-->
 
 
 **Index**
  - [Repository Structure](#repository-structure)
+ - [Architecture diagrams](#architecture-diagrams)
  - [Get access to AIDR platform](#get-access-to-the-aidr-platform)
     * [For developers and platform admins](#for-developers-and-platform-admins)
     * [Console Access - All users](#console-access)
@@ -33,12 +34,12 @@ This is a **public repository**
 ├── .editorconfig
 ├── .eslintrc
 ├── .github
-│   ├── CODEOWNERS
-│   ├── ISSUE_TEMPLATE
-│   │   ├── bug_report.md
-│   │   └── feature_request.md
-│   └── workflows
-│       └── linter.yml
+│   ├── CODEOWNERS
+│   ├── ISSUE_TEMPLATE
+│   │   ├── bug_report.md
+│   │   └── feature_request.md
+│   └── workflows
+│       └── linter.yml
 ├── .gitignore
 ├── .prettierrc
 ├── CONTRIBUTING.md
@@ -46,58 +47,62 @@ This is a **public repository**
 ├── README.md
 ├── claude_code_bedrock_guide.md
 ├── docs
-│   ├── _static
-│   │   └── aidr-architecture-blue-with-disclaimer.png
-│   └── infrastructure
-│       └── iam-cross-account-strategy.md
+│   ├── _static
+│   │   └── aidr-architecture-blue-with-disclaimer.png
+│   ├── architecture
+│   │   ├── README.md
+│   │   ├── system-overview.md
+│   │   ├── networking.md
+│   │   ├── compute.md
+│   │   ├── data-lake.md
+│   │   └── iam.md
+│   └── infrastructure
+│       └── iam-cross-account-strategy.md
 ├── infrastructure
-│   └── terraform
-│       ├── environments
-│       │   ├── data-lake
-│       │   │   ├── .terraform
-│       │   │   │   ├── modules
-│       │   │   │   │   └── modules.json
-│       │   │   │   └── terraform.tfstate
-│       │   │   ├── .terraform.lock.hcl
-│       │   │   ├── main.tf
-│       │   │   ├── outputs.tf
-│       │   │   ├── terraform.tfvars
-│       │   │   └── variables.tf
-│       │   └── production-iam
-│       │       ├── .terraform
-│       │       │   ├── modules
-│       │       │   │   └── modules.json
-│       │       │   └── terraform.tfstate
-│       │       ├── .terraform.lock.hcl
-│       │       ├── main.tf
-│       │       ├── outputs.tf
-│       │       ├── terraform.tfvars
-│       │       ├── tree.txt
-│       │       └── variables.tf
-│       └── modules
-│           ├── budget-alerts
-│           │   ├── main.tf
-│           │   ├── outputs.tf
-│           │   └── variables.tf
-│           ├── data-lake
-│           │   ├── main.tf
-│           │   ├── outputs.tf
-│           │   └── variables.tf
-│           └── iam-centralised
-│               ├── main.tf
-│               ├── outputs.tf
-│               └── variables.tf
+│   └── terraform
+│       ├── bootstrap
+│       │   ├── trust-policy-development.json
+│       │   └── trust-policy-staging.json
+│       ├── environments
+│       │   ├── production-iam
+│       │   ├── networking
+│       │   ├── containers
+│       │   ├── compute
+│       │   └── data-lake
+│       └── modules
+│           ├── budget-alerts
+│           ├── iam-centralised
+│           ├── vpc
+│           ├── ecr
+│           ├── s3-bucket
+│           ├── data-lake
+│           ├── workload-iam
+│           ├── ecs-cluster
+│           └── ecs-fargate-service
 ├── package.json
 ├── role_scopes.pdf
 ├── scripts
-│   └── purge.sh
+│   └── purge.sh
 ├── tree.txt
 └── tree_full.txt
-
 ```
+
 ---
 
-<!--There is no infrastructure in this repository. Code will be migrated once tested and necessary security parameters are in place-->
+## Architecture diagrams
+*[(back)](#gds-data-innovation-and-ai-readiness-team-cloud-infrastructure-repository)*
+
+Plain-English diagrams showing how the platform fits together, written as Mermaid diagram-as-code — free, open source, and rendered automatically by GitHub with no external service or paid plan required. See `docs/architecture/`:
+
+- [`system-overview.md`](docs/architecture/system-overview.md) — the whole platform in one picture
+- [`networking.md`](docs/architecture/networking.md) — how each account's private network is laid out
+- [`compute.md`](docs/architecture/compute.md) — how a running service gets its permissions
+- [`data-lake.md`](docs/architecture/data-lake.md) — where synthetic data is stored and governed
+- [`iam.md`](docs/architecture/iam.md) — who and what can access the platform
+
+Each diagram is preceded by a plain-English explanation in the same file — no need to open a separate tool to understand the system.
+
+---
 
 ## Get access to the AIDR platform
 
@@ -509,47 +514,30 @@ Bedrock usage is billed to the Development account. Budget alerts are configured
 
 #### Repository structure (infrastructure)  
 
-```
-├── infrastructure
-│   └── terraform
-│       ├── environments
-│           ├── data-lake              # application-specific data storeed in Production
-│       │   │   ├── .terraform
-│       │   │   │   ├── modules
-│       │   │   │   │   └── modules.json
-│       │   │   │   └── terraform.tfstate
-│       │   │   ├── .terraform.lock.hcl
-│       │   │   ├── main.tf
-│       │   │   ├── outputs.tf
-│       │   │   ├── terraform.tfvars
-│       │   │   └── variables.tf
-│       │   │   └── production-iam/             # centralised IAM (runs in Production) 
-│       │       ├── .terraform
-│       │       │   ├── modules
-│       │       │   │   └── modules.json
-│       │       │   └── terraform.tfstate
-│       │       ├── .terraform.lock.hcl
-│       │       ├── main.tf
-│       │       ├── outputs.tf
-│       │       ├── terraform.tfvars
-│       │       ├── tree.txt
-│       │       └── variables.tf
-│       └── modules
-│           ├── budget-alerts/              # monthly budget alerts per account (strictly admins only)
-│           │   ├── main.tf
-│           │   ├── outputs.tf
-│           │   └── variables.tf
-│           ├── data-lake
-│           │   ├── main.tf
-│           │   ├── outputs.tf
-│           │   └── variables.tf
-│           └──  iam-centralised/            # reusable module for OIDC + IAM roles
-│               ├── main.tf
-│               ├── outputs.tf
-│               └── variables.tf
+```zsh
+infrastructure/terraform/
+├── bootstrap/                      # one-time setup for cross-account trust
+│   ├── trust-policy-development.json
+│   └── trust-policy-staging.json
+├── environments/
+│   ├── production-iam/             # centralised IAM (runs in Production)
+│   ├── networking/                 # VPC, subnets, NAT, security groups
+│   ├── containers/                 # ECR repositories
+│   ├── compute/                    # ECS clusters, services, workload IAM
+│   └── data-lake/                  # application-specific data stored in Production
+└── modules/
+    ├── budget-alerts/              # monthly budget alerts per account (strictly admins only)
+    ├── iam-centralised/            # reusable module for OIDC + IAM roles
+    ├── vpc/                        # reusable module for account networking
+    ├── ecr/                        # reusable module for a container repository
+    ├── s3-bucket/                  # reusable general-purpose bucket module
+    ├── data-lake/                  # purpose-built data lake module
+    ├── workload-iam/               # execution and task roles for a workload
+    ├── ecs-cluster/                # reusable module for an ECS cluster
+    └── ecs-fargate-service/        # reusable module for a Fargate task or service
 ```
 
-For detailed architecture documentation, see [`docs/infrastructure/iam-cross-account-strategy.md`](docs/infrastructure/iam-cross-account-strategy.md).
+For detailed architecture documentation, see [`docs/infrastructure/iam-cross-account-strategy.md`](docs/infrastructure/iam-cross-account-strategy.md) and the diagrams in [`docs/architecture/`](docs/architecture/)
 
 
 ## Contributing
