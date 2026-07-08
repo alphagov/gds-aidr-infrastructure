@@ -1,4 +1,4 @@
-.gds-aidr-infrastructure
+.
 ├── .editorconfig
 ├── .eslintrc
 ├── .github
@@ -17,26 +17,38 @@
 ├── docs
 │   ├── _static
 │   │   └── aidr-architecture-blue-with-disclaimer.png
+│   ├── architecture
 │   └── infrastructure
 │       └── iam-cross-account-strategy.md
 ├── infrastructure
 │   └── terraform
 │       ├── environments
-│           ├── data-lake              # application-specific data storeed in Production
-│       │   │   ├── .terraform
-│       │   │   │   ├── modules
-│       │   │   │   │   └── modules.json
-│       │   │   │   └── terraform.tfstate
+│       │   ├── compute
 │       │   │   ├── .terraform.lock.hcl
 │       │   │   ├── main.tf
 │       │   │   ├── outputs.tf
 │       │   │   ├── terraform.tfvars
 │       │   │   └── variables.tf
-│       │   │   └── production-iam/             # centralised IAM (runs in Production) 
-│       │       ├── .terraform
-│       │       │   ├── modules
-│       │       │   │   └── modules.json
-│       │       │   └── terraform.tfstate
+│       │   ├── containers
+│       │   │   ├── .terraform.lock.hcl
+│       │   │   ├── main.tf
+│       │   │   ├── outputs.tf
+│       │   │   ├── terraform copy.tfvars
+│       │   │   ├── terraform.tfvars
+│       │   │   └── variables.tf
+│       │   ├── data-lake
+│       │   │   ├── .terraform.lock.hcl
+│       │   │   ├── main.tf
+│       │   │   ├── outputs.tf
+│       │   │   ├── terraform.tfvars
+│       │   │   └── variables.tf
+│       │   ├── networking
+│       │   │   ├── .terraform.lock.hcl
+│       │   │   ├── main.tf
+│       │   │   ├── outputs.tf
+│       │   │   ├── terraform.tfvars
+│       │   │   └── variables.tf
+│       │   └── production-iam
 │       │       ├── .terraform.lock.hcl
 │       │       ├── main.tf
 │       │       ├── outputs.tf
@@ -44,7 +56,7 @@
 │       │       ├── tree.txt
 │       │       └── variables.tf
 │       └── modules
-│           ├── budget-alerts/              # monthly budget alerts per account (strictly admins only)
+│           ├── budget-alerts
 │           │   ├── main.tf
 │           │   ├── outputs.tf
 │           │   └── variables.tf
@@ -52,15 +64,37 @@
 │           │   ├── main.tf
 │           │   ├── outputs.tf
 │           │   └── variables.tf
-│           └──  iam-centralised/            # reusable module for OIDC + IAM roles
+│           ├── ecr
+│           │   ├── main.tf
+│           │   ├── outputs.tf
+│           │   └── variables.tf
+│           ├── ecs-cluster
+│           │   ├── main.tf
+│           │   ├── outputs.tf
+│           │   └── variables.tf
+│           ├── ecs-fargate-service
+│           │   ├── main.tf
+│           │   ├── outputs.tf
+│           │   └── variables.tf
+│           ├── iam-centralised
+│           │   ├── main.tf
+│           │   ├── outputs.tf
+│           │   └── variables.tf
+│           ├── s3-bucket
+│           │   ├── main.tf
+│           │   ├── outputs.tf
+│           │   └── variables.tf
+│           ├── vpc
+│           │   ├── main.tf
+│           │   ├── outputs.tf
+│           │   └── variables.tf
+│           └── workload-iam
 │               ├── main.tf
 │               ├── outputs.tf
 │               └── variables.tf
 ├── package.json
 ├── role_scopes.pdf
 ├── scripts
-│   └── purge.sh
-├── tree.txt
-└── tree_full.txt
+└── tree.txt
 
-21 directories, 43 files
+27 directories, 71 files
