@@ -2,7 +2,7 @@
 # GDS Data Innovation and AI Readiness Team Cloud Infrastructure Repository
 
 <!--date_created: mon-18-may-2026-->
-<!--date_updated: sat-12-july-2026-->
+<!--date_updated: weds-08-july-2026-->
 
 
 **Index**
@@ -40,6 +40,12 @@ This is a **public repository**
 │   │   └── feature_request.md
 │   └── workflows
 │       └── linter.yml
+│   ├── CODEOWNERS
+│   ├── ISSUE_TEMPLATE
+│   │   ├── bug_report.md
+│   │   └── feature_request.md
+│   └── workflows
+│       └── linter.yml
 ├── .gitignore
 ├── .prettierrc
 ├── CONTRIBUTING.md
@@ -47,6 +53,17 @@ This is a **public repository**
 ├── README.md
 ├── claude_code_bedrock_guide.md
 ├── docs
+│   ├── _static
+│   │   └── aidr-architecture-blue-with-disclaimer.png
+│   ├── architecture
+│   │   ├── README.md
+│   │   ├── system-overview.md
+│   │   ├── networking.md
+│   │   ├── compute.md
+│   │   ├── data-lake.md
+│   │   └── iam.md
+│   └── infrastructure
+│       └── iam-cross-account-strategy.md
 │   ├── _static
 │   │   └── aidr-architecture-blue-with-disclaimer.png
 │   ├── architecture
@@ -68,11 +85,9 @@ This is a **public repository**
 │       │   ├── networking
 │       │   ├── containers
 │       │   ├── compute
-│       │   ├── data-lake
-│       │   └── monitoring
+│       │   └── data-lake
 │       └── modules
 │           ├── budget-alerts
-│           ├── cloudtrail-digest
 │           ├── iam-centralised
 │           ├── vpc
 │           ├── ecr
@@ -85,8 +100,27 @@ This is a **public repository**
 ├── role_scopes.pdf
 ├── scripts
 │   └── purge.sh
+│   └── purge.sh
 ├── tree.txt
 └── tree_full.txt
+```
+
+---
+
+## Architecture diagrams
+*[(back)](#gds-data-innovation-and-ai-readiness-team-cloud-infrastructure-repository)*
+
+Plain-English diagrams showing how the platform fits together, written as Mermaid diagram-as-code — free, open source, and rendered automatically by GitHub with no external service or paid plan required. See `docs/architecture/`:
+
+- [`system-overview.md`](docs/architecture/system-overview.md) — the whole platform in one picture
+- [`networking.md`](docs/architecture/networking.md) — how each account's private network is laid out
+- [`compute.md`](docs/architecture/compute.md) — how a running service gets its permissions
+- [`data-lake.md`](docs/architecture/data-lake.md) — where synthetic data is stored and governed
+- [`iam.md`](docs/architecture/iam.md) — who and what can access the platform
+
+Each diagram is preceded by a plain-English explanation in the same file — no need to open a separate tool to understand the system.
+
+---
 ```
 
 ---
@@ -526,11 +560,9 @@ infrastructure/terraform/
 │   ├── networking/                 # VPC, subnets, NAT, security groups
 │   ├── containers/                 # ECR repositories
 │   ├── compute/                    # ECS clusters, services, workload IAM
-│   ├── data-lake/                  # application-specific data stored in Production
-│   └── monitoring/                 # CloudTrail weekly digest (EventBridge + Lambda + SNS)
+│   └── data-lake/                  # application-specific data stored in Production
 └── modules/
     ├── budget-alerts/              # monthly budget alerts per account (strictly admins only)
-    ├── cloudtrail-digest/          # weekly CloudTrail activity digest per account
     ├── iam-centralised/            # reusable module for OIDC + IAM roles
     ├── vpc/                        # reusable module for account networking
     ├── ecr/                        # reusable module for a container repository
@@ -542,36 +574,6 @@ infrastructure/terraform/
 ```
 
 For detailed architecture documentation, see [`docs/infrastructure/iam-cross-account-strategy.md`](docs/infrastructure/iam-cross-account-strategy.md) and the diagrams in [`docs/architecture/`](docs/architecture/)
-
-
-## Monitoring and auditing
-*[(back)](#gds-data-innovation-and-ai-readiness-team-cloud-infrastructure-repository)*
-
-### Weekly CloudTrail digest
-
-A Lambda function in each account (Development, Staging, Production) queries CloudTrail every Monday at 08:00 UTC for the past 7 days of team role activity. The results are published to an SNS topic in the Production account, which delivers a summary email to the platform admin.
-
-The digest covers all team roles (`data-scientist`, `developer`, `analyst`, `explorer`) and includes:
-
-- Number of API calls per role, per service
-- Top 5 actions per service
-- Any access denied events listed separately
-
-**Infrastructure:** `environments/monitoring/` and `modules/cloudtrail-digest/`
-
-**To test manually** (invoke the Lambda directly):
-
-```zsh
-aws lambda invoke \
-  --function-name gds-aidr-cloudtrail-digest-development \
-  --region eu-west-2 \
-  /tmp/digest-output.json \
-  && cat /tmp/digest-output.json
-```
-
-This triggers an immediate digest for the Development account. Check your email for the result.
-
-**To change the recipient email:** Update `digest_email` in `environments/monitoring/terraform.tfvars` and run `terraform apply`. The new subscriber will receive a confirmation email from SNS that must be clicked before digests are delivered.
 
 
 ## Contributing
