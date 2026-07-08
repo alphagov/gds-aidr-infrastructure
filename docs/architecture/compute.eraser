@@ -1,0 +1,22 @@
+direction right
+
+ECS Cluster [color: blue] {
+  Fargate Service [color: lightblue]
+}
+
+Workload IAM [color: blue] {
+  Execution Role [color: lightblue]
+  Task Role [color: lightblue]
+}
+
+ECR Repository [color: blue]
+CloudWatch Logs [color: blue]
+Data Lake Bucket [color: darkblue]
+
+Fargate Service > Workload IAM.Execution Role: assumed at container startup
+Fargate Service > Workload IAM.Task Role: assumed by application code
+
+Workload IAM.Execution Role > ECR Repository: pulls container image
+Workload IAM.Execution Role > CloudWatch Logs: writes container logs
+
+Workload IAM.Task Role > Data Lake Bucket: application read and write permissions
