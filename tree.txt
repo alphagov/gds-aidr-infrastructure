@@ -18,6 +18,11 @@
 │   ├── _static
 │   │   └── aidr-architecture-blue-with-disclaimer.png
 │   ├── architecture
+│   │   ├── README.md
+│   │   ├── compute.md
+│   │   ├── iam.md
+│   │   ├── networking.md
+│   │   └── system-overview.md
 │   └── infrastructure
 │       └── iam-cross-account-strategy.md
 ├── infrastructure
@@ -97,4 +102,4 @@
 ├── scripts
 └── tree.txt
 
-27 directories, 71 files
+27 directories, 76 files
