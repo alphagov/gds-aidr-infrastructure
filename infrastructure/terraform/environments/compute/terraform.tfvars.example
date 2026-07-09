@@ -1,0 +1,10 @@
+# environments/compute/terraform.tfvars.example
+#
+# Copy this file to terraform.tfvars and fill in account IDs.
+# DO NOT commit terraform.tfvars.
+
+development_account_id = ""
+staging_account_id     = ""
+production_account_id  = ""
+
+role_prefix = "gds-aidr"
