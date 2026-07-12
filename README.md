@@ -2,7 +2,7 @@
 # GDS Data Innovation and AI Readiness Team Cloud Infrastructure Repository
 
 <!--date_created: mon-18-may-2026-->
-<!--date_updated: weds-08-july-2026-->
+<!--date_updated: sat-12-july-2026-->
 
 
 **Index**
@@ -12,6 +12,7 @@
     * [For developers and platform admins](#for-developers-and-platform-admins)
     * [Console Access - All users](#console-access)
  - [Accessing Claude Code in Bedrock](#accessing-claude-code-in-bedrock)
+ - [Monitoring and auditing](#monitoring-and-auditing)
  - [Contributing](#contributing)
 
 > **Note:** to avoid confusion we will not use short forms of any of the environment names. Development and Production will be referred to as that in any code, variables, policies and documents, not *Dev* or *Prod*
@@ -29,7 +30,6 @@ This is a **public repository**
 *[(back)](#gds-data-innovation-and-ai-readiness-team-cloud-infrastructure-repository)*
 
 ```zsh
-./gds-aidr-infrastructure
 .gds-aidr-infrastructure
 ├── .editorconfig
 ├── .eslintrc
@@ -68,9 +68,11 @@ This is a **public repository**
 │       │   ├── networking
 │       │   ├── containers
 │       │   ├── compute
-│       │   └── data-lake
+│       │   ├── data-lake
+│       │   └── monitoring
 │       └── modules
 │           ├── budget-alerts
+│           ├── cloudtrail-digest
 │           ├── iam-centralised
 │           ├── vpc
 │           ├── ecr
@@ -524,9 +526,11 @@ infrastructure/terraform/
 │   ├── networking/                 # VPC, subnets, NAT, security groups
 │   ├── containers/                 # ECR repositories
 │   ├── compute/                    # ECS clusters, services, workload IAM
-│   └── data-lake/                  # application-specific data stored in Production
+│   ├── data-lake/                  # application-specific data stored in Production
+│   └── monitoring/                 # CloudTrail weekly digest (EventBridge + Lambda + SNS)
 └── modules/
     ├── budget-alerts/              # monthly budget alerts per account (strictly admins only)
+    ├── cloudtrail-digest/          # weekly CloudTrail activity digest per account
     ├── iam-centralised/            # reusable module for OIDC + IAM roles
     ├── vpc/                        # reusable module for account networking
     ├── ecr/                        # reusable module for a container repository
@@ -538,6 +542,36 @@ infrastructure/terraform/
 ```
 
 For detailed architecture documentation, see [`docs/infrastructure/iam-cross-account-strategy.md`](docs/infrastructure/iam-cross-account-strategy.md) and the diagrams in [`docs/architecture/`](docs/architecture/)
+
+
+## Monitoring and auditing
+*[(back)](#gds-data-innovation-and-ai-readiness-team-cloud-infrastructure-repository)*
+
+### Weekly CloudTrail digest
+
+A Lambda function in each account (Development, Staging, Production) queries CloudTrail every Monday at 08:00 UTC for the past 7 days of team role activity. The results are published to an SNS topic in the Production account, which delivers a summary email to the platform admin.
+
+The digest covers all team roles (`data-scientist`, `developer`, `analyst`, `explorer`) and includes:
+
+- Number of API calls per role, per service
+- Top 5 actions per service
+- Any access denied events listed separately
+
+**Infrastructure:** `environments/monitoring/` and `modules/cloudtrail-digest/`
+
+**To test manually** (invoke the Lambda directly):
+
+```zsh
+aws lambda invoke \
+  --function-name gds-aidr-cloudtrail-digest-development \
+  --region eu-west-2 \
+  /tmp/digest-output.json \
+  && cat /tmp/digest-output.json
+```
+
+This triggers an immediate digest for the Development account. Check your email for the result.
+
+**To change the recipient email:** Update `digest_email` in `environments/monitoring/terraform.tfvars` and run `terraform apply`. The new subscriber will receive a confirmation email from SNS that must be clicked before digests are delivered.
 
 
 ## Contributing
