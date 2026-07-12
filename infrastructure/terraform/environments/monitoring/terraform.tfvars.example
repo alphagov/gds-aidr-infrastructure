@@ -1,0 +1,15 @@
+# environments/monitoring/terraform.tfvars.example
+#
+# Copy this file to terraform.tfvars and fill in correct values.
+# DO NOT commit terraform.tfvars — it contains account-specific values.
+
+development_account_id = ""
+staging_account_id     = ""
+production_account_id  = ""
+
+role_prefix = "gds-aidr"
+
+# Email address to receive the weekly CloudTrail digest.
+# SNS will send a confirmation email on first apply — you must click
+# the confirmation link before digests will be delivered.
+digest_email = ""
