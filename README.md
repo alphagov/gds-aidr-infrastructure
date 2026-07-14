@@ -40,6 +40,12 @@ This is a **public repository**
 │   │   └── feature_request.md
 │   └── workflows
 │       └── linter.yml
+│   ├── CODEOWNERS
+│   ├── ISSUE_TEMPLATE
+│   │   ├── bug_report.md
+│   │   └── feature_request.md
+│   └── workflows
+│       └── linter.yml
 ├── .gitignore
 ├── .prettierrc
 ├── CONTRIBUTING.md
@@ -47,6 +53,17 @@ This is a **public repository**
 ├── README.md
 ├── claude_code_bedrock_guide.md
 ├── docs
+│   ├── _static
+│   │   └── aidr-architecture-blue-with-disclaimer.png
+│   ├── architecture
+│   │   ├── README.md
+│   │   ├── system-overview.md
+│   │   ├── networking.md
+│   │   ├── compute.md
+│   │   ├── data-lake.md
+│   │   └── iam.md
+│   └── infrastructure
+│       └── iam-cross-account-strategy.md
 │   ├── _static
 │   │   └── aidr-architecture-blue-with-disclaimer.png
 │   ├── architecture
@@ -85,8 +102,27 @@ This is a **public repository**
 ├── role_scopes.pdf
 ├── scripts
 │   └── purge.sh
+│   └── purge.sh
 ├── tree.txt
 └── tree_full.txt
+```
+
+---
+
+## Architecture diagrams
+*[(back)](#gds-data-innovation-and-ai-readiness-team-cloud-infrastructure-repository)*
+
+Plain-English diagrams showing how the platform fits together, written as Mermaid diagram-as-code — free, open source, and rendered automatically by GitHub with no external service or paid plan required. See `docs/architecture/`:
+
+- [`system-overview.md`](docs/architecture/system-overview.md) — the whole platform in one picture
+- [`networking.md`](docs/architecture/networking.md) — how each account's private network is laid out
+- [`compute.md`](docs/architecture/compute.md) — how a running service gets its permissions
+- [`data-lake.md`](docs/architecture/data-lake.md) — where synthetic data is stored and governed
+- [`iam.md`](docs/architecture/iam.md) — who and what can access the platform
+
+Each diagram is preceded by a plain-English explanation in the same file — no need to open a separate tool to understand the system.
+
+---
 ```
 
 ---

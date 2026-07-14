@@ -1,4 +1,4 @@
-.
+.gds-aidr-infrastructure
 ├── .editorconfig
 ├── .eslintrc
 ├── .github
@@ -38,10 +38,15 @@
 │       │   │   ├── .terraform.lock.hcl
 │       │   │   ├── main.tf
 │       │   │   ├── outputs.tf
-│       │   │   ├── terraform copy.tfvars
 │       │   │   ├── terraform.tfvars
 │       │   │   └── variables.tf
 │       │   ├── data-lake
+│       │   │   ├── .terraform.lock.hcl
+│       │   │   ├── main.tf
+│       │   │   ├── outputs.tf
+│       │   │   ├── terraform.tfvars
+│       │   │   └── variables.tf
+│       │   ├── monitoring
 │       │   │   ├── .terraform.lock.hcl
 │       │   │   ├── main.tf
 │       │   │   ├── outputs.tf
@@ -62,6 +67,15 @@
 │       │       └── variables.tf
 │       └── modules
 │           ├── budget-alerts
+│           │   ├── main.tf
+│           │   ├── outputs.tf
+│           │   └── variables.tf
+│           ├── cloudtrail-digest
+│           │   ├── .build
+│           │   │   ├── cloudtrail_digest_development.zip
+│           │   │   ├── cloudtrail_digest_production.zip
+│           │   │   └── cloudtrail_digest_staging.zip
+│           │   ├── cloudtrail_digest.py
 │           │   ├── main.tf
 │           │   ├── outputs.tf
 │           │   └── variables.tf
@@ -102,4 +116,4 @@
 ├── scripts
 └── tree.txt
 
-27 directories, 76 files
+30 directories, 87 files

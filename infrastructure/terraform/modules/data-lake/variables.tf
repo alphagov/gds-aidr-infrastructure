@@ -29,8 +29,21 @@ variable "reader_account_arns" {
 }
 
 variable "lakeformation_register_role_arn" {
-  description = "ARN of the role Lake Formation uses to access the registered metadata location."
+  description = "ARN of an existing role Lake Formation uses to access the registered metadata location. Only used when create_lakeformation_register_role is false."
   type        = string
+  default     = null
+}
+
+variable "create_lakeformation_register_role" {
+  description = "Whether this module creates the Lake Formation registration role itself. False means lakeformation_register_role_arn must point to an existing role."
+  type        = bool
+  default     = true
+}
+
+variable "role_prefix" {
+  description = "Prefix for IAM role names created by this module, e.g. 'gds-aidr'."
+  type        = string
+  default     = "gds-aidr"
 }
 
 variable "audit_log_retention_days" {
@@ -38,6 +51,7 @@ variable "audit_log_retention_days" {
   type        = number
   default     = 365
 }
+
 
 variable "tags" {
   description = "Tags applied to all resources created by this module."
