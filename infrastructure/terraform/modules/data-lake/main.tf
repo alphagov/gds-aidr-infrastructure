@@ -181,7 +181,76 @@ resource "aws_cloudwatch_log_group" "data_lake_audit" {
 # is governed by the bucket policy and the reader role; the metadata prefix is
 # governed here so discovery can be granted without granting consumption.
 
+# --------------------------------------------------------------------------
+# Lake Formation registration role
+# --------------------------------------------------------------------------
+# Lake Formation assumes this role to read and write the registered metadata
+# location on the caller's behalf. Scoped to the data lake bucket's metadata
+# prefix and the data lake KMS key only — no other access.
+
+resource "aws_iam_role" "lakeformation_register" {
+  count = var.create_lakeformation_register_role ? 1 : 0
+
+  name = "${var.role_prefix}-lakeformation-register"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "AllowLakeFormationAssume"
+        Effect = "Allow"
+        Principal = {
+          Service = "lakeformation.amazonaws.com"
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+
+  tags = var.tags
+}
+
+resource "aws_iam_role_policy" "lakeformation_register" {
+  count = var.create_lakeformation_register_role ? 1 : 0
+
+  name = "${var.role_prefix}-lakeformation-register"
+  role = aws_iam_role.lakeformation_register[0].id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "MetadataPrefixAccess"
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          aws_s3_bucket.data_lake.arn,
+          "${aws_s3_bucket.data_lake.arn}/${var.metadata_prefix}*"
+        ]
+      },
+      {
+        Sid    = "DataLakeKeyAccess"
+        Effect = "Allow"
+        Action = [
+          "kms:Decrypt",
+          "kms:GenerateDataKey"
+        ]
+        Resource = aws_kms_key.data_lake.arn
+      }
+    ]
+  })
+}
+
+locals {
+  lakeformation_register_role_arn = var.create_lakeformation_register_role ? aws_iam_role.lakeformation_register[0].arn : var.lakeformation_register_role_arn
+}
+
 resource "aws_lakeformation_resource" "metadata" {
   arn      = "${aws_s3_bucket.data_lake.arn}/${var.metadata_prefix}"
-  role_arn = var.lakeformation_register_role_arn
+  role_arn = local.lakeformation_register_role_arn
 }
