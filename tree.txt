@@ -1,5 +1,4 @@
-.
-.
+.gds-aidr-infrastructure
 ├── .editorconfig
 ├── .eslintrc
 ├── .github
@@ -39,7 +38,6 @@
 │       │   │   ├── .terraform.lock.hcl
 │       │   │   ├── main.tf
 │       │   │   ├── outputs.tf
-│       │   │   ├── terraform copy.tfvars
 │       │   │   ├── terraform.tfvars
 │       │   │   └── variables.tf
 │       │   ├── data-lake
@@ -48,21 +46,7 @@
 │       │   │   ├── outputs.tf
 │       │   │   ├── terraform.tfvars
 │       │   │   └── variables.tf
-│       │   ├── networking
-│       │   ├── compute
-│       │   │   ├── .terraform.lock.hcl
-│       │   │   ├── main.tf
-│       │   │   ├── outputs.tf
-│       │   │   ├── terraform.tfvars
-│       │   │   └── variables.tf
-│       │   ├── containers
-│       │   │   ├── .terraform.lock.hcl
-│       │   │   ├── main.tf
-│       │   │   ├── outputs.tf
-│       │   │   ├── terraform copy.tfvars
-│       │   │   ├── terraform.tfvars
-│       │   │   └── variables.tf
-│       │   ├── data-lake
+│       │   ├── monitoring
 │       │   │   ├── .terraform.lock.hcl
 │       │   │   ├── main.tf
 │       │   │   ├── outputs.tf
@@ -74,7 +58,6 @@
 │       │   │   ├── outputs.tf
 │       │   │   ├── terraform.tfvars
 │       │   │   └── variables.tf
-│       │   └── production-iam
 │       │   └── production-iam
 │       │       ├── .terraform.lock.hcl
 │       │       ├── main.tf
@@ -84,7 +67,15 @@
 │       │       └── variables.tf
 │       └── modules
 │           ├── budget-alerts
-│           ├── budget-alerts
+│           │   ├── main.tf
+│           │   ├── outputs.tf
+│           │   └── variables.tf
+│           ├── cloudtrail-digest
+│           │   ├── .build
+│           │   │   ├── cloudtrail_digest_development.zip
+│           │   │   ├── cloudtrail_digest_production.zip
+│           │   │   └── cloudtrail_digest_staging.zip
+│           │   ├── cloudtrail_digest.py
 │           │   ├── main.tf
 │           │   ├── outputs.tf
 │           │   └── variables.tf
@@ -117,31 +108,6 @@
 │           │   ├── outputs.tf
 │           │   └── variables.tf
 │           └── workload-iam
-│           ├── ecr
-│           │   ├── main.tf
-│           │   ├── outputs.tf
-│           │   └── variables.tf
-│           ├── ecs-cluster
-│           │   ├── main.tf
-│           │   ├── outputs.tf
-│           │   └── variables.tf
-│           ├── ecs-fargate-service
-│           │   ├── main.tf
-│           │   ├── outputs.tf
-│           │   └── variables.tf
-│           ├── iam-centralised
-│           │   ├── main.tf
-│           │   ├── outputs.tf
-│           │   └── variables.tf
-│           ├── s3-bucket
-│           │   ├── main.tf
-│           │   ├── outputs.tf
-│           │   └── variables.tf
-│           ├── vpc
-│           │   ├── main.tf
-│           │   ├── outputs.tf
-│           │   └── variables.tf
-│           └── workload-iam
 │               ├── main.tf
 │               ├── outputs.tf
 │               └── variables.tf
@@ -149,6 +115,5 @@
 ├── role_scopes.pdf
 ├── scripts
 └── tree.txt
-└── tree.txt
 
-27 directories, 76 files
+30 directories, 87 files
