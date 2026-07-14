@@ -17,9 +17,13 @@ reader_account_arns = [
   "arn:aws:iam::REPLACE_WITH_STAGING_ACCOUNT_ID:root"
 ]
 
+# Role Lake Formation uses to reach the registered metadata location.
 create_lakeformation_register_role = true
 
 # Data lake formation role
-lakeformation_register_role_arn    = ""
+# Only needed when create_lakeformation_register_role is false.
+lakeformation_register_role_arn = null
+
+role_prefix = "gds-aidr"
 
 audit_log_retention_days = 365

@@ -34,3 +34,8 @@ output "audit_log_group" {
   description = "Name of the object-level audit log group."
   value       = module.data_lake.audit_log_group
 }
+
+output "lakeformation_register_role_arn" {
+  description = "ARN of the Lake Formation registration role, whether self-created or supplied externally."
+  value       = module.data_lake.lakeformation_register_role_arn
+}
