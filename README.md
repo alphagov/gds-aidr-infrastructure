@@ -2,7 +2,7 @@
 # GDS Data Innovation and AI Readiness Team Cloud Infrastructure Repository
 
 <!--date_created: mon-18-may-2026-->
-<!--date_updated: sat-12-july-2026-->
+<!--date_updated: tues-14-july-2026-->
 
 
 **Index**
@@ -40,12 +40,6 @@ This is a **public repository**
 │   │   └── feature_request.md
 │   └── workflows
 │       └── linter.yml
-│   ├── CODEOWNERS
-│   ├── ISSUE_TEMPLATE
-│   │   ├── bug_report.md
-│   │   └── feature_request.md
-│   └── workflows
-│       └── linter.yml
 ├── .gitignore
 ├── .prettierrc
 ├── CONTRIBUTING.md
@@ -53,17 +47,6 @@ This is a **public repository**
 ├── README.md
 ├── claude_code_bedrock_guide.md
 ├── docs
-│   ├── _static
-│   │   └── aidr-architecture-blue-with-disclaimer.png
-│   ├── architecture
-│   │   ├── README.md
-│   │   ├── system-overview.md
-│   │   ├── networking.md
-│   │   ├── compute.md
-│   │   ├── data-lake.md
-│   │   └── iam.md
-│   └── infrastructure
-│       └── iam-cross-account-strategy.md
 │   ├── _static
 │   │   └── aidr-architecture-blue-with-disclaimer.png
 │   ├── architecture
@@ -100,11 +83,8 @@ This is a **public repository**
 │           └── ecs-fargate-service
 ├── package.json
 ├── role_scopes.pdf
-├── scripts
-│   └── purge.sh
-│   └── purge.sh
 ├── tree.txt
-└── tree_full.txt
+└── tree.txt
 ```
 
 ---
@@ -121,9 +101,6 @@ Plain-English diagrams showing how the platform fits together, written as Mermai
 - [`iam.md`](docs/architecture/iam.md) — who and what can access the platform
 
 Each diagram is preceded by a plain-English explanation in the same file — no need to open a separate tool to understand the system.
-
----
-```
 
 ---
 
@@ -616,6 +593,4 @@ This triggers an immediate digest for the Development account. Check your email 
 A full guide is provided on root [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 ---
-
-
 <!--END-->
