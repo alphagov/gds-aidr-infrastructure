@@ -53,10 +53,12 @@ module "data_lake" {
   production_account_id = var.production_account_id
   dataset_prefix        = var.dataset_prefix
   metadata_prefix       = var.metadata_prefix
+  role_prefix           = var.role_prefix
 
   reader_account_arns = var.reader_account_arns
 
-  lakeformation_register_role_arn = var.lakeformation_register_role_arn
+  create_lakeformation_register_role = var.create_lakeformation_register_role
+  lakeformation_register_role_arn    = var.lakeformation_register_role_arn
 
   audit_log_retention_days = var.audit_log_retention_days
 
