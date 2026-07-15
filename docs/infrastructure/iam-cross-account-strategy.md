@@ -1,7 +1,7 @@
 # IAM Cross-Account Strategy (Centralised)
 
 <!--date_added:thurs-28-may-2026-->
-<!--date_updated:mon-22-june-2026--->
+<!--date_updated:weds-15-july-2026--->
 
 **Description:** Our account strategy is built in conjunction with GDS Engineering Enablement Cloud Platform Team and Secure by Design processes.
 
@@ -331,3 +331,37 @@ when genuinely needed, with mandatory logging and notification.
 - [alphagov/govuk-infrastructure](https://github.com/alphagov/govuk-infrastructure)
 - [alphagov/github-oidc-proxy](https://github.com/alphagov/github-oidc-proxy)
 - [GDS Way: AWS account management](https://gds-way.cloudapps.digital/)
+
+## Mermaid Diagram (IAM)
+
+```mermaid
+flowchart LR
+  gdsusers["gds-users"]
+  gha["GitHub Actions"]
+  ecstasks["ECS Tasks"]
+
+  subgraph human ["Human Roles"]
+    admin["Admin"]
+    readonly["Readonly"]
+    developer["Developer"]
+    analyst["Analyst"]
+    ds["Data Scientist"]
+    explorer["Explorer"]
+    tf["Terraform"]
+  end
+
+  subgraph workload ["Workload Roles"]
+    exec["Execution Role"]
+    task["Task Role"]
+  end
+
+  gdsusers -->|MFA required for all roles| human
+  gha -->|OIDC, repo and branch restricted| tf
+
+  ecstasks -->|container startup only| exec
+  ecstasks -->|application runtime only| task
+```
+
+---
+
+<!--END-->
