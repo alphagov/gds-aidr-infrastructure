@@ -1,4 +1,4 @@
-.gds-aidr-infrastructure
+.
 ├── .editorconfig
 ├── .eslintrc
 ├── .github
@@ -66,6 +66,10 @@
 │       │       ├── tree.txt
 │       │       └── variables.tf
 │       └── modules
+│           ├── alb
+│           │   ├── main.tf
+│           │   ├── outputs.tf
+│           │   └── variables.tf
 │           ├── budget-alerts
 │           │   ├── main.tf
 │           │   ├── outputs.tf
@@ -116,4 +120,4 @@
 ├── scripts
 └── tree.txt
 
-30 directories, 87 files
+31 directories, 90 files

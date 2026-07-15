@@ -1,5 +1,3 @@
-# ecs-fargate-service/variables.tf
-
 variable "environment_name" {
   description = "Snake Case environment name used in resource Name tags, e.g. Development."
   type        = string
@@ -89,6 +87,12 @@ variable "desired_count" {
   description = "Desired number of running tasks. Only used when create_service is true."
   type        = number
   default     = 1
+}
+
+variable "target_group_arn" {
+  description = "ARN of an ALB target group to attach this service to. Null means the service runs with no load balancer."
+  type        = string
+  default     = null
 }
 
 variable "tags" {

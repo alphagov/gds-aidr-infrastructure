@@ -20,3 +20,15 @@ variable "role_prefix" {
   type        = string
   default     = "gds-aidr"
 }
+
+variable "synthetic_email_generation_container_port" {
+  description = "Port the synthetic-email-generation container listens on for HTTP traffic."
+  type        = number
+  default     = 8080
+}
+
+variable "synthetic_email_generation_health_check_path" {
+  description = "Path the ALB polls to check the synthetic-email-generation container's health."
+  type        = string
+  default     = "/health"
+}

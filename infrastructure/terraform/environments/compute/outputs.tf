@@ -27,3 +27,8 @@ output "staging_cluster_arn" {
 output "production_cluster_arn" {
   value = module.ecs_cluster_production.cluster_arn
 }
+
+output "development_alb_dns_name" {
+  description = "URL to reach the Development service over HTTP, no domain needed."
+  value       = module.alb_development.alb_dns_name
+}

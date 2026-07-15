@@ -1,14 +1,10 @@
+
 # environments/compute/main.tf
 #
 # Provisions workload IAM roles and an ECS cluster in each of the three
 # accounts, plus the synthetic-email-generation Fargate service in
-# Development only — serving already happens via Lambda, not ECS, so
-# Staging and Production get clusters ready for future services without
-# this specific workload attached.
-#
-# Reads subnet, security group, and ECR repository details from the
-# networking and containers state files via remote state, rather than
-# duplicating those values in tfvars.
+# Development, now attached to an ALB. Staging and Production get clusters
+# and workload IAM only, ready for future services.
 
 terraform {
   required_version = ">= 1.5.0"
@@ -29,10 +25,6 @@ terraform {
   }
 }
 
-# --------------------------------------------------------------------------
-# Provider: production (default — no alias needed)
-# --------------------------------------------------------------------------
-
 provider "aws" {
   region = "eu-west-2"
 
@@ -45,10 +37,6 @@ provider "aws" {
     }
   }
 }
-
-# --------------------------------------------------------------------------
-# Provider: development
-# --------------------------------------------------------------------------
 
 provider "aws" {
   alias  = "development"
@@ -69,10 +57,6 @@ provider "aws" {
   }
 }
 
-# --------------------------------------------------------------------------
-# Provider: staging
-# --------------------------------------------------------------------------
-
 provider "aws" {
   alias  = "staging"
   region = "eu-west-2"
@@ -92,16 +76,8 @@ provider "aws" {
   }
 }
 
-# --------------------------------------------------------------------------
-# Remote state: networking
-# --------------------------------------------------------------------------
-# Single data source — networking's state already contains outputs for all
-# three accounts. Read via the production S3 bucket, which the current
-# session already has access to.
-
 data "terraform_remote_state" "networking" {
   backend = "s3"
-
   config = {
     bucket = "gds-aidr-terraform-state-production"
     key    = "networking/terraform.tfstate"
@@ -109,13 +85,8 @@ data "terraform_remote_state" "networking" {
   }
 }
 
-# --------------------------------------------------------------------------
-# Remote state: containers
-# --------------------------------------------------------------------------
-
 data "terraform_remote_state" "containers" {
   backend = "s3"
-
   config = {
     bucket = "gds-aidr-terraform-state-production"
     key    = "containers/terraform.tfstate"
@@ -124,7 +95,7 @@ data "terraform_remote_state" "containers" {
 }
 
 # --------------------------------------------------------------------------
-# Development: workload IAM, ECS cluster, and the generation service
+# Development: workload IAM, ECS cluster, ALB, and the generation service
 # --------------------------------------------------------------------------
 
 module "workload_iam_development" {
@@ -159,6 +130,30 @@ module "ecs_cluster_development" {
   }
 }
 
+module "alb_development" {
+  source = "../../modules/alb"
+
+  providers = {
+    aws = aws.development
+  }
+
+  environment_name  = "Development"
+  alb_name          = "${var.role_prefix}-alb"
+  vpc_id            = data.terraform_remote_state.networking.outputs.development_vpc_id
+  public_subnet_ids = data.terraform_remote_state.networking.outputs.development_public_subnet_ids
+  security_group_id = data.terraform_remote_state.networking.outputs.development_alb_security_group_id
+
+  port_80_enabled     = true
+  target_port         = var.synthetic_email_generation_container_port
+  health_check_path   = var.synthetic_email_generation_health_check_path
+  acm_certificate_arn = null
+
+  tags = {
+    Environment = "development"
+    AccountId   = var.development_account_id
+  }
+}
+
 module "ecs_service_development" {
   source = "../../modules/ecs-fargate-service"
 
@@ -174,6 +169,7 @@ module "ecs_service_development" {
   task_role_arn      = module.workload_iam_development.task_role_arn
 
   container_image = "${data.terraform_remote_state.containers.outputs.development_repository_urls["synthetic-email-generation"]}:latest"
+  container_port  = var.synthetic_email_generation_container_port
 
   cpu    = 256
   memory = 512
@@ -182,8 +178,9 @@ module "ecs_service_development" {
   security_group_ids = [data.terraform_remote_state.networking.outputs.development_ecs_task_security_group_id]
   assign_public_ip   = false
 
-  create_service = true
-  desired_count  = 1
+  create_service   = true
+  desired_count    = 1
+  target_group_arn = module.alb_development.target_group_arn
 
   tags = {
     Environment = "development"
@@ -233,8 +230,6 @@ module "ecs_cluster_staging" {
 
 module "workload_iam_production" {
   source = "../../modules/workload-iam"
-
-  # No provider alias — uses the default (production) provider.
 
   role_prefix   = var.role_prefix
   workload_name = "synthetic-email-generation"

@@ -85,6 +85,15 @@ resource "aws_ecs_service" "this" {
     assign_public_ip = var.assign_public_ip
   }
 
+  dynamic "load_balancer" {
+    for_each = var.target_group_arn != null ? [1] : []
+    content {
+      target_group_arn = var.target_group_arn
+      container_name   = var.service_name
+      container_port   = var.container_port
+    }
+  }
+
   tags = merge(var.tags, {
     Name = "${lower(var.environment_name)}-${var.service_name}"
   })
