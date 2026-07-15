@@ -1,16 +1,17 @@
 
-# GDS Data Innovation and AI Readiness Team Cloud Infrastructure Repository
+# GDS AIDR Infrastructure Repository
 
 <!--date_created: mon-18-may-2026-->
-<!--date_updated: tues-14-july-2026-->
+<!--date_updated: weds-15-july-2026-->
 
 
 **Index**
- - [Repository Structure](#repository-structure)
+ - [Repository structure](#repository-structure)
  - [Architecture diagrams](#architecture-diagrams)
- - [Get access to AIDR platform](#get-access-to-the-aidr-platform)
-    * [For developers and platform admins](#for-developers-and-platform-admins)
-    * [Console Access - All users](#console-access)
+    - [Data lake](#data-lake)
+ - [Get access](#get-access)
+    - [For developers and platform admins](#for-developers-and-platform-admins)
+    - [Console access - all users](#console-access)
  - [Accessing Claude Code in Bedrock](#accessing-claude-code-in-bedrock)
  - [Monitoring and auditing](#monitoring-and-auditing)
  - [Contributing](#contributing)
@@ -39,7 +40,6 @@ This is a **public repository**
 │   │   ├── bug_report.md
 │   │   └── feature_request.md
 │   └── workflows
-│       └── linter.yml
 ├── .gitignore
 ├── .prettierrc
 ├── CONTRIBUTING.md
@@ -48,16 +48,14 @@ This is a **public repository**
 ├── claude_code_bedrock_guide.md
 ├── docs
 │   ├── _static
-│   │   └── aidr-architecture-blue-with-disclaimer.png
 │   ├── architecture
-│   │   ├── README.md
+│   │   ├── overview.md
+│   └── infrastructure
 │   │   ├── system-overview.md
 │   │   ├── networking.md
 │   │   ├── compute.md
 │   │   ├── data-lake.md
-│   │   └── iam.md
-│   └── infrastructure
-│       └── iam-cross-account-strategy.md
+│   │   └── iam-cross-account-strategy.md
 ├── infrastructure
 │   └── terraform
 │       ├── bootstrap
@@ -83,7 +81,6 @@ This is a **public repository**
 │           └── ecs-fargate-service
 ├── package.json
 ├── role_scopes.pdf
-├── tree.txt
 └── tree.txt
 ```
 
@@ -94,32 +91,106 @@ This is a **public repository**
 
 Plain-English diagrams showing how the platform fits together, written as Mermaid diagram-as-code — free, open source, and rendered automatically by GitHub with no external service or paid plan required. See `docs/architecture/`:
 
-- [`system-overview.md`](docs/architecture/system-overview.md) — the whole platform in one picture
-- [`networking.md`](docs/architecture/networking.md) — how each account's private network is laid out
-- [`compute.md`](docs/architecture/compute.md) — how a running service gets its permissions
-- [`data-lake.md`](docs/architecture/data-lake.md) — where synthetic data is stored and governed
-- [`iam.md`](docs/architecture/iam.md) — who and what can access the platform
-
-Each diagram is preceded by a plain-English explanation in the same file — no need to open a separate tool to understand the system.
+- [`system-overview.md`](docs/infrastructure/system-overview.md) — the whole platform in one picture
+- [`networking.md`](docs/infrastructure/networking.md) — how each account's private network is laid out
+- [`compute.md`](docs/infrastructure/compute.md) — how a running service gets its permissions
+- [`data-lake.md`](docs/infrastructure/data-lake.md) — where synthetic data is stored and governed
 
 ---
 
-## Architecture diagrams
-*[(back)](#gds-data-innovation-and-ai-readiness-team-cloud-infrastructure-repository)*
+## Data lake
 
-Plain-English diagrams showing how the platform fits together, written as Mermaid diagram-as-code — free, open source, and rendered automatically by GitHub with no external service or paid plan required. See `docs/architecture/`:
 
-- [`system-overview.md`](docs/architecture/system-overview.md) — the whole platform in one picture
-- [`networking.md`](docs/architecture/networking.md) — how each account's private network is laid out
-- [`compute.md`](docs/architecture/compute.md) — how a running service gets its permissions
-- [`data-lake.md`](docs/architecture/data-lake.md) — where synthetic data is stored and governed
-- [`iam.md`](docs/architecture/iam.md) — who and what can access the platform
+## Mermaid Diagram (data-lake)
 
-Each diagram is preceded by a plain-English explanation in the same file — no need to open a separate tool to understand the system.
+```(mermaid)
+flowchart LR
+  subgraph development ["Development"]
+    dcom["Compute"]
+  end
+
+  subgraph staging ["Staging"]
+    scom["Compute"]
+  end
+
+  subgraph production ["Production"]
+    pdl["Data Lake S3 Bucket"]
+    kms["KMS Encryption Key"]
+    lf["Lake Formation"]
+    trail["CloudTrail"]
+    logs["CloudWatch Logs"]
+  end
+
+  dcom -->|reads and writes generated data| pdl
+  scom -->|reads authoritative data| pdl
+
+  lf -->|governs access controls| pdl
+  pdl -->|encrypted at rest by| kms
+  
+  pdl -->|logs object-level API activity| trail
+  trail -->|delivers audit logs| logs
+```
+
+### Infrastructure Components
+
+* **Storage:** A single Amazon S3 bucket for datasets and metadata, separated by logical prefixes.
+* **Security:** All public access is explicitly blocked at the bucket level. Data is encrypted at rest using a customer-managed AWS KMS key.
+* **Auditing:** Object-level API activity (read and write) is logged via an associated AWS CloudTrail trail directly to Amazon CloudWatch Logs.
+* **Governance:** IAM roles and policies are provisioned to allow AWS Lake Formation to register and govern the S3 locations securely.
+
+### Usage
+
+.. code-block:: terraform
+
+```
+module "data_lake" {
+  source = "../../modules/data-lake"
+
+  bucket_name           = "gds-aidr-data-lake-production"
+  production_account_id = "<PRODUCTION_ACCOUNT_ID>"
+  role_prefix           = "gds-aidr"
+
+  reader_account_arns = [
+    "arn:aws:iam::<DEVELOPMENT_ACCOUNT_ID>:root", # Development account root
+    "arn:aws:iam::<STAGING_ACCOUNT_ID>2:root"  # Staging account root
+  ]
+
+  tags = {
+    Environment = "Production"
+    Owner       = "gds-aidr-team"
+  }
+}
+
+```
+
+### Inputs
+
+* `bucket_name` (string, required): Name of the data lake bucket.
+* `production_account_id` (string, required): AWS account ID of the Production account that owns and administers the encryption key.
+* `dataset_prefix` (string, optional): Prefix for dataset files. Default is `datasets/email/v1/`.
+* `metadata_prefix` (string, optional): Prefix for metadata files. Default is `metadata/email/v1/`.
+* `reader_account_arns` (list(string), optional): Account root ARNs permitted to read the lake cross-account, such as the Development and Staging account roots. Default is `[]`.
+* `lakeformation_register_role_arn` (string, optional): ARN of an existing role Lake Formation uses to access the registered metadata location. Used when `create_lakeformation_register_role` is false.
+* `create_lakeformation_register_role` (bool, optional): Whether this module creates the Lake Formation registration role itself. Default is `true`.
+* `role_prefix` (string, optional): Prefix for IAM role names created by this module. Default is `gds-aidr`.
+* `audit_log_retention_days` (number, optional): Retention period in days for object-level audit logs. Default is `365`.
+* `tags` (map(string), optional): Tags applied to all resources created by the module.
+
+### Outputs
+
+* `bucket_name`: Name of the data lake bucket. Consumed by the data backend repository.
+* `bucket_arn`: ARN of the data lake bucket.
+* `kms_key_arn`: ARN of the customer-managed AWS KMS encryption key.
+* `dataset_prefix`: Prefix used for dataset files.
+* `metadata_prefix`: Prefix used for metadata files.
+* `audit_log_group`: Name of the Amazon CloudWatch log group containing object-level S3 audit logs.
+* `lakeformation_register_role_arn`: ARN of the Lake Formation registration role.
+
+
 
 ---
 
-## Get access to the AIDR platform
+## Get access
 
 **Some mandatory disclaimers**
 * All users, with the exception of developer/engineer and admin users have access to the AIDR development environment.
@@ -165,7 +236,7 @@ gds-users
     └── GitHub OIDC provider
 ```
 
-**See also** [`role_scopes`](./../../role_scopes.pdf)
+See also **[`role_scopes`](./role_scopes.pdf)**
 
 ### Access the AIDR platform
 
@@ -530,31 +601,84 @@ Bedrock usage is billed to the Development account. Budget alerts are configured
 #### Repository structure (infrastructure)  
 
 ```zsh
-infrastructure/terraform/
-├── bootstrap/                      # one-time setup for cross-account trust
-│   ├── trust-policy-development.json
-│   └── trust-policy-staging.json
-├── environments/
-│   ├── production-iam/             # centralised IAM (runs in Production)
-│   ├── networking/                 # VPC, subnets, NAT, security groups
-│   ├── containers/                 # ECR repositories
-│   ├── compute/                    # ECS clusters, services, workload IAM
-│   ├── data-lake/                  # application-specific data stored in Production
-│   └── monitoring/                 # CloudTrail weekly digest (EventBridge + Lambda + SNS)
-└── modules/
-    ├── budget-alerts/              # monthly budget alerts per account (strictly admins only)
-    ├── cloudtrail-digest/          # weekly CloudTrail activity digest per account
-    ├── iam-centralised/            # reusable module for OIDC + IAM roles
-    ├── vpc/                        # reusable module for account networking
-    ├── ecr/                        # reusable module for a container repository
-    ├── s3-bucket/                  # reusable general-purpose bucket module
-    ├── data-lake/                  # purpose-built data lake module
-    ├── workload-iam/               # execution and task roles for a workload
-    ├── ecs-cluster/                # reusable module for an ECS cluster
-    └── ecs-fargate-service/        # reusable module for a Fargate task or service
+
+environments
+├── compute
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── containers
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── data-lake
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── monitoring
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── networking
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+└── production-iam
+    ├── main.tf
+    ├── outputs.tf
+    ├── terraform.tfvars.example
+    ├── tree.txt
+    └── variables.tf
+modules
+├── budget-alerts
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── cloudtrail-digest
+│   ├── cloudtrail_digest.py
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── data-lake
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── ecr
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── ecs-cluster
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── ecs-fargate-service
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── iam-centralised
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── s3-bucket
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── vpc
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+└── workload-iam
+    ├── main.tf
+    ├── outputs.tf
+    └── variables.tf
 ```
 
-For detailed architecture documentation, see [`docs/infrastructure/iam-cross-account-strategy.md`](docs/infrastructure/iam-cross-account-strategy.md) and the diagrams in [`docs/architecture/`](docs/architecture/)
+For detailed architecture documentation, see [`Architecture Overview``](docs/architecture/overiew.md)
 
 
 ## Monitoring and auditing

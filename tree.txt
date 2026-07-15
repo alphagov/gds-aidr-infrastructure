@@ -72,10 +72,6 @@
 │           │   ├── outputs.tf
 │           │   └── variables.tf
 │           ├── cloudtrail-digest
-│           │   ├── .build
-│           │   │   ├── cloudtrail_digest_development.zip
-│           │   │   ├── cloudtrail_digest_production.zip
-│           │   │   └── cloudtrail_digest_staging.zip
 │           │   ├── cloudtrail_digest.py
 │           │   ├── main.tf
 │           │   ├── outputs.tf
