@@ -1,0 +1,90 @@
+.
+├── bootstrap
+│   ├── README.md
+│   ├── README.pdf
+│   ├── trust-policy-development.json
+│   └── trust-policy-staging.json
+├── environments
+│   ├── compute
+│   │   ├── .terraform.lock.hcl
+│   │   ├── main.tf
+│   │   ├── outputs.tf
+│   │   ├── terraform.tfvars
+│   │   └── variables.tf
+│   ├── containers
+│   │   ├── .terraform.lock.hcl
+│   │   ├── main.tf
+│   │   ├── outputs.tf
+│   │   ├── terraform.tfvars
+│   │   └── variables.tf
+│   ├── data-lake
+│   │   ├── .terraform.lock.hcl
+│   │   ├── main.tf
+│   │   ├── outputs.tf
+│   │   ├── terraform.tfvars
+│   │   └── variables.tf
+│   ├── monitoring
+│   │   ├── .terraform.lock.hcl
+│   │   ├── main.tf
+│   │   ├── outputs.tf
+│   │   ├── terraform.tfvars
+│   │   └── variables.tf
+│   ├── networking
+│   │   ├── .terraform.lock.hcl
+│   │   ├── main.tf
+│   │   ├── outputs.tf
+│   │   ├── terraform.tfvars
+│   │   └── variables.tf
+│   └── production-iam
+│       ├── .terraform.lock.hcl
+│       ├── main.tf
+│       ├── outputs.tf
+│       ├── terraform.tfvars
+│       ├── tree.txt
+│       └── variables.tf
+├── modules
+│   ├── budget-alerts
+│   │   ├── main.tf
+│   │   ├── outputs.tf
+│   │   └── variables.tf
+│   ├── cloudtrail-digest
+│   │   ├── cloudtrail_digest.py
+│   │   ├── main.tf
+│   │   ├── outputs.tf
+│   │   └── variables.tf
+│   ├── data-lake
+│   │   ├── main.tf
+│   │   ├── outputs.tf
+│   │   └── variables.tf
+│   ├── ecr
+│   │   ├── main.tf
+│   │   ├── outputs.tf
+│   │   └── variables.tf
+│   ├── ecs-cluster
+│   │   ├── main.tf
+│   │   ├── outputs.tf
+│   │   └── variables.tf
+│   ├── ecs-fargate-service
+│   │   ├── main.tf
+│   │   ├── outputs.tf
+│   │   └── variables.tf
+│   ├── iam-centralised
+│   │   ├── main.tf
+│   │   ├── outputs.tf
+│   │   └── variables.tf
+│   ├── s3-bucket
+│   │   ├── main.tf
+│   │   ├── outputs.tf
+│   │   └── variables.tf
+│   ├── vpc
+│   │   ├── main.tf
+│   │   ├── outputs.tf
+│   │   └── variables.tf
+│   └── workload-iam
+│       ├── main.tf
+│       ├── outputs.tf
+│       └── variables.tf
+├── tree.txt
+└── tree_terraform.txt
+
+20 directories, 68 files

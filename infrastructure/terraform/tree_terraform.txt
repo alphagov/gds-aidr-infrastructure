@@ -1,0 +1,665 @@
+environments
+├── compute
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── containers
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── data-lake
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── monitoring
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── networking
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+└── production-iam
+    ├── main.tf
+    ├── outputs.tf
+    ├── terraform.tfvars
+    ├── terraform.tfvars.example
+    ├── tree.txt
+    └── variables.tf
+modules
+├── budget-alerts
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── cloudtrail-digest
+│   ├── .build
+│   │   ├── cloudtrail_digest_development.zip
+│   │   ├── cloudtrail_digest_production.zip
+│   │   └── cloudtrail_digest_staging.zip
+│   ├── cloudtrail_digest.py
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── data-lake
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── ecr
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── ecs-cluster
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── ecs-fargate-service
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── iam-centralised
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── s3-bucket
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── vpc
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+└── workload-iam
+    ├── main.tf
+    ├── outputs.tf
+    └── variables.tf
+
+19 directories, 65 files
+environments
+├── compute
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── containers
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── data-lake
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── monitoring
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── networking
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+└── production-iam
+    ├── main.tf
+    ├── outputs.tf
+    ├── terraform.tfvars
+    ├── terraform.tfvars.example
+    ├── tree.txt
+    └── variables.tf
+modules
+├── budget-alerts
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── cloudtrail-digest
+│   ├── .build
+│   │   ├── cloudtrail_digest_development.zip
+│   │   ├── cloudtrail_digest_production.zip
+│   │   └── cloudtrail_digest_staging.zip
+│   ├── cloudtrail_digest.py
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── data-lake
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── ecr
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── ecs-cluster
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── ecs-fargate-service
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── iam-centralised
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── s3-bucket
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── vpc
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+└── workload-iam
+    ├── main.tf
+    ├── outputs.tf
+    └── variables.tf
+
+19 directories, 65 files
+environments
+├── compute
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── containers
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── data-lake
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── monitoring
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── networking
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+└── production-iam
+    ├── main.tf
+    ├── outputs.tf
+    ├── terraform.tfvars.example
+    ├── tree.txt
+    └── variables.tf
+modules
+├── budget-alerts
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── cloudtrail-digest
+│   ├── .build
+│   │   ├── cloudtrail_digest_development.zip
+│   │   ├── cloudtrail_digest_production.zip
+│   │   └── cloudtrail_digest_staging.zip
+│   ├── cloudtrail_digest.py
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── data-lake
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── ecr
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── ecs-cluster
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── ecs-fargate-service
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── iam-centralised
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── s3-bucket
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── vpc
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+└── workload-iam
+    ├── main.tf
+    ├── outputs.tf
+    └── variables.tf
+
+19 directories, 59 files
+environments
+├── compute
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── containers
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── data-lake
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── monitoring
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── networking
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+└── production-iam
+    ├── main.tf
+    ├── outputs.tf
+    ├── terraform.tfvars.example
+    ├── tree.txt
+    └── variables.tf
+modules
+├── budget-alerts
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── cloudtrail-digest
+│   ├── .build
+│   │   ├── cloudtrail_digest_development.zip
+│   │   ├── cloudtrail_digest_production.zip
+│   │   └── cloudtrail_digest_staging.zip
+│   ├── cloudtrail_digest.py
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── data-lake
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── ecr
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── ecs-cluster
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── ecs-fargate-service
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── iam-centralised
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── s3-bucket
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── vpc
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+└── workload-iam
+    ├── main.tf
+    ├── outputs.tf
+    └── variables.tf
+
+19 directories, 59 files
+environments
+├── compute
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── containers
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── data-lake
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── monitoring
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── networking
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+└── production-iam
+    ├── main.tf
+    ├── outputs.tf
+    ├── terraform.tfvars
+    ├── terraform.tfvars.example
+    ├── tree.txt
+    └── variables.tf
+modules
+├── budget-alerts
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── cloudtrail-digest
+│   ├── .build
+│   │   ├── cloudtrail_digest_development.zip
+│   │   ├── cloudtrail_digest_production.zip
+│   │   └── cloudtrail_digest_staging.zip
+│   ├── cloudtrail_digest.py
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── data-lake
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── ecr
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── ecs-cluster
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── ecs-fargate-service
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── iam-centralised
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── s3-bucket
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── vpc
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+└── workload-iam
+    ├── main.tf
+    ├── outputs.tf
+    └── variables.tf
+bootstrap
+├── README.md
+├── README.pdf
+├── trust-policy-development.json
+└── trust-policy-staging.json
+
+20 directories, 69 files
+environments
+├── compute
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── containers
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── data-lake
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── monitoring
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── networking
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+└── production-iam
+    ├── main.tf
+    ├── outputs.tf
+    ├── terraform.tfvars
+    ├── terraform.tfvars.example
+    ├── tree.txt
+    └── variables.tf
+modules
+├── budget-alerts
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── cloudtrail-digest
+│   ├── .build
+│   │   ├── cloudtrail_digest_development.zip
+│   │   ├── cloudtrail_digest_production.zip
+│   │   └── cloudtrail_digest_staging.zip
+│   ├── cloudtrail_digest.py
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── data-lake
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── ecr
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── ecs-cluster
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── ecs-fargate-service
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── iam-centralised
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── s3-bucket
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── vpc
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+└── workload-iam
+    ├── main.tf
+    ├── outputs.tf
+    └── variables.tf
+
+19 directories, 65 files
+environments
+├── compute
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── containers
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── data-lake
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── monitoring
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── networking
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+└── production-iam
+    ├── main.tf
+    ├── outputs.tf
+    ├── terraform.tfvars.example
+    ├── tree.txt
+    └── variables.tf
+modules
+├── budget-alerts
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── cloudtrail-digest
+│   ├── .build
+│   │   ├── cloudtrail_digest_development.zip
+│   │   ├── cloudtrail_digest_production.zip
+│   │   └── cloudtrail_digest_staging.zip
+│   ├── cloudtrail_digest.py
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── data-lake
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── ecr
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── ecs-cluster
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── ecs-fargate-service
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── iam-centralised
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── s3-bucket
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── vpc
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+└── workload-iam
+    ├── main.tf
+    ├── outputs.tf
+    └── variables.tf
+
+19 directories, 59 files
+environments
+├── compute
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── containers
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── data-lake
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── monitoring
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── networking
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+└── production-iam
+    ├── main.tf
+    ├── outputs.tf
+    ├── terraform.tfvars.example
+    ├── tree.txt
+    └── variables.tf
+modules
+├── budget-alerts
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── cloudtrail-digest
+│   ├── cloudtrail_digest.py
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── data-lake
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── ecr
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── ecs-cluster
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── ecs-fargate-service
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── iam-centralised
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── s3-bucket
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── vpc
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+└── workload-iam
+    ├── main.tf
+    ├── outputs.tf
+    └── variables.tf
+
+18 directories, 56 files
