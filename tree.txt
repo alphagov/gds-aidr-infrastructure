@@ -18,13 +18,14 @@
 │   ├── _static
 │   │   └── aidr-architecture-blue-with-disclaimer.png
 │   ├── architecture
-│   │   ├── README.md
-│   │   ├── compute.md
-│   │   ├── iam.md
-│   │   ├── networking.md
-│   │   └── system-overview.md
+│   │   └── README.md
 │   └── infrastructure
-│       └── iam-cross-account-strategy.md
+│       ├── compute.md
+│       ├── data-lake.md
+│       ├── iam-cross-account-strategy.md
+│       ├── iam.md
+│       ├── networking.md
+│       └── system-overview.md
 ├── infrastructure
 │   └── terraform
 │       ├── environments
@@ -120,4 +121,4 @@
 ├── scripts
 └── tree.txt
 
-31 directories, 90 files
+30 directories, 88 files
