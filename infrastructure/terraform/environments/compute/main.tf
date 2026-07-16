@@ -199,7 +199,8 @@ module "ecs_service_development" {
   execution_role_arn = module.workload_iam_development.execution_role_arn
   task_role_arn      = module.workload_iam_development.task_role_arn
 
-  container_image = "${data.terraform_remote_state.containers.outputs.development_repository_urls["synthetic-email-generation"]}:latest"
+  # container_image = "${data.terraform_remote_state.containers.outputs.development_repository_urls["synthetic-email-generation"]}:latest"
+  container_image = "${data.terraform_remote_state.containers.outputs.development_repository_urls["synthetic-email-generation"]}:${var.development_api_image_tag}"
   container_port  = 3000
 
   secrets = [
