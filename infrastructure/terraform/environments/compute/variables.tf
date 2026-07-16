@@ -5,6 +5,12 @@ variable "development_account_id" {
   type        = string
 }
 
+variable "development_api_image_tag" {
+  description = "Image tag for the synthetic-email-generation API, set automatically by the deploy script — never edited by hand."
+  type        = string
+  default     = "latest"
+}
+
 variable "staging_account_id" {
   description = "AWS account ID for the staging account."
   type        = string
