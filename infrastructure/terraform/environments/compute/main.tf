@@ -139,6 +139,21 @@ module "workload_iam_development" {
 
   execution_role_secrets_arns = [module.rds_development.secret_arn]
 
+  task_role_policy_json = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "AllowBedrockInvoke"
+        Effect = "Allow"
+        Action = [
+          "bedrock:InvokeModel",
+          "bedrock:InvokeModelWithResponseStream"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+
   tags = {
     Environment = "development"
     AccountId   = var.development_account_id
