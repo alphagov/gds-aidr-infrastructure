@@ -7,4 +7,6 @@ development_account_id = ""
 staging_account_id     = ""
 production_account_id  = ""
 
+bedrock_model_id = "anthropic.claude-haiku-4-5-20251001-v1:0"
+
 role_prefix = "gds-aidr"

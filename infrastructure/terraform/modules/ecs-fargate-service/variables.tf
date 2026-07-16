@@ -57,6 +57,15 @@ variable "environment_variables" {
   default = []
 }
 
+variable "secrets" {
+  description = "Secrets injected into the container from Secrets Manager. List of objects with name (env var name inside the container) and value_from (secret ARN, optionally with a ::key:: suffix for a specific JSON key)."
+  type = list(object({
+    name       = string
+    value_from = string
+  }))
+  default = []
+}
+
 variable "subnet_ids" {
   description = "Subnet IDs the task or service runs in. Private-app subnets from the networking module."
   type        = list(string)
