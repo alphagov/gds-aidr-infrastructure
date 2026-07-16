@@ -137,6 +137,8 @@ module "workload_iam_development" {
   role_prefix   = var.role_prefix
   workload_name = "synthetic-email-generation"
 
+  execution_role_secrets_arns = [module.rds_development.secret_arn]
+
   tags = {
     Environment = "development"
     AccountId   = var.development_account_id
@@ -152,6 +154,30 @@ module "ecs_cluster_development" {
 
   environment_name = "Development"
   cluster_name     = "${var.role_prefix}-cluster"
+
+  tags = {
+    Environment = "development"
+    AccountId   = var.development_account_id
+  }
+}
+module "rds_development" {
+  source = "../../modules/rds-postgres"
+
+  providers = {
+    aws = aws.development
+  }
+
+  environment_name = "Development"
+  identifier       = "email-generation"
+  db_name          = "email_generation"
+
+  vpc_id            = data.terraform_remote_state.networking.outputs.development_vpc_id
+  subnet_ids        = data.terraform_remote_state.networking.outputs.development_private_data_subnet_ids
+  security_group_id = data.terraform_remote_state.networking.outputs.development_private_data_security_group_id
+
+  multi_az            = false
+  deletion_protection = false
+  skip_final_snapshot = true
 
   tags = {
     Environment = "development"
@@ -174,9 +200,14 @@ module "ecs_service_development" {
   task_role_arn      = module.workload_iam_development.task_role_arn
 
   container_image = "${data.terraform_remote_state.containers.outputs.development_repository_urls["synthetic-email-generation"]}:latest"
+  container_port  = 3000
 
-  cpu    = 256
-  memory = 512
+  secrets = [
+    { name = "DATABASE_URL", value_from = "${module.rds_development.secret_arn}:url::" }
+  ]
+
+  cpu    = 512
+  memory = 1024
 
   subnet_ids         = data.terraform_remote_state.networking.outputs.development_private_app_subnet_ids
   security_group_ids = [data.terraform_remote_state.networking.outputs.development_ecs_task_security_group_id]
