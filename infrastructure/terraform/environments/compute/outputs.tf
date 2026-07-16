@@ -20,6 +20,14 @@ output "development_task_role_arn" {
   value = module.workload_iam_development.task_role_arn
 }
 
+output "development_rds_endpoint" {
+  value = module.rds_development.endpoint
+}
+
+output "development_rds_secret_arn" {
+  value = module.rds_development.secret_arn
+}
+
 output "staging_cluster_arn" {
   value = module.ecs_cluster_staging.cluster_arn
 }
@@ -27,3 +35,4 @@ output "staging_cluster_arn" {
 output "production_cluster_arn" {
   value = module.ecs_cluster_production.cluster_arn
 }
+
