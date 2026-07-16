@@ -6,9 +6,8 @@ variable "development_account_id" {
 }
 
 variable "development_api_image_tag" {
-  description = "Image tag for the synthetic-email-generation API, set automatically by the deploy script — never edited by hand."
+  description = "Image tag for the synthetic-email-generation"
   type        = string
-  default     = "latest"
 }
 
 variable "staging_account_id" {
@@ -25,4 +24,9 @@ variable "role_prefix" {
   description = "Prefix for IAM role and resource names, used to reference the existing terraform role created by production-iam."
   type        = string
   default     = "gds-aidr"
+}
+
+variable "bedrock_model_id" {
+  description = "Bedrock model ID or EU cross-region inference profile ID for Claude. Must be confirmed via the Bedrock console or CLI, not guessed."
+  type        = string
 }
