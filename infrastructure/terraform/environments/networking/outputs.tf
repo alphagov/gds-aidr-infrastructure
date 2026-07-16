@@ -24,6 +24,10 @@ output "development_alb_security_group_id" {
   value = module.vpc_development.alb_security_group_id
 }
 
+output "development_private_data_security_group_id" {
+  value = module.vpc_development.private_data_security_group_id
+}
+
 # --------------------------------------------------------------------------
 # Staging
 # --------------------------------------------------------------------------
@@ -48,6 +52,9 @@ output "staging_alb_security_group_id" {
   value = module.vpc_staging.alb_security_group_id
 }
 
+output "staging_private_data_security_group_id" {
+  value = module.vpc_staging.private_data_security_group_id
+}
 # --------------------------------------------------------------------------
 # Production
 # --------------------------------------------------------------------------
@@ -70,6 +77,10 @@ output "production_ecs_task_security_group_id" {
 
 output "production_alb_security_group_id" {
   value = module.vpc_production.alb_security_group_id
+}
+
+output "production_private_data_security_group_id" {
+  value = module.vpc_production.private_data_security_group_id
 }
 
 output "production_s3_vpc_endpoint_id" {
