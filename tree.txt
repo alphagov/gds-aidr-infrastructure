@@ -18,12 +18,11 @@
 │   ├── _static
 │   │   └── aidr-architecture-blue-with-disclaimer.png
 │   ├── architecture
-│   │   └── README.md
+│   │   └── overview.md
 │   └── infrastructure
 │       ├── compute.md
 │       ├── data-lake.md
 │       ├── iam-cross-account-strategy.md
-│       ├── iam.md
 │       ├── networking.md
 │       └── system-overview.md
 ├── infrastructure
@@ -66,51 +65,57 @@
 │       │       ├── terraform.tfvars
 │       │       ├── tree.txt
 │       │       └── variables.tf
-│       └── modules
-│           ├── budget-alerts
-│           │   ├── main.tf
-│           │   ├── outputs.tf
-│           │   └── variables.tf
-│           ├── cloudtrail-digest
-│           │   ├── cloudtrail_digest.py
-│           │   ├── main.tf
-│           │   ├── outputs.tf
-│           │   └── variables.tf
-│           ├── data-lake
-│           │   ├── main.tf
-│           │   ├── outputs.tf
-│           │   └── variables.tf
-│           ├── ecr
-│           │   ├── main.tf
-│           │   ├── outputs.tf
-│           │   └── variables.tf
-│           ├── ecs-cluster
-│           │   ├── main.tf
-│           │   ├── outputs.tf
-│           │   └── variables.tf
-│           ├── ecs-fargate-service
-│           │   ├── main.tf
-│           │   ├── outputs.tf
-│           │   └── variables.tf
-│           ├── iam-centralised
-│           │   ├── main.tf
-│           │   ├── outputs.tf
-│           │   └── variables.tf
-│           ├── s3-bucket
-│           │   ├── main.tf
-│           │   ├── outputs.tf
-│           │   └── variables.tf
-│           ├── vpc
-│           │   ├── main.tf
-│           │   ├── outputs.tf
-│           │   └── variables.tf
-│           └── workload-iam
-│               ├── main.tf
-│               ├── outputs.tf
-│               └── variables.tf
+│       ├── modules
+│       │   ├── budget-alerts
+│       │   │   ├── main.tf
+│       │   │   ├── outputs.tf
+│       │   │   └── variables.tf
+│       │   ├── cloudtrail-digest
+│       │   │   ├── cloudtrail_digest.py
+│       │   │   ├── main.tf
+│       │   │   ├── outputs.tf
+│       │   │   └── variables.tf
+│       │   ├── data-lake
+│       │   │   ├── main.tf
+│       │   │   ├── outputs.tf
+│       │   │   └── variables.tf
+│       │   ├── ecr
+│       │   │   ├── main.tf
+│       │   │   ├── outputs.tf
+│       │   │   └── variables.tf
+│       │   ├── ecs-cluster
+│       │   │   ├── main.tf
+│       │   │   ├── outputs.tf
+│       │   │   └── variables.tf
+│       │   ├── ecs-fargate-service
+│       │   │   ├── main.tf
+│       │   │   ├── outputs.tf
+│       │   │   └── variables.tf
+│       │   ├── iam-centralised
+│       │   │   ├── main.tf
+│       │   │   ├── outputs.tf
+│       │   │   └── variables.tf
+│       │   ├── rds-postgres
+│       │   │   ├── main.tf
+│       │   │   ├── outputs.tf
+│       │   │   └── variables.tf
+│       │   ├── s3-bucket
+│       │   │   ├── main.tf
+│       │   │   ├── outputs.tf
+│       │   │   └── variables.tf
+│       │   ├── vpc
+│       │   │   ├── main.tf
+│       │   │   ├── outputs.tf
+│       │   │   └── variables.tf
+│       │   └── workload-iam
+│       │       ├── main.tf
+│       │       ├── outputs.tf
+│       │       └── variables.tf
+│       ├── tree.txt
+│       └── tree_terraform.txt
 ├── package.json
 ├── role_scopes.pdf
 ├── scripts
 └── tree.txt
 
-30 directories, 88 files
+30 directories, 89 files

@@ -704,6 +704,10 @@ modules
 │   ├── main.tf
 │   ├── outputs.tf
 │   └── variables.tf
+├── rds-postgres
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
 ├── s3-bucket
 │   ├── main.tf
 │   ├── outputs.tf
