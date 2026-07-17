@@ -317,6 +317,7 @@ region = eu-west-2
 ## This is a session/credentials problem, not a Terraform code problem
 
 `403 Forbidden` on `HeadObject` means whatever AWS credentials are currently active don't have permission to read that S3 object — almost always means the assumed-role session has expired (4-hour limit) or was never assumed in this terminal window.
+```
 
 ## Check first
 
@@ -326,7 +327,7 @@ aws sts get-caller-identity
 
 **If this errors or shows an unexpected/expired identity** — re-assume the role:
 
-````zsh
+```bash
 eval $(aws sts assume-role \
   --role-arn "arn:aws:iam::<DEVELOPMENT_ACCOUNT_ID>:role/<ROLE_NAME>" \
   --role-session-name "AWS-Session" \
@@ -335,7 +336,8 @@ eval $(aws sts assume-role \
   --profile gds-users \
   --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]' \
   --output text | awk '{print "export AWS_ACCESS_KEY_ID="$1"\nexport AWS_SECRET_ACCESS_KEY="$2"\nexport AWS_SESSION_TOKEN="$3}')
-
+```
+```
 unset AWS_PROFILE
 aws sts get-caller-identity
 ```
@@ -346,10 +348,9 @@ Confirm the `ARN` in the output ends in `assumed-role/<ROLE_NAME>/AWS-Session` b
 
 Then retry:
 
-```bash
+```zsh
 terraform init
 terraform plan -no-color | tee -a logs/terraform-plan.log
-```
 ```
 
 5. Verify you are assumed into the role: `aws sts get-caller-identity`. The result should be something like this:
@@ -399,16 +400,16 @@ via Terraform.
 
 ##### Role summary
 
-| Role | Development | Staging | Production | Heavy compute |
-|---|---|---|---|---|
-| `admin` | Full access | Read (break-glass for write) | Read (break-glass for write) | Yes |
-| `terraform` | Deploy via OIDC | Deploy via OIDC | Deploy via OIDC | n/a |
-| `data-scientist` | Full minus IAM writes | Read only | Read only | Dev only |
-| `developer` | Full minus IAM writes | Read only | Read only | No |
-| `analyst` | Read only | Read only | Read only | No |
-| `explorer` | Read only | Read only | Read only | No |
-| `readonly` | Read only | Read only | Read only | No |
-| `security-audit` | Audit only | Audit only | Audit only | No |
+| Role | Development | Staging | Production | Heavy compute | Deployment |
+|---|---|---|---|---|---|
+| `admin` | Full access | Read (break-glass for write) | Read (break-glass for write) | Yes | Yes |
+| `terraform` | Deploy via OIDC | Deploy via OIDC | Deploy via OIDC | n/a | n/a |
+| `data-scientist` | Full minus IAM writes | Read only | Read only | Dev only | No |
+| `developer` | Full minus IAM writes | Read only | Read only | Dev only | App only (Dev) |
+| `analyst` | Read only | Read only | Read only | No | No |
+| `explorer` | Read only | Read only | Read only | No | No |
+| `readonly` | Read only | Read only | Read only | No | No |
+| `security-audit` | Audit only | Audit only | Audit only | No | No |
 
 ##### Two types of trust
 
