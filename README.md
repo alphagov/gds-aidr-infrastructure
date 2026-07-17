@@ -2,7 +2,7 @@
 # GDS AIDR Infrastructure Repository
 
 <!--date_created: mon-18-may-2026-->
-<!--date_updated: thurs-16-july-2026-->
+<!--date_updated: fri-17-july-2026-->
 
 
 **Index**
@@ -10,6 +10,7 @@
  - [Architecture diagrams](#architecture-diagrams)
     - [Data lake](#data-lake)
  - [Get access](#get-access)
+    - [CI/CD deploy roles for application repositories](#cicd-deploy-roles-for-application-repositories)
     - [For developers and platform admins](#for-developers-and-platform-admins)
     - [Console access - all users](#console-access)
  - [Accessing Claude Code in Bedrock](#accessing-claude-code-in-bedrock)
@@ -441,6 +442,83 @@ controlled by the trust policy. CloudTrail still records exactly who assumed
 the role (the session includes their `gds-users` identity). This is the 
 pattern used by `alphagov/govuk-infrastructure` and 
 `alphagov/cyber-security-shared-terraform-modules`.
+
+---
+
+### CI/CD deploy roles for application repositories
+
+Application repositories (e.g. `synthetic-email-generation`) are separate 
+from this infrastructure repository — application code never lives here, 
+this repo only ever references container image URLs. Those repositories 
+need their own way to push images and deploy, without holding full 
+Terraform admin access and without needing an infrastructure PR every time 
+someone builds a new app.
+
+Two shared roles exist for this, one per side of the deploy:
+
+| Role | Account | Purpose |
+|---|---|---|
+| `gds-aidr-ci-push` | Development | Push container images to any ECR repository in the account. Nothing else. |
+| `gds-aidr-ci-apply` | Production | Read/write the `compute` Terraform state, update ECS services, and `iam:PassRole` to any workload role matching the `gds-aidr-*-execution` / `gds-aidr-*-task` naming convention. |
+
+Both roles trust GitHub Actions via OIDC, scoped to a **GitHub Environment**, 
+not a branch:
+
+```
+repo:alphagov/*:environment:aidr-deploy
+```
+
+This means any repository under `alphagov` can use these roles, as long as 
+its workflow runs under an environment named `aidr-deploy` — configured 
+entirely within that repository's own GitHub settings. **No infrastructure 
+PR is needed to onboard a new application repository's CI/CD.**
+
+#### Onboarding a new application repository
+
+1. In the application repo: **Settings → Environments → New environment**, 
+   name it `aidr-deploy`.
+2. Its ECR repository and `workload-iam` execution/task roles must already 
+   exist in this repository (`containers` and `compute` environments) — this 
+   is the one step that still needs infrastructure Terraform, since it's 
+   provisioning real AWS resources for that app.
+3. In the application repo's GitHub Actions workflow, reference the shared 
+   role ARNs and the `aidr-deploy` environment:
+
+```yaml
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-and-push:
+    environment: aidr-deploy
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::<DEVELOPMENT_ACCOUNT_ID>:role/gds-aidr-ci-push
+          aws-region: eu-west-2
+
+  deploy:
+    environment: aidr-deploy
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::<PRODUCTION_ACCOUNT_ID>:role/gds-aidr-ci-apply
+          aws-region: eu-west-2
+```
+
+No secrets to request from the platform admin, no per-app IAM role to wait 
+on — both role ARNs above are stable and shared across every application.
+
+#### Why this is broader trust than a per-app role
+
+Any repository under `alphagov` with an `aidr-deploy` environment can push 
+to any ECR repository in Development and deploy any workload role in the 
+account — not scoped to one specific application. This trade-off is 
+deliberate: it avoids an infrastructure PR (and platform admin bottleneck) 
+every time a new application onboards or a deploy branch changes. If the 
+team grows to include repositories that shouldn't share this trust, this is 
+worth revisiting in favour of per-app scoped roles.
 
 ---
 

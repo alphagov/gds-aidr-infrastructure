@@ -97,7 +97,7 @@ variable "team_roles" {
     allow_heavy_compute = bool
     deployment_mode     = string
     # allow_deployment    = bool  # Replaced by deployment_mode 14 July 2026
-    allowed_users       = list(string)
+    allowed_users = list(string)
   }))
   default = {}
 
@@ -125,6 +125,36 @@ variable "tags" {
   description = "Tags applied to all resources created by this module."
   type        = map(string)
   default     = {}
+}
+
+variable "create_ci_push_role" {
+  description = "Whether to create one shared CI push role for this account, trusted for any alphagov repo using the configured GitHub Environment. Not per-app — onboarding a new app needs no infra change to this role."
+  type        = bool
+  default     = false
+}
+
+variable "create_ci_apply_role" {
+  description = "Whether to create one shared CI apply role for this account, trusted for any alphagov repo using the configured GitHub Environment. Not per-app — onboarding a new app needs no infra change to this role."
+  type        = bool
+  default     = false
+}
+
+variable "ci_github_org" {
+  description = "GitHub org repos must belong to, e.g. 'alphagov'."
+  type        = string
+  default     = "alphagov"
+}
+
+variable "ci_github_environment" {
+  description = "GitHub Environment name a repo's workflow must run under to assume this role. Configured per-repo in that repo's own GitHub settings — never needs an infra change."
+  type        = string
+  default     = "aidr-deploy"
+}
+
+variable "workload_role_account_id" {
+  description = "Account ID where workload-iam roles live, for the CI apply role's PassRole scoping. Development, since that's where ECS tasks currently run."
+  type        = string
+  default     = null
 }
 
 # --------------------------------------------------------------------------
