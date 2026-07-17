@@ -74,27 +74,39 @@ variable "team_roles" {
   description = <<-EOT
     Map of team roles to create. Each role specifies:
       - full_access:         true = PowerUserAccess, false = ReadOnlyAccess
-      - allow_heavy_compute: true = no restrictions, false = deny Glue/SageMaker/Bedrock/EMR/Redshift
-      - allow_deployment:    true = no restrictions, false = deny VPC/EC2/ECS/EKS/Lambda/ALB/CloudFormation/CI-CD
+      - allow_heavy_compute: true = no restrictions, false = deny Glue/SageMaker/EMR/Redshift
+      - deployment_mode:     "full" = no restrictions
+                             "app_only" = allows ECR, ECS task/service ops, Lambda, Cognito;
+                                          blocks VPC, EC2, CloudFormation, ECS cluster creation,
+                                          networking, CI/CD pipelines, Terraform state, SSM role assignments
+                             "none" = deny all deployment services
       - allowed_users:       list of gds-users IAM usernames who may assume this role
 
     Example:
       team_roles = {
-        data-scientist = {
+        developer = {
           full_access         = true
           allow_heavy_compute = true
-          allow_deployment    = false
-          allowed_users       = ["firstname1.surname1", "firstname2.surname2", "firstname3.surname3"]
+          deployment_mode     = "app_only"
+          allowed_users       = ["firstname1.surname1"]
         }
       }
   EOT
   type = map(object({
     full_access         = bool
     allow_heavy_compute = bool
-    allow_deployment    = bool
+    deployment_mode     = string
+    # allow_deployment    = bool  # Replaced by deployment_mode 14 July 2026
     allowed_users       = list(string)
   }))
   default = {}
+
+  validation {
+    condition = alltrue([
+      for k, v in var.team_roles : contains(["full", "app_only", "none"], v.deployment_mode)
+    ])
+    error_message = "deployment_mode must be one of: full, app_only, none"
+  }
 }
 
 variable "terraform_cross_account_arns" {

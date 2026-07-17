@@ -263,8 +263,11 @@ resource "aws_iam_role_policy_attachment" "terraform" {
 #                        false = ReadOnlyAccess
 #   allow_heavy_compute: true = no restrictions on Glue, SageMaker, etc.
 #                        false = explicit deny on heavy compute services
-#   allow_deployment:    true = no restrictions on VPC, EC2, ECS, Lambda, etc.
-#                        false = explicit deny on deployment/infrastructure services
+#   deployment_mode:     "full" = no deployment restrictions
+#                        "app_only" = blocks infrastructure (VPC, EC2, CloudFormation, etc.)
+#                                     allows application deployment (ECR, ECS services, Lambda, Cognito)
+#                                     protects Terraform state and SSM role assignments
+#                        "none" = blocks all deployment services
 #   allowed_users:       list of gds-users IAM usernames who may assume this role
 #
 # Trust: specific named users in gds-users with MFA required.
@@ -356,13 +359,13 @@ resource "aws_iam_role_policy" "team_deny_heavy_compute" {
   })
 }
 
-# Deny deployment services — attached to roles where allow_deployment = false.
-# Blocks creating or launching infrastructure: VPCs, EC2 instances, containers,
-# serverless functions, load balancers, CI/CD pipelines, and CloudFormation stacks.
+# Deny ALL deployment services — attached to roles where deployment_mode = "none".
+# Blocks creating or launching any infrastructure or application workloads.
 # Read-only access to these services is unaffected (users can still view resources
 # in the console and CloudWatch). Data services (S3, Athena, etc.) are unaffected.
+# Used for Staging and Production where all team roles are read-only.
 resource "aws_iam_role_policy" "team_deny_deployment" {
-  for_each = { for k, v in local.team_roles : k => v if !v.allow_deployment }
+  for_each = { for k, v in local.team_roles : k => v if v.deployment_mode == "none" }
 
   name = "${var.role_prefix}-deny-deployment"
   role = aws_iam_role.team[each.key].name
@@ -388,6 +391,9 @@ resource "aws_iam_role_policy" "team_deny_deployment" {
           "ecs:CreateCluster",
           "ecs:CreateService",
           "ecs:RegisterTaskDefinition",
+          "ecs:UpdateService",
+          "ecs:RunTask",
+          "ecs:StartTask",
           "eks:CreateCluster",
           "eks:CreateNodegroup",
           # Serverless
@@ -409,9 +415,123 @@ resource "aws_iam_role_policy" "team_deny_deployment" {
           # Application hosting
           "elasticbeanstalk:Create*",
           "elasticbeanstalk:Update*",
-          "apprunner:*"
+          "apprunner:*",
+          # ECR write
+          "ecr:PutImage",
+          "ecr:InitiateLayerUpload",
+          "ecr:UploadLayerPart",
+          "ecr:CompleteLayerUpload",
+          # Cognito write
+          "cognito-idp:Create*",
+          "cognito-idp:Update*",
+          "cognito-idp:Delete*",
+          "cognito-idp:AdminCreate*",
+          "cognito-idp:AdminUpdate*",
+          "cognito-idp:AdminDelete*"
         ]
         Resource = "*"
+      }
+    ]
+  })
+}
+
+# Deny INFRASTRUCTURE deployment only — attached to roles where deployment_mode = "app_only".
+# Blocks creating VPCs, EC2 instances, ECS clusters, CloudFormation stacks, networking,
+# and CI/CD pipelines. Allows application-level deployment: ECR push/pull, ECS service
+# updates, ECS task runs, Lambda functions, Cognito user pools, CloudWatch log groups.
+# Used for the developer role in Development where application deployment is needed
+# but infrastructure changes must go through Terraform.
+resource "aws_iam_role_policy" "team_deny_infra_deployment" {
+  for_each = { for k, v in local.team_roles : k => v if v.deployment_mode == "app_only" }
+
+  name = "${var.role_prefix}-deny-infra-deployment"
+  role = aws_iam_role.team[each.key].name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "DenyInfrastructureDeployment"
+        Effect = "Deny"
+        Action = [
+          # VPC and networking — never via console/CLI
+          "ec2:RunInstances",
+          "ec2:CreateVpc",
+          "ec2:CreateSubnet",
+          "ec2:CreateSecurityGroup",
+          "ec2:CreateNatGateway",
+          "ec2:CreateInternetGateway",
+          "ec2:CreateLaunchTemplate",
+          "ec2:CreateRouteTable",
+          "ec2:CreateRoute",
+          "ec2:DeleteVpc",
+          "ec2:DeleteSubnet",
+          "ec2:DeleteSecurityGroup",
+          "ec2:DeleteNatGateway",
+          "ec2:DeleteInternetGateway",
+          "ec2:DeleteRouteTable",
+          "ec2:DeleteRoute",
+          "ec2:ModifyVpcAttribute",
+          "ec2:ModifySubnetAttribute",
+          # ECS cluster management — use the existing cluster, do not create new ones
+          "ecs:CreateCluster",
+          "ecs:DeleteCluster",
+          # EKS — not used on this platform
+          "eks:CreateCluster",
+          "eks:CreateNodegroup",
+          "eks:DeleteCluster",
+          "eks:DeleteNodegroup",
+          # Load balancing and autoscaling — infrastructure, not application
+          "elasticloadbalancing:CreateLoadBalancer",
+          "elasticloadbalancing:DeleteLoadBalancer",
+          "elasticloadbalancing:CreateTargetGroup",
+          "elasticloadbalancing:DeleteTargetGroup",
+          "autoscaling:CreateAutoScalingGroup",
+          "autoscaling:DeleteAutoScalingGroup",
+          "autoscaling:CreateLaunchConfiguration",
+          # Infrastructure as code — all infra changes go through Terraform
+          "cloudformation:*",
+          # CI/CD pipelines — managed by platform admin
+          "codedeploy:*",
+          "codepipeline:*",
+          "codebuild:*",
+          # Application hosting platforms — not used on this platform
+          "elasticbeanstalk:*",
+          "apprunner:*",
+          # IAM — infrastructure, never via console/CLI
+          "iam:Create*",
+          "iam:Delete*",
+          "iam:Put*",
+          "iam:Attach*",
+          "iam:Detach*",
+          "iam:Update*"
+        ]
+        Resource = "*"
+      },
+      # Protect Terraform state buckets
+      {
+        Sid    = "DenyTerraformStateBucketAccess"
+        Effect = "Deny"
+        Action = [
+          "s3:PutObject",
+          "s3:DeleteObject",
+          "s3:GetObject"
+        ]
+        Resource = [
+          "arn:aws:s3:::gds-aidr-terraform-state-*/*"
+        ]
+      },
+      # Protect SSM Parameter Store role assignments
+      {
+        Sid    = "DenySSMRoleAssignmentsWrite"
+        Effect = "Deny"
+        Action = [
+          "ssm:PutParameter",
+          "ssm:DeleteParameter"
+        ]
+        Resource = [
+          "arn:aws:ssm:*:*:parameter/gds-aidr/iam/*"
+        ]
       }
     ]
   })

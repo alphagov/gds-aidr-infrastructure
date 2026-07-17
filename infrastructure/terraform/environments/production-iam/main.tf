@@ -143,33 +143,34 @@ module "iam_development" {
 
   terraform_cross_account_arns = ["arn:aws:iam::${var.production_account_id}:root"]
 
-  # Team roles with allowed_users from SSM and deployment denied.
-  # Data-scientist gets full access + heavy compute but no deployment.
-  # Developer gets full access but no heavy compute and no deployment.
-  # Analyst and explorer get read-only, no heavy compute, no deployment.
+  # Team roles with allowed_users from SSM.
+  # Data-scientist gets full access + heavy compute, all deployment blocked.
+  # Developer gets full access + heavy compute, app deployment allowed (ECR, ECS, Lambda, Cognito),
+  #   infrastructure deployment blocked (VPC, EC2, CloudFormation, etc.).
+  # Analyst and explorer get read-only, heavy compute denied, all deployment blocked.
   team_roles = {
     data-scientist = {
       full_access         = true
       allow_heavy_compute = true
-      allow_deployment    = false
+      deployment_mode     = "none"
       allowed_users       = local.team_role_assignments["data-scientist"]
     }
     developer = {
       full_access         = true
-      allow_heavy_compute = false
-      allow_deployment    = false
+      allow_heavy_compute = true
+      deployment_mode     = "app_only"
       allowed_users       = local.team_role_assignments["developer"]
     }
     analyst = {
       full_access         = false
       allow_heavy_compute = false
-      allow_deployment    = false
+      deployment_mode     = "none"
       allowed_users       = local.team_role_assignments["analyst"]
     }
     explorer = {
       full_access         = false
       allow_heavy_compute = false
-      allow_deployment    = false
+      deployment_mode     = "none"
       allowed_users       = local.team_role_assignments["explorer"]
     }
   }
@@ -217,25 +218,25 @@ module "iam_staging" {
     data-scientist = {
       full_access         = false
       allow_heavy_compute = false
-      allow_deployment    = false
+      deployment_mode     = "none"
       allowed_users       = local.team_role_assignments["data-scientist"]
     }
     developer = {
       full_access         = false
       allow_heavy_compute = false
-      allow_deployment    = false
+      deployment_mode     = "none"
       allowed_users       = local.team_role_assignments["developer"]
     }
     analyst = {
       full_access         = false
       allow_heavy_compute = false
-      allow_deployment    = false
+      deployment_mode     = "none"
       allowed_users       = local.team_role_assignments["analyst"]
     }
     explorer = {
       full_access         = false
       allow_heavy_compute = false
-      allow_deployment    = false
+      deployment_mode     = "none"
       allowed_users       = local.team_role_assignments["explorer"]
     }
   }
@@ -283,25 +284,25 @@ module "iam_production" {
     data-scientist = {
       full_access         = false
       allow_heavy_compute = false
-      allow_deployment    = false
+      deployment_mode     = "none"
       allowed_users       = local.team_role_assignments["data-scientist"]
     }
     developer = {
       full_access         = false
       allow_heavy_compute = false
-      allow_deployment    = false
+      deployment_mode     = "none"
       allowed_users       = local.team_role_assignments["developer"]
     }
     analyst = {
       full_access         = false
       allow_heavy_compute = false
-      allow_deployment    = false
+      deployment_mode     = "none"
       allowed_users       = local.team_role_assignments["analyst"]
     }
     explorer = {
       full_access         = false
       allow_heavy_compute = false
-      allow_deployment    = false
+      deployment_mode     = "none"
       allowed_users       = local.team_role_assignments["explorer"]
     }
   }
