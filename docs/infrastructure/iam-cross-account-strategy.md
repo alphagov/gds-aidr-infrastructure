@@ -1,7 +1,7 @@
 # IAM Cross-Account Strategy (Centralised)
 
 <!--date_added:thurs-28-may-2026-->
-<!--date_updated:weds-15-july-2026--->
+<!--date_updated:fri-17-jul-2026--->
 
 **Description:** Our account strategy is built in conjunction with GDS Engineering Enablement Cloud Platform Team and Secure by Design processes.
 
@@ -33,7 +33,7 @@ gds-users
 │   ├── gds-aidr-admin               ← admins only (named ARNs + MFA)
 │   ├── gds-aidr-terraform           ← human + GitHub OIDC
 │   ├── gds-aidr-data-scientist      ← PowerUserAccess, heavy compute allowed, deployment denied, Bedrock allowed
-│   ├── gds-aidr-developer           ← PowerUserAccess, heavy compute denied, deployment denied, Bedrock allowed
+│   ├── gds-aidr-developer           ← PowerUserAccess, heavy compute allowed, app deployment only, Bedrock allowed
 │   ├── gds-aidr-analyst             ← ReadOnlyAccess, heavy compute denied, deployment denied, Bedrock allowed
 │   ├── gds-aidr-explorer            ← ReadOnlyAccess, heavy compute denied, deployment denied, Bedrock allowed
 │   ├── gds-aidr-readonly
@@ -140,9 +140,12 @@ in staging and production. Cross-account read on production data lake buckets.
 `gds-aidr-datalake-experimental/` prefix. Read plus CI/CD trigger permissions
 in staging and production (CodePipeline invoke, CodeBuild log view).
 
-**developer**: Broad permissions in development, no IAM writes. Scope refined
-over time. Read-only via console in staging and production; deployments via
-OIDC only. Heavy compute blocked.
+**developer**: Broad permissions in Development, no IAM writes. Application
+deployment allowed (ECR push, ECS service updates, Lambda, Cognito) but
+infrastructure deployment blocked (VPC, EC2, CloudFormation, ECS cluster
+creation, CI/CD pipelines). Heavy compute allowed. Terraform state and SSM
+role assignments explicitly protected. Read-only in Staging and Production.
+<!-- Previous: heavy compute blocked, all deployment blocked -->
 
 **analyst**: Scoped to Athena, S3 (specific buckets), Glue Data Catalog read,
 QuickSight in development. Read-only in staging and production. Heavy compute
@@ -324,13 +327,7 @@ admins) risks state drift: the console reflects something different from what
 Terraform declared. The break-glass role provides emergency write access
 when genuinely needed, with mandatory logging and notification.
 
-### References
-
-- `docs/infrastructure/iam-access-strategy.md` — full access policy (primary reference)
-- [alphagov/cyber-security-shared-terraform-modules](https://github.com/alphagov/cyber-security-shared-terraform-modules)
-- [alphagov/govuk-infrastructure](https://github.com/alphagov/govuk-infrastructure)
-- [alphagov/github-oidc-proxy](https://github.com/alphagov/github-oidc-proxy)
-- [GDS Way: AWS account management](https://gds-way.cloudapps.digital/)
+---
 
 ## Mermaid Diagram (IAM)
 
@@ -364,4 +361,11 @@ flowchart LR
 
 ---
 
-<!--END-->
+
+### References
+
+- `docs/infrastructure/iam-access-strategy.md` — full access policy (primary reference)
+- [alphagov/cyber-security-shared-terraform-modules](https://github.com/alphagov/cyber-security-shared-terraform-modules)
+- [alphagov/govuk-infrastructure](https://github.com/alphagov/govuk-infrastructure)
+- [alphagov/github-oidc-proxy](https://github.com/alphagov/github-oidc-proxy)
+- [GDS Way: AWS account management](https://gds-way.cloudapps.digital/)
