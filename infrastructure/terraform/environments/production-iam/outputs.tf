@@ -29,6 +29,13 @@ output "development_team_role_arns" {
   value       = module.iam_development.team_role_arns
 }
 
+output "development_ci_push_role_arn" {
+  value = module.iam_development.ci_push_role_arn
+}
+
+output "production_ci_apply_role_arn" {
+  value = module.iam_production.ci_apply_role_arn
+}
 # --------------------------------------------------------------------------
 # Staging account
 # --------------------------------------------------------------------------

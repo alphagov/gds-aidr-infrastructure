@@ -140,6 +140,7 @@ module "iam_development" {
   create_readonly_role       = true
   create_security_audit_role = true
   create_terraform_role      = true
+  create_ci_push_role        = true
 
   terraform_cross_account_arns = ["arn:aws:iam::${var.production_account_id}:root"]
 
@@ -274,6 +275,8 @@ module "iam_production" {
   create_readonly_role       = true
   create_security_audit_role = true
   create_terraform_role      = true
+  create_ci_apply_role       = true
+  workload_role_account_id   = var.development_account_id
 
   # Enable the data-reader role in Production
   # create_data_reader_role  = true

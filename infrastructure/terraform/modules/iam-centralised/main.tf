@@ -536,6 +536,168 @@ resource "aws_iam_role_policy" "team_deny_infra_deployment" {
     ]
   })
 }
+# --------------------------------------------------------------------------
+# CI push role
+# --------------------------------------------------------------------------
+# One shared role, trusted for any alphagov repo running under the
+# ci_github_environment GitHub Environment — not tied to a branch name and
+# not per-app. Onboarding a new app needs its ECR repo created (containers
+# environment), but never needs this role touching again.
+
+data "aws_caller_identity" "current" {}
+
+resource "aws_iam_role" "ci_push" {
+  count = var.create_ci_push_role ? 1 : 0
+
+  name = "${var.role_prefix}-ci-push"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "AllowGitHubActionsOIDC"
+        Effect = "Allow"
+        Principal = {
+          Federated = aws_iam_openid_connect_provider.github.arn
+        }
+        Action = "sts:AssumeRoleWithWebIdentity"
+        Condition = {
+          StringEquals = {
+            "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+          }
+          StringLike = {
+            "token.actions.githubusercontent.com:sub" = "repo:${var.ci_github_org}/*:environment:${var.ci_github_environment}"
+          }
+        }
+      }
+    ]
+  })
+
+  max_session_duration = var.max_session_duration
+  tags                 = var.tags
+}
+
+resource "aws_iam_role_policy" "ci_push" {
+  count = var.create_ci_push_role ? 1 : 0
+
+  name = "${var.role_prefix}-ci-push"
+  role = aws_iam_role.ci_push[0].id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid      = "ECRAuth"
+        Effect   = "Allow"
+        Action   = "ecr:GetAuthorizationToken"
+        Resource = "*"
+      },
+      {
+        # Any ECR repo in this account. The account boundary is already the
+        # real security boundary here — only this team's approved repos
+        # exist in it, all created via the containers environment.
+        Sid    = "ECRPush"
+        Effect = "Allow"
+        Action = [
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:InitiateLayerUpload",
+          "ecr:UploadLayerPart",
+          "ecr:CompleteLayerUpload",
+          "ecr:PutImage",
+          "ecr:BatchGetImage"
+        ]
+        Resource = "arn:aws:ecr:eu-west-2:${data.aws_caller_identity.current.account_id}:repository/*"
+      }
+    ]
+  })
+}
+
+# --------------------------------------------------------------------------
+# CI apply role
+# --------------------------------------------------------------------------
+# Same trust pattern as the push role. PassRole is wildcarded against the
+# existing gds-aidr-{app}-execution / gds-aidr-{app}-task naming convention
+# already used by every workload-iam call — no per-app entry needed.
+
+resource "aws_iam_role" "ci_apply" {
+  count = var.create_ci_apply_role ? 1 : 0
+
+  name = "${var.role_prefix}-ci-apply"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "AllowGitHubActionsOIDC"
+        Effect = "Allow"
+        Principal = {
+          Federated = aws_iam_openid_connect_provider.github.arn
+        }
+        Action = "sts:AssumeRoleWithWebIdentity"
+        Condition = {
+          StringEquals = {
+            "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+          }
+          StringLike = {
+            "token.actions.githubusercontent.com:sub" = "repo:${var.ci_github_org}/*:environment:${var.ci_github_environment}"
+          }
+        }
+      }
+    ]
+  })
+
+  max_session_duration = var.max_session_duration
+  tags                 = var.tags
+}
+
+resource "aws_iam_role_policy" "ci_apply" {
+  count = var.create_ci_apply_role ? 1 : 0
+
+  name = "${var.role_prefix}-ci-apply"
+  role = aws_iam_role.ci_apply[0].id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "TerraformStateAccess"
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          "arn:aws:s3:::gds-aidr-terraform-state-production",
+          "arn:aws:s3:::gds-aidr-terraform-state-production/compute/*"
+        ]
+      },
+      {
+        Sid    = "ECSDeploy"
+        Effect = "Allow"
+        Action = [
+          "ecs:UpdateService",
+          "ecs:DescribeServices",
+          "ecs:DescribeTaskDefinition",
+          "ecs:RegisterTaskDefinition",
+          "ecs:DeregisterTaskDefinition"
+        ]
+        Resource = "*"
+      },
+      {
+        # Matches every workload-iam-created role, current and future,
+        # by construction (all follow this naming pattern already).
+        Sid    = "PassRoleToWorkloadRoles"
+        Effect = "Allow"
+        Action = "iam:PassRole"
+        Resource = [
+          "arn:aws:iam::${var.workload_role_account_id}:role/${var.role_prefix}-*-execution",
+          "arn:aws:iam::${var.workload_role_account_id}:role/${var.role_prefix}-*-task"
+        ]
+      }
+    ]
+  })
+}
 
 # --------------------------------------------------------------------------
 # Data Reader Role
