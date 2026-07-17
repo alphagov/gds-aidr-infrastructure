@@ -632,9 +632,6 @@ Bedrock usage is billed to the Development account. Budget alerts are configured
 #### Repository structure (infrastructure)  
 
 ```zsh
-
-
-
 19 directories, 65 files
 environments
 ├── compute
