@@ -97,7 +97,7 @@ variable "team_roles" {
     allow_heavy_compute = bool
     deployment_mode     = string
     # allow_deployment    = bool  # Replaced by deployment_mode 14 July 2026
-    allowed_users       = list(string)
+    allowed_users = list(string)
   }))
   default = {}
 
@@ -125,6 +125,18 @@ variable "tags" {
   description = "Tags applied to all resources created by this module."
   type        = map(string)
   default     = {}
+}
+
+variable "create_ci_push_role" {
+  description = "Whether to create the shared CI push role for this account, trusted for any alphagov repo using the configured GitHub Environment."
+  type        = bool
+  default     = false
+}
+
+variable "create_ci_apply_role" {
+  description = "Whether to create the shared CI apply role for this account, trusted for any alphagov repo using the configured GitHub Environment."
+  type        = bool
+  default     = false
 }
 
 # --------------------------------------------------------------------------
