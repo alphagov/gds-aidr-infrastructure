@@ -2,7 +2,7 @@
 # GDS AIDR Infrastructure Repository
 
 <!--date_created: mon-18-may-2026-->
-<!--date_updated: fri-17-july-2026-->
+<!--date_updated: sat-18-july-2026-->
 
 
 **Index**
@@ -465,24 +465,24 @@ Both roles trust GitHub Actions via OIDC, scoped to a **GitHub Environment**,
 not a branch:
 
 ```
-repo:alphagov/*:environment:aidr-deploy
+repo:alphagov/*:environment:aidr-development
 ```
 
 This means any repository under `alphagov` can use these roles, as long as 
-its workflow runs under an environment named `aidr-deploy` — configured 
+its workflow runs under an environment named `aidr-development` — configured 
 entirely within that repository's own GitHub settings. **No infrastructure 
 PR is needed to onboard a new application repository's CI/CD.**
 
 #### Onboarding a new application repository
 
 1. In the application repo: **Settings → Environments → New environment**, 
-   name it `aidr-deploy`.
+   name it `aidr-development`.
 2. Its ECR repository and `workload-iam` execution/task roles must already 
    exist in this repository (`containers` and `compute` environments) — this 
    is the one step that still needs infrastructure Terraform, since it's 
    provisioning real AWS resources for that app.
 3. In the application repo's GitHub Actions workflow, reference the shared 
-   role ARNs and the `aidr-deploy` environment:
+   role ARNs and the `aidr-development` environment:
 
 ```yaml
 permissions:
@@ -491,7 +491,7 @@ permissions:
 
 jobs:
   build-and-push:
-    environment: aidr-deploy
+    environment: aidr-development
     steps:
       - uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -499,7 +499,7 @@ jobs:
           aws-region: eu-west-2
 
   deploy:
-    environment: aidr-deploy
+    environment: aidr-development
     steps:
       - uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -512,7 +512,7 @@ on — both role ARNs above are stable and shared across every application.
 
 #### Why this is broader trust than a per-app role
 
-Any repository under `alphagov` with an `aidr-deploy` environment can push 
+Any repository under `alphagov` with an `aidr-development` environment can push 
 to any ECR repository in Development and deploy any workload role in the 
 account — not scoped to one specific application. This trade-off is 
 deliberate: it avoids an infrastructure PR (and platform admin bottleneck) 
