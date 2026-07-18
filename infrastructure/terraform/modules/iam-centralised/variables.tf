@@ -148,7 +148,7 @@ variable "ci_github_org" {
 variable "ci_github_environment" {
   description = "GitHub Environment name a repo's workflow must run under to assume this role. Configured per-repo in that repo's own GitHub settings — never needs an infra change."
   type        = string
-  default     = "aidr-"
+  default     = "aidr-development"
 }
 
 variable "workload_role_account_id" {
