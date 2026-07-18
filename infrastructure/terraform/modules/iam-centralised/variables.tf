@@ -37,7 +37,7 @@ variable "github_oidc_allowed_subjects" {
 }
 
 variable "chained_trusted_account_arns" {
-  description = "Account root ARNs allowed to assume the terraform role via cross-account chaining, e.g. the production account root so it can chain into development and staging without a bootstrap role."
+  description = "Account root ARNs allowed to assume the terraform role via cross-account chaining, e.g. the production account root so it can chain into  and staging without a bootstrap role."
   type        = list(string)
   default     = []
 }
@@ -152,7 +152,13 @@ variable "ci_github_environment" {
 }
 
 variable "workload_role_account_id" {
-  description = "Account ID where workload-iam roles live, for the CI apply role's PassRole scoping. Development, since that's where ECS tasks currently run."
+  description = "Account ID where workload-iam roles live, for the CI apply role's PassRole scoping. , since that's where ECS tasks currently run."
+  type        = string
+  default     = null
+}
+
+variable "staging_account_id" {
+  description = "Staging account ID, needed for ci-apply to chain into that account's terraform role."
   type        = string
   default     = null
 }

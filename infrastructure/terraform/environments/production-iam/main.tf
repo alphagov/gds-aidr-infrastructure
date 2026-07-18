@@ -277,6 +277,7 @@ module "iam_production" {
   create_terraform_role      = true
   create_ci_apply_role       = true
   workload_role_account_id   = var.development_account_id
+  staging_account_id         = var.staging_account_id
 
   # Enable the data-reader role in Production
   # create_data_reader_role  = true
