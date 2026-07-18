@@ -660,6 +660,10 @@ resource "aws_iam_role_policy" "ci_apply" {
     Version = "2012-10-17"
     Statement = [
       {
+        # compute state: read and write. networking/containers state: read
+        # only, needed because the compute environment reads their outputs
+        # via terraform_remote_state — those reads always run as this role,
+        # not as whichever account's provider alias is active.
         Sid    = "TerraformStateAccess"
         Effect = "Allow"
         Action = [
@@ -669,15 +673,21 @@ resource "aws_iam_role_policy" "ci_apply" {
         ]
         Resource = [
           "arn:aws:s3:::gds-aidr-terraform-state-production",
-          "arn:aws:s3:::gds-aidr-terraform-state-production/compute/*"
+          "arn:aws:s3:::gds-aidr-terraform-state-production/compute/*",
+          "arn:aws:s3:::gds-aidr-terraform-state-production/networking/*",
+          "arn:aws:s3:::gds-aidr-terraform-state-production/containers/*"
         ]
       },
       {
+        # Production only — resources here are managed directly as this
+        # role, no chaining. Development and Staging resources go through
+        # the chained gds-aidr-terraform assume below instead.
         Sid    = "ECSDeploy"
         Effect = "Allow"
         Action = [
           "ecs:UpdateService",
           "ecs:DescribeServices",
+          "ecs:DescribeClusters",
           "ecs:DescribeTaskDefinition",
           "ecs:RegisterTaskDefinition",
           "ecs:DeregisterTaskDefinition"
@@ -685,14 +695,41 @@ resource "aws_iam_role_policy" "ci_apply" {
         Resource = "*"
       },
       {
-        # Matches every workload-iam-created role, current and future,
-        # by construction (all follow this naming pattern already).
+        Sid    = "ReadWorkloadRoles"
+        Effect = "Allow"
+        Action = [
+          "iam:GetRole",
+          "iam:GetRolePolicy",
+          "iam:ListRolePolicies",
+          "iam:ListAttachedRolePolicies"
+        ]
+        Resource = [
+          "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.role_prefix}-*-execution",
+          "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.role_prefix}-*-task"
+        ]
+      },
+      {
         Sid    = "PassRoleToWorkloadRoles"
         Effect = "Allow"
         Action = "iam:PassRole"
         Resource = [
           "arn:aws:iam::${var.workload_role_account_id}:role/${var.role_prefix}-*-execution",
-          "arn:aws:iam::${var.workload_role_account_id}:role/${var.role_prefix}-*-task"
+          "arn:aws:iam::${var.workload_role_account_id}:role/${var.role_prefix}-*-task",
+          "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.role_prefix}-*-execution",
+          "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.role_prefix}-*-task"
+        ]
+      },
+      {
+        # Lets ci-apply chain into the existing admin terraform role in
+        # Development and Staging, same mechanism the human terraform role
+        # already uses for cross-account applies — not new trust, just the
+        # matching permission on this role's own policy.
+        Sid    = "AssumeTerraformRoleInOtherAccounts"
+        Effect = "Allow"
+        Action = "sts:AssumeRole"
+        Resource = [
+          "arn:aws:iam::${var.workload_role_account_id}:role/${var.role_prefix}-terraform",
+          "arn:aws:iam::${var.staging_account_id}:role/${var.role_prefix}-terraform"
         ]
       }
     ]
