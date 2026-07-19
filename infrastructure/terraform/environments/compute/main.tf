@@ -235,8 +235,9 @@ module "ecs_service_development" {
   security_group_ids = [data.terraform_remote_state.networking.outputs.development_ecs_task_security_group_id]
   assign_public_ip   = false
 
-  create_service = true
-  desired_count  = 1
+  create_service   = true
+  desired_count    = 1
+  target_group_arn = module.alb_development.additional_target_group_arns["api"]
 
   tags = {
     Environment = "development"
@@ -367,10 +368,9 @@ module "ecs_service_ui_development" {
   security_group_ids = [data.terraform_remote_state.networking.outputs.development_ecs_task_security_group_id]
   assign_public_ip   = false
 
-  create_service = true
-  desired_count  = 1
-  # target_group_arn = module.alb_development.target_group_arn
-  target_group_arn = module.alb_development.additional_target_group_arns["api"]
+  create_service   = true
+  desired_count    = 1
+  target_group_arn = module.alb_development.target_group_arn
 
   tags = {
     Environment = "development"
