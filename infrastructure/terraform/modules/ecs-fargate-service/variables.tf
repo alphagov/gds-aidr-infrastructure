@@ -107,7 +107,7 @@ variable "tags" {
 }
 
 variable "target_group_arn" {
-  description = "ARN of an ALB target group to attach this service to. Null means the service runs with no load balancer."
+  description = "ARN of an ALB target group to attach this service to. Null means the service runs with no load balancer attached."
   type        = string
   default     = null
 }
