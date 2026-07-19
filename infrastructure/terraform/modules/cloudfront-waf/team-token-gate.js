@@ -18,8 +18,13 @@ function handler(event) {
                 statusCode: 302,
                 statusDescription: "Found",
                 headers: {
-                    location: { value: "/" },
-                    "set-cookie": { value: "team_token=" + expectedToken + "; Path=/; Secure; HttpOnly; SameSite=Strict; Max-Age=86400" }
+                    location: { value: "/" }
+                },
+                cookies: {
+                    team_token: {
+                        value: expectedToken,
+                        attributes: "Path=/; Secure; HttpOnly; SameSite=Strict; Max-Age=86400"
+                    }
                 }
             };
         }
