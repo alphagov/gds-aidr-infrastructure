@@ -74,6 +74,10 @@
 │       │   │   ├── main.tf
 │       │   │   ├── outputs.tf
 │       │   │   └── variables.tf
+│       │   ├── cloudfront-waf
+│       │   │   ├── main.tf
+│       │   │   ├── outputs.tf
+│       │   │   └── variables.tf
 │       │   ├── cloudtrail-digest
 │       │   │   ├── cloudtrail_digest.py
 │       │   │   ├── main.tf
@@ -122,4 +126,4 @@
 ├── scripts
 └── tree.txt
 
-31 directories, 92 files
+32 directories, 95 files
