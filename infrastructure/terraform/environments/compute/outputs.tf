@@ -28,6 +28,14 @@ output "development_rds_secret_arn" {
   value = module.rds_development.secret_arn
 }
 
+output "development_alb_dns_name" {
+  value = module.alb_development.alb_dns_name
+}
+
+output "development_cloudfront_domain_name" {
+  value = module.cloudfront_waf_development.cloudfront_domain_name
+}
+
 output "staging_cluster_arn" {
   value = module.ecs_cluster_staging.cluster_arn
 }
