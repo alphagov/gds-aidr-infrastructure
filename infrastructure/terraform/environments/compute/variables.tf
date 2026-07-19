@@ -34,3 +34,9 @@ variable "bedrock_model_id" {
   description = "Bedrock model ID or EU cross-region inference profile ID for Claude. Must be confirmed via the Bedrock console or CLI, not guessed."
   type        = string
 }
+
+variable "team_token" {
+  description = "Shared internal access token — used by the API's INTERNAL_ACCESS_TOKEN and now also the CloudFront token gate."
+  type        = string
+  sensitive   = true
+}
