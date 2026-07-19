@@ -10,6 +10,10 @@ variable "development_api_image_tag" {
   type        = string
 }
 
+variable "development_ui_image_tag" {
+  description = "Image tag for the synthetic-email-generation-ui service, prefixed ui- to distinguish it in the shared repo. No default — must always be supplied explicitly."
+  type        = string
+}
 variable "staging_account_id" {
   description = "AWS account ID for the staging account."
   type        = string
