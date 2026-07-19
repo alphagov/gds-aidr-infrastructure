@@ -32,3 +32,8 @@ variable "tags" {
   type    = map(string)
   default = {}
 }
+
+variable "team_token" {
+  type      = string
+  sensitive = true
+}

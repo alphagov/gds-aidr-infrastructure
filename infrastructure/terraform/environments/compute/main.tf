@@ -217,7 +217,8 @@ module "ecs_service_development" {
   environment_variables = [
     { name = "LLM_PROVIDER", value = "bedrock" },
     { name = "LLM_MODEL_OVERRIDE", value = var.bedrock_model_id },
-    { name = "AWS_REGION", value = "eu-west-2" }
+    { name = "AWS_REGION", value = "eu-west-2" },
+    { name = "INTERNAL_ACCESS_TOKEN", value = var.team_token }
   ]
 
   # container_image = "${data.terraform_remote_state.containers.outputs.development_repository_urls["synthetic-email-generation"]}:latest"
@@ -347,6 +348,7 @@ module "cloudfront_waf_development" {
   alb_dns_name          = module.alb_development.alb_dns_name
   alb_arn               = module.alb_development.alb_arn
   alb_security_group_id = data.terraform_remote_state.networking.outputs.development_alb_security_group_id
+  team_token            = var.team_token
 
   allowed_countries = ["GB"]
 

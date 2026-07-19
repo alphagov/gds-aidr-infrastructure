@@ -96,6 +96,20 @@ resource "aws_wafv2_web_acl" "this" {
   tags = var.tags
 }
 
+resource "aws_cloudfront_function" "team_token_gate" {
+  provider = aws.us_east_1
+
+  name    = "${var.environment_name}-${var.distribution_name}-token-gate"
+  runtime = "cloudfront-js-2.0"
+  publish = true
+
+  code = replace(
+    file("${path.module}/team-token-gate.js"),
+    "TEAM_TOKEN_PLACEHOLDER",
+    var.team_token
+  )
+}
+
 resource "aws_cloudfront_distribution" "this" {
   enabled = true
   comment = "${var.environment_name}-${var.distribution_name}"
@@ -119,6 +133,11 @@ resource "aws_cloudfront_distribution" "this" {
     cached_methods         = ["GET", "HEAD"]
     target_origin_id       = "alb-origin"
     viewer_protocol_policy = "redirect-to-https"
+
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.team_token_gate.arn
+    }
 
     forwarded_values {
       query_string = true
