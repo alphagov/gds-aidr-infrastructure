@@ -303,6 +303,18 @@ module "alb_development" {
   }
 }
 
+resource "aws_security_group_rule" "alb_to_ecs_tasks" {
+  provider = aws.development
+
+  type                     = "ingress"
+  from_port                = 3000
+  to_port                  = 8080
+  protocol                 = "tcp"
+  source_security_group_id = data.terraform_remote_state.networking.outputs.development_alb_security_group_id
+  security_group_id        = data.terraform_remote_state.networking.outputs.development_ecs_task_security_group_id
+  description              = "Allow ALB to reach both UI (8080) and API (3000) tasks"
+}
+
 provider "aws" {
   alias  = "development_us_east_1"
   region = "us-east-1"
