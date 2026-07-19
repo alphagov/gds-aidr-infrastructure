@@ -105,3 +105,9 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "target_group_arn" {
+  description = "ARN of an ALB target group to attach this service to. Null means the service runs with no load balancer attached."
+  type        = string
+  default     = null
+}

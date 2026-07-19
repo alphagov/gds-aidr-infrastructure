@@ -15,7 +15,9 @@ output "development_private_app_subnet_ids" {
 output "development_private_data_subnet_ids" {
   value = module.vpc_development.private_data_subnet_ids
 }
-
+output "development_public_subnet_ids" {
+  value = module.vpc_development.public_subnet_ids
+}
 output "development_ecs_task_security_group_id" {
   value = module.vpc_development.ecs_task_security_group_id
 }
@@ -44,6 +46,10 @@ output "staging_private_data_subnet_ids" {
   value = module.vpc_staging.private_data_subnet_ids
 }
 
+output "staging_public_subnet_ids" {
+  value = module.vpc_staging.public_subnet_ids
+}
+
 output "staging_ecs_task_security_group_id" {
   value = module.vpc_staging.ecs_task_security_group_id
 }
@@ -69,6 +75,10 @@ output "production_private_app_subnet_ids" {
 
 output "production_private_data_subnet_ids" {
   value = module.vpc_production.private_data_subnet_ids
+}
+
+output "production_public_subnet_ids" {
+  value = module.vpc_production.public_subnet_ids
 }
 
 output "production_ecs_task_security_group_id" {

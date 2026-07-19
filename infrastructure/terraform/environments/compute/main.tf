@@ -235,8 +235,142 @@ module "ecs_service_development" {
   security_group_ids = [data.terraform_remote_state.networking.outputs.development_ecs_task_security_group_id]
   assign_public_ip   = false
 
-  create_service = true
-  desired_count  = 1
+  create_service   = true
+  desired_count    = 1
+  target_group_arn = module.alb_development.additional_target_group_arns["api"]
+
+  tags = {
+    Environment = "development"
+    AccountId   = var.development_account_id
+  }
+}
+
+# --------------------------------------------------------------------------
+# Development: UI workload IAM, ALB, CloudFront/WAF, UI service
+# --------------------------------------------------------------------------
+# UI shares the existing synthetic-email-generation ECR repo, distinguished
+# by tag prefix (ui-...) rather than a separate repository. Revisit if/when
+# separate lifecycle policies or access scoping are needed per app.
+
+module "workload_iam_ui_development" {
+  source = "../../modules/workload-iam"
+
+  providers = {
+    aws = aws.development
+  }
+
+  role_prefix   = var.role_prefix
+  workload_name = "synthetic-email-generation-ui"
+
+  tags = {
+    Environment = "development"
+    AccountId   = var.development_account_id
+  }
+}
+
+module "alb_development" {
+  source = "../../modules/alb"
+
+  providers = {
+    aws = aws.development
+  }
+
+  environment_name  = "Development"
+  alb_name          = "${var.role_prefix}-alb"
+  vpc_id            = data.terraform_remote_state.networking.outputs.development_vpc_id
+  public_subnet_ids = data.terraform_remote_state.networking.outputs.development_public_subnet_ids
+  security_group_id = data.terraform_remote_state.networking.outputs.development_alb_security_group_id
+
+  port_80_enabled     = true
+  acm_certificate_arn = null
+
+  target_port       = 8080
+  health_check_path = "/health"
+
+  additional_routes = [
+    {
+      name              = "api"
+      port              = 3000
+      health_check_path = "/health"
+      path_patterns     = ["/organisations*", "/characters*", "/threads*", "/character*"]
+      priority          = 100
+    }
+  ]
+
+  tags = {
+    Environment = "development"
+    AccountId   = var.development_account_id
+  }
+}
+
+provider "aws" {
+  alias  = "development_us_east_1"
+  region = "us-east-1"
+
+  assume_role {
+    role_arn     = "arn:aws:iam::${var.development_account_id}:role/${var.role_prefix}-terraform"
+    session_name = "compute-terraform-us-east-1"
+  }
+
+  default_tags {
+    tags = {
+      ManagedBy   = "terraform"
+      Team        = "gds-aidr"
+      Environment = "development"
+      Repository  = "alphagov/gds-aidr-infrastructure"
+    }
+  }
+}
+
+module "cloudfront_waf_development" {
+  source = "../../modules/cloudfront-waf"
+
+  providers = {
+    aws           = aws.development
+    aws.us_east_1 = aws.development_us_east_1
+  }
+
+  environment_name      = "Development"
+  distribution_name     = "synthetic-email-generation"
+  alb_dns_name          = module.alb_development.alb_dns_name
+  alb_arn               = module.alb_development.alb_arn
+  alb_security_group_id = data.terraform_remote_state.networking.outputs.development_alb_security_group_id
+
+  allowed_countries = ["GB"]
+
+  tags = {
+    Environment = "development"
+    AccountId   = var.development_account_id
+  }
+}
+
+module "ecs_service_ui_development" {
+  source = "../../modules/ecs-fargate-service"
+
+  providers = {
+    aws = aws.development
+  }
+
+  environment_name = "Development"
+  service_name     = "synthetic-email-generation-ui"
+  cluster_arn      = module.ecs_cluster_development.cluster_arn
+
+  execution_role_arn = module.workload_iam_ui_development.execution_role_arn
+  task_role_arn      = module.workload_iam_ui_development.task_role_arn
+
+  container_image = "${data.terraform_remote_state.containers.outputs.development_repository_urls["synthetic-email-generation"]}:${var.development_ui_image_tag}"
+  container_port  = 8080
+
+  cpu    = 256
+  memory = 512
+
+  subnet_ids         = data.terraform_remote_state.networking.outputs.development_private_app_subnet_ids
+  security_group_ids = [data.terraform_remote_state.networking.outputs.development_ecs_task_security_group_id]
+  assign_public_ip   = false
+
+  create_service   = true
+  desired_count    = 1
+  target_group_arn = module.alb_development.target_group_arn
 
   tags = {
     Environment = "development"
