@@ -676,7 +676,13 @@ resource "aws_iam_role_policy" "ci_apply" {
           "arn:aws:s3:::gds-aidr-terraform-state-production",
           "arn:aws:s3:::gds-aidr-terraform-state-production/compute/*",
           "arn:aws:s3:::gds-aidr-terraform-state-production/networking/*",
-          "arn:aws:s3:::gds-aidr-terraform-state-production/containers/*"
+          "arn:aws:s3:::gds-aidr-terraform-state-production/containers/*",
+          
+          # Development S3 State (ADDED)
+          "arn:aws:s3:::gds-aidr-terraform-state-development",
+          "arn:aws:s3:::gds-aidr-terraform-state-development/compute/*",
+          "arn:aws:s3:::gds-aidr-terraform-state-development/networking/*",
+          "arn:aws:s3:::gds-aidr-terraform-state-development/containers/*"
         ]
       },
       {
