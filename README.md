@@ -2,7 +2,7 @@
 # GDS AIDR Infrastructure Repository
 
 <!--date_created: mon-18-may-2026-->
-<!--date_updated: sat-18-july-2026-->
+<!--date_updated: thurs-06-august-2026-->
 
 
 **Index**
@@ -13,6 +13,7 @@
     - [CI/CD deploy roles for application repositories](#cicd-deploy-roles-for-application-repositories)
     - [For developers and platform admins](#for-developers-and-platform-admins)
     - [Console access - all users](#console-access)
+    - [Platform naming conventions](#platform-naming-conventions)
  - [Accessing Claude Code in Bedrock](#accessing-claude-code-in-bedrock)
  - [Monitoring and auditing](#monitoring-and-auditing)
  - [Contributing](#contributing)
@@ -381,6 +382,7 @@ You can also read a summarised version of this strategy **[here](docs/infrastruc
 #### How users access the AIDR platform
 
 ##### Console access
+*[back](#gds-aidr-infrastructure-repository)*
 
 All users access the AIDR accounts by assuming a role from their `gds-users` identity:
 
@@ -690,6 +692,41 @@ it.
 - If your work email is set globally to a personal email, make sure you set
   `user.email` **locally** in this repo so commits attribute to your work
   GitHub account.
+
+---
+
+### Platform naming conventions
+*[(back)](#gds-data-innovation-and-ai-readiness-team-cloud-infrastructure-repository)*
+
+#### Domain and subdomain naming
+
+The platform serves all applications under a single domain: `domain_name`. Each application gets its own subdomain, per environment, following the pattern:
+
+```
+<environment>-<repository-name>.<domain_name>
+```
+
+Where:
+
+- `<environment>` is the which account it is deployed into
+- `<repository-name>` matches the application's repository name exactly
+
+**Example pattern:**
+
+| Environment | Subdomain shape |
+|---|---|
+| Development | `dev-<repository-name>.<domain_name>` |
+| Staging | `staging-<repository-name>.<domain_name>` |
+| Production | `prod-<repository-name>.<domain_name>` |
+| Sandbox | `sandbox-<repository-name>.<domain_name>` |
+
+**Rationale:** repository name is the single source of truth. New applications inherit their subdomain automatically from their repository name — no separate naming decisions needed, no ambiguity, no drift between what the code is called and what URL it lives at. It also ensures our cicd GitActions pipelines are immutable and aligned with the infrastructure. 
+
+#### Certificate coverage
+
+A single wildcard ACM certificate (`*.<domain_name>`) covers every application subdomain across every environment in our platform. New applications require no new certificate — the DNS record and CloudFront alias attachment are the only additions per app. PLEASE NOTE: The certificate lives in `us-east-1` (required by AWS for CloudFront-attached certificates). This is a narrow, documented exception to the platform's `eu-west-2` default as an AWS-limitation.
+
+---
 
 ### Accessing Claude Code in Bedrock
 *[(back)](#gds-data-innovation-and-ai-readiness-team-cloud-infrastructure-repository)*
