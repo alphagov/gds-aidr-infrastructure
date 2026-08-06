@@ -703,7 +703,7 @@ it.
 The platform serves all applications under a single domain: `domain_name`. Each application gets its own subdomain, per environment, following the pattern:
 
 ```
-<environment>-<repository-name>.ai-readiness.co.uk
+<environment>-<repository-name>.<domain_name>
 ```
 
 Where:
@@ -724,7 +724,7 @@ Where:
 
 #### Certificate coverage
 
-A single wildcard ACM certificate (`*domain_name`) covers every application subdomain across every environment in our platform. New applications require no new certificate — the DNS record and CloudFront alias attachment are the only additions per app. PLEASE NOTE: The certificate lives in `us-east-1` (required by AWS for CloudFront-attached certificates). This is a narrow, documented exception to the platform's `eu-west-2` default as an AWS-limitation.
+A single wildcard ACM certificate (`*.<domain_name>`) covers every application subdomain across every environment in our platform. New applications require no new certificate — the DNS record and CloudFront alias attachment are the only additions per app. PLEASE NOTE: The certificate lives in `us-east-1` (required by AWS for CloudFront-attached certificates). This is a narrow, documented exception to the platform's `eu-west-2` default as an AWS-limitation.
 
 ---
 
