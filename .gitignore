@@ -7,22 +7,26 @@
 infrastructure/terraform/bootstrap/README.md
 infrastructure/terraform/bootstrap/README.pdf
 
-# log files - DO MOT PUSH TO PUBLIC REPO
+# log files - DO NOT PUSH TO PUBLIC REPO
 **logs/
 **.log
 
-# Terrform config files - NEVER COMMIT THESE
-
+# Terraform config files - NEVER COMMIT THESE
 .terraform/
 *.tfvars
 !*.tfvars.example
 *.tfstate
+*.tfstate.*
 *.tfstate.backup
+.terraform.lock.hcl
+
+# Build outputs
 *.build/
 
 # History-purge replacement files (contain sensitive strings being redacted)
 replacements.txt
 **/replacements.txt
 
+# Misc local files
 tree_full.txt
 scripts/**
