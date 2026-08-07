@@ -36,6 +36,10 @@ output "development_cloudfront_domain_name" {
   value = module.cloudfront_waf_development.cloudfront_domain_name
 }
 
+output "development_cloudfront_hosted_zone_id" {
+  value = module.cloudfront_waf_development.cloudfront_hosted_zone_id
+}
+
 output "staging_cluster_arn" {
   value = module.ecs_cluster_staging.cluster_arn
 }
