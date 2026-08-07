@@ -14,6 +14,12 @@ variable "development_ui_image_tag" {
   description = "Image tag for the synthetic-email-generation-ui service, prefixed ui- to distinguish it in the shared repo. No default — must always be supplied explicitly."
   type        = string
 }
+
+variable "development_wildcard_certificate_arn" {
+  description = "ARN of the wildcard ACM certificate covering the platform domain, in the Development account. Must be in us-east-1 for CloudFront."
+  type        = string
+}
+
 variable "staging_account_id" {
   description = "AWS account ID for the staging account."
   type        = string
