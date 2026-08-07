@@ -39,3 +39,9 @@ variable "hosted_zone_id" {
   description = "Route 53 hosted zone ID for the platform domain."
   type        = string
 }
+
+variable "role_prefix" {
+  description = "Prefix for cross-account IAM roles (matches compute env pattern)."
+  type        = string
+  default     = "gds-aidr"
+}
