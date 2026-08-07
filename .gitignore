@@ -11,20 +11,22 @@ infrastructure/terraform/bootstrap/README.pdf
 # gitleaks and pre-commit
 gitleaks-report.json
 
-# log files - DO MOT PUSH TO PUBLIC REPO
-=======
 # log files - DO NOT PUSH TO PUBLIC REPO
->>>>>>> 23dfe09 (chore: consolidate and clarify terraform patterns in .gitignore)
 **logs/
 **.log
 
+# Terraform config files - NEVER COMMIT THESE
 # Terraform config files - NEVER COMMIT THESE
 .terraform/
 *.tfvars
 !*.tfvars.example
 *.tfstate
 *.tfstate.*
+*.tfstate.*
 *.tfstate.backup
+.terraform.lock.hcl
+
+# Build outputs
 .terraform.lock.hcl
 
 # Build outputs
@@ -35,10 +37,7 @@ replacements.txt
 **/replacements.txt
 
 # Misc local files
+# Misc local files
 tree_full.txt
 <<<<<<< HEAD
 scripts/**
-
-=======
-scripts/**
->>>>>>> 23dfe09 (chore: consolidate and clarify terraform patterns in .gitignore)
