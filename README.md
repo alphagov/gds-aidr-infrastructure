@@ -53,6 +53,7 @@ This is a **public repository**
 │   ├── architecture
 │   │   ├── overview.md
 │   └── infrastructure
+│   │   ├── security.md
 │   │   ├── system-overview.md
 │   │   ├── networking.md
 │   │   ├── compute.md
