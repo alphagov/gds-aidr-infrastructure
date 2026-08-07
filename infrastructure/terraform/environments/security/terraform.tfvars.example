@@ -1,0 +1,14 @@
+# ============================================================
+# Security Environment - Example Variables
+# ============================================================
+# Copy this file to terraform.tfvars and fill in real values.
+# terraform.tfvars is gitignored; do not commit real values.
+# ============================================================
+
+production_account_id  = "<PRODUCTION_ACCOUNT_ID>"
+development_account_id = "<DEVELOPMENT_ACCOUNT_ID>"
+staging_account_id     = "<STAGING_ACCOUNT_ID>"
+
+domain_name     = "<DOMAIN_NAME>"                                                        # e.g. example.co.uk
+certificate_arn = "arn:aws:acm:us-east-1:<PRODUCTION_ACCOUNT_ID>:certificate/<CERT_ID>"  # wildcard cert covering *.<domain_name>
+hosted_zone_id  = "<HOSTED_ZONE_ID>"
