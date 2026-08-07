@@ -363,7 +363,7 @@ module "cloudfront_waf_development" {
   distribution_name     = "synthetic-email-generation"
   alb_dns_name          = module.alb_development.alb_dns_name
   alb_arn               = module.alb_development.alb_arn
-  alb_security_group_id = data.terraform_remote_state.networking.outputs.development_alb__group_id
+  alb_security_group_id = data.terraform_remote_state.networking.outputs.development_alb_group_id
   team_token            = var.team_token
 
   aliases = [
