@@ -123,6 +123,22 @@ data "terraform_remote_state" "containers" {
   }
 }
 
+# ------------------------------------------------------------
+# remote state - security
+# ------------------------------------------------------------
+# Reads the platform domain and wildcard certificate from the
+# security environment's state, so CloudFront distributions can
+# be attached to the custom domain.
+# ------------------------------------------------------------
+data "terraform_remote_state" "security" {
+  backend = "s3"
+  config = {
+    bucket = "gds-aidr-terraform-state-production"
+    key    = "security/terraform.tfstate"
+    region = "eu-west-2"
+  }
+}
+
 # --------------------------------------------------------------------------
 # Development: workload IAM, ECS cluster, and the generation service
 # --------------------------------------------------------------------------
@@ -349,6 +365,11 @@ module "cloudfront_waf_development" {
   alb_arn               = module.alb_development.alb_arn
   alb_security_group_id = data.terraform_remote_state.networking.outputs.development_alb_security_group_id
   team_token            = var.team_token
+
+  aliases = [
+    "dev-synthetic-email-generation.${data.terraform_remote_state.security.outputs.domain_name}"
+  ]
+  acm_certificate_arn = data.terraform_remote_state.security.outputs.wildcard_certificate_arn
 
   allowed_countries = ["GB"]
 
