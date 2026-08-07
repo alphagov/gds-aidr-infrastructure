@@ -22,7 +22,7 @@ output "hosted_zone_name_servers" {
 
 output "wildcard_certificate_arn" {
   description = "ARN of the wildcard ACM certificate covering the platform domain."
-  value       = data.aws_acm_certificate.wildcard.arn
+  value       = var.certificate_arn
 }
 
 output "app_subdomains" {
