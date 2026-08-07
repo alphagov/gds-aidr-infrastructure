@@ -77,10 +77,10 @@ data "aws_route53_zone" "main" {
   zone_id = var.hosted_zone_id
 }
 
-data "aws_acm_certificate" "wildcard" {
-  provider = aws.us_east_1
-  arn      = var.certificate_arn
-}
+#data "aws_acm_certificate" "wildcard" {
+#  provider = aws.us_east_1
+#  arn      = var.certificate_arn
+#}
 
 # ------------------------------------------------------------
 # Cross-account remote state - compute
