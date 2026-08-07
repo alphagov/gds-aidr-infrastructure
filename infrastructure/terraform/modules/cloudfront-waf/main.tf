@@ -114,6 +114,10 @@ resource "aws_cloudfront_distribution" "this" {
   enabled = true
   comment = "${var.environment_name}-${var.distribution_name}"
 
+  # aliases are the custom domain names (CNAMEs) this distribution
+  # responds to. Empty list means default *.cloudfront.net only.
+  aliases = var.aliases
+
   web_acl_id = aws_wafv2_web_acl.this.arn
 
   origin {
@@ -154,8 +158,14 @@ resource "aws_cloudfront_distribution" "this" {
     }
   }
 
+  # If a custom certificate is provided, use it with the aliases.
+  # Otherwise, fall back to the CloudFront default certificate
+  # (*.cloudfront.net domain only).
   viewer_certificate {
-    cloudfront_default_certificate = true
+    cloudfront_default_certificate = var.acm_certificate_arn == null
+    acm_certificate_arn            = var.acm_certificate_arn
+    ssl_support_method             = var.acm_certificate_arn == null ? null : "sni-only"
+    minimum_protocol_version       = var.acm_certificate_arn == null ? null : "TLSv1.2_2021"
   }
 
   tags = var.tags
