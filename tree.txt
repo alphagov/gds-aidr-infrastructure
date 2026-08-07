@@ -24,6 +24,7 @@
 │       ├── data-lake.md
 │       ├── iam-cross-account-strategy.md
 │       ├── networking.md
+│       ├── security.md
 │       └── system-overview.md
 ├── infrastructure
 │   └── terraform
@@ -58,12 +59,17 @@
 │       │   │   ├── outputs.tf
 │       │   │   ├── terraform.tfvars
 │       │   │   └── variables.tf
-│       │   └── production-iam
-│       │       ├── .terraform.lock.hcl
+│       │   ├── production-iam
+│       │   │   ├── .terraform.lock.hcl
+│       │   │   ├── main.tf
+│       │   │   ├── outputs.tf
+│       │   │   ├── terraform.tfvars
+│       │   │   ├── tree.txt
+│       │   │   └── variables.tf
+│       │   └── security
 │       │       ├── main.tf
 │       │       ├── outputs.tf
 │       │       ├── terraform.tfvars
-│       │       ├── tree.txt
 │       │       └── variables.tf
 │       ├── modules
 │       │   ├── alb
@@ -77,6 +83,7 @@
 │       │   ├── cloudfront-waf
 │       │   │   ├── main.tf
 │       │   │   ├── outputs.tf
+│       │   │   ├── team-token-gate.js
 │       │   │   └── variables.tf
 │       │   ├── cloudtrail-digest
 │       │   │   ├── cloudtrail_digest.py
@@ -122,8 +129,9 @@
 │       ├── tree.txt
 │       └── tree_terraform.txt
 ├── package.json
+├── refresh_ari.log
 ├── role_scopes.pdf
 ├── scripts
 └── tree.txt
 
-32 directories, 95 files
+33 directories, 102 files
