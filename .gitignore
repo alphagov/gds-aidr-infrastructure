@@ -6,6 +6,7 @@
 .archive
 infrastructure/terraform/bootstrap/README.md
 infrastructure/terraform/bootstrap/README.pdf
+gitleaks-report.json
 
 # log files - DO MOT PUSH TO PUBLIC REPO
 **logs/
@@ -26,3 +27,4 @@ replacements.txt
 
 tree_full.txt
 scripts/**
+
