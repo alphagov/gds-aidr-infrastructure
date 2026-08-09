@@ -15,6 +15,7 @@
 ├── .prettierrc
 ├── CONTRIBUTING.md
 ├── LICENSE
+├── Makefile
 ├── README.md
 ├── claude_code_bedrock_guide.md
 ├── docs
@@ -133,4 +134,4 @@
 ├── scripts
 └── tree.txt
 
-33 directories, 103 files
+33 directories, 102 files
