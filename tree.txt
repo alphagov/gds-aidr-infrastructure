@@ -1,25 +1,34 @@
 .
+├── .DS_Store
 ├── .editorconfig
 ├── .eslintrc
 ├── .github
+│   ├── .DS_Store
 │   ├── CODEOWNERS
 │   ├── ISSUE_TEMPLATE
 │   │   ├── bug_report.md
 │   │   └── feature_request.md
 │   └── workflows
-│       └── linter.yml
+│       ├── linter.yml
+│       └── secrets.yml
 ├── .gitignore
+├── .gitleaks.toml
+├── .pre-commit-config.yaml
 ├── .prettierrc
 ├── CONTRIBUTING.md
 ├── LICENSE
+├── Makefile
 ├── README.md
 ├── claude_code_bedrock_guide.md
 ├── docs
+│   ├── .DS_Store
 │   ├── _static
+│   │   ├── .DS_Store
 │   │   └── aidr-architecture-blue-with-disclaimer.png
 │   ├── architecture
 │   │   └── overview.md
 │   └── infrastructure
+│       ├── .DS_Store
 │       ├── compute.md
 │       ├── data-lake.md
 │       ├── iam-cross-account-strategy.md
@@ -27,51 +36,155 @@
 │       ├── security.md
 │       └── system-overview.md
 ├── infrastructure
+│   ├── .DS_Store
 │   └── terraform
+│       ├── .DS_Store
+│       ├── bootstrap
+│       │   ├── README.md
+│       │   ├── README.pdf
+│       │   ├── trust-policy-development.json
+│       │   └── trust-policy-staging.json
 │       ├── environments
+│       │   ├── .DS_Store
 │       │   ├── compute
+│       │   │   ├── .DS_Store
+│       │   │   ├── .terraform
+│       │   │   │   ├── .DS_Store
+│       │   │   │   ├── modules
+│       │   │   │   │   └── modules.json
+│       │   │   │   ├── providers
+│       │   │   │   │   ├── .DS_Store
+│       │   │   │   │   └── registry.terraform.io
+│       │   │   │   │       └── hashicorp
+│       │   │   │   │           ├── aws
+│       │   │   │   │           │   └── 5.100.0
+│       │   │   │   │           │       └── darwin_arm64 -> /Users/victoriamckinney/.terraform.d/plugin-cache/registry.terraform.io/hashicorp/aws/5.100.0/darwin_arm64
+│       │   │   │   │           └── random
+│       │   │   │   │               └── 3.9.0
+│       │   │   │   │                   └── darwin_arm64 -> /Users/victoriamckinney/.terraform.d/plugin-cache/registry.terraform.io/hashicorp/random/3.9.0/darwin_arm64
+│       │   │   │   └── terraform.tfstate
 │       │   │   ├── .terraform.lock.hcl
 │       │   │   ├── main.tf
 │       │   │   ├── outputs.tf
 │       │   │   ├── terraform.tfvars
+│       │   │   ├── terraform.tfvars.example
 │       │   │   └── variables.tf
 │       │   ├── containers
+│       │   │   ├── .DS_Store
+│       │   │   ├── .terraform
+│       │   │   │   ├── .DS_Store
+│       │   │   │   ├── modules
+│       │   │   │   │   └── modules.json
+│       │   │   │   ├── providers
+│       │   │   │   │   └── registry.terraform.io
+│       │   │   │   │       └── hashicorp
+│       │   │   │   │           └── aws
+│       │   │   │   │               └── 5.100.0
+│       │   │   │   │                   └── darwin_arm64 -> /Users/victoriamckinney/.terraform.d/plugin-cache/registry.terraform.io/hashicorp/aws/5.100.0/darwin_arm64
+│       │   │   │   └── terraform.tfstate
 │       │   │   ├── .terraform.lock.hcl
 │       │   │   ├── main.tf
 │       │   │   ├── outputs.tf
 │       │   │   ├── terraform.tfvars
+│       │   │   ├── terraform.tfvars.example
 │       │   │   └── variables.tf
 │       │   ├── data-lake
+│       │   │   ├── .DS_Store
+│       │   │   ├── .terraform
+│       │   │   │   ├── .DS_Store
+│       │   │   │   ├── modules
+│       │   │   │   │   └── modules.json
+│       │   │   │   ├── providers
+│       │   │   │   │   └── registry.terraform.io
+│       │   │   │   │       └── hashicorp
+│       │   │   │   │           └── aws
+│       │   │   │   │               └── 5.100.0
+│       │   │   │   │                   └── darwin_arm64 -> /Users/victoriamckinney/.terraform.d/plugin-cache/registry.terraform.io/hashicorp/aws/5.100.0/darwin_arm64
+│       │   │   │   └── terraform.tfstate
 │       │   │   ├── .terraform.lock.hcl
 │       │   │   ├── main.tf
 │       │   │   ├── outputs.tf
 │       │   │   ├── terraform.tfvars
+│       │   │   ├── terraform.tfvars.example
 │       │   │   └── variables.tf
 │       │   ├── monitoring
+│       │   │   ├── .DS_Store
+│       │   │   ├── .terraform
+│       │   │   │   ├── .DS_Store
+│       │   │   │   ├── modules
+│       │   │   │   │   └── modules.json
+│       │   │   │   ├── providers
+│       │   │   │   │   └── registry.terraform.io
+│       │   │   │   │       └── hashicorp
+│       │   │   │   │           ├── archive
+│       │   │   │   │           │   └── 2.8.0
+│       │   │   │   │           │       └── darwin_arm64 -> /Users/victoriamckinney/.terraform.d/plugin-cache/registry.terraform.io/hashicorp/archive/2.8.0/darwin_arm64
+│       │   │   │   │           └── aws
+│       │   │   │   │               └── 5.100.0
+│       │   │   │   │                   └── darwin_arm64 -> /Users/victoriamckinney/.terraform.d/plugin-cache/registry.terraform.io/hashicorp/aws/5.100.0/darwin_arm64
+│       │   │   │   └── terraform.tfstate
 │       │   │   ├── .terraform.lock.hcl
 │       │   │   ├── main.tf
 │       │   │   ├── outputs.tf
 │       │   │   ├── terraform.tfvars
+│       │   │   ├── terraform.tfvars.example
 │       │   │   └── variables.tf
 │       │   ├── networking
+│       │   │   ├── .DS_Store
+│       │   │   ├── .terraform
+│       │   │   │   ├── .DS_Store
+│       │   │   │   ├── modules
+│       │   │   │   │   └── modules.json
+│       │   │   │   ├── providers
+│       │   │   │   │   └── registry.terraform.io
+│       │   │   │   │       └── hashicorp
+│       │   │   │   │           └── aws
+│       │   │   │   │               └── 5.100.0
+│       │   │   │   │                   └── darwin_arm64 -> /Users/victoriamckinney/.terraform.d/plugin-cache/registry.terraform.io/hashicorp/aws/5.100.0/darwin_arm64
+│       │   │   │   └── terraform.tfstate
 │       │   │   ├── .terraform.lock.hcl
 │       │   │   ├── main.tf
 │       │   │   ├── outputs.tf
 │       │   │   ├── terraform.tfvars
+│       │   │   ├── terraform.tfvars.example
 │       │   │   └── variables.tf
 │       │   ├── production-iam
+│       │   │   ├── .DS_Store
+│       │   │   ├── .terraform
+│       │   │   │   ├── .DS_Store
+│       │   │   │   ├── modules
+│       │   │   │   │   └── modules.json
+│       │   │   │   ├── providers
+│       │   │   │   │   └── registry.terraform.io
+│       │   │   │   │       └── hashicorp
+│       │   │   │   │           └── aws
+│       │   │   │   │               └── 5.100.0
+│       │   │   │   │                   └── darwin_arm64 -> /Users/victoriamckinney/.terraform.d/plugin-cache/registry.terraform.io/hashicorp/aws/5.100.0/darwin_arm64
+│       │   │   │   └── terraform.tfstate
 │       │   │   ├── .terraform.lock.hcl
 │       │   │   ├── main.tf
 │       │   │   ├── outputs.tf
 │       │   │   ├── terraform.tfvars
+│       │   │   ├── terraform.tfvars.example
 │       │   │   ├── tree.txt
 │       │   │   └── variables.tf
 │       │   └── security
+│       │       ├── .terraform
+│       │       │   ├── providers
+│       │       │   │   └── registry.terraform.io
+│       │       │   │       └── hashicorp
+│       │       │   │           └── aws
+│       │       │   │               └── 5.100.0
+│       │       │   │                   └── darwin_arm64 -> /Users/victoriamckinney/.terraform.d/plugin-cache/registry.terraform.io/hashicorp/aws/5.100.0/darwin_arm64
+│       │       │   └── terraform.tfstate
+│       │       ├── .terraform.lock.hcl
 │       │       ├── main.tf
 │       │       ├── outputs.tf
 │       │       ├── terraform.tfvars
+│       │       ├── terraform.tfvars.example
 │       │       └── variables.tf
 │       ├── modules
+│       │   ├── .DS_Store
 │       │   ├── alb
 │       │   │   ├── main.tf
 │       │   │   ├── outputs.tf
@@ -86,6 +199,11 @@
 │       │   │   ├── team-token-gate.js
 │       │   │   └── variables.tf
 │       │   ├── cloudtrail-digest
+│       │   │   ├── .DS_Store
+│       │   │   ├── .build
+│       │   │   │   ├── cloudtrail_digest_development.zip
+│       │   │   │   ├── cloudtrail_digest_production.zip
+│       │   │   │   └── cloudtrail_digest_staging.zip
 │       │   │   ├── cloudtrail_digest.py
 │       │   │   ├── main.tf
 │       │   │   ├── outputs.tf
@@ -103,10 +221,12 @@
 │       │   │   ├── outputs.tf
 │       │   │   └── variables.tf
 │       │   ├── ecs-fargate-service
+│       │   │   ├── .DS_Store
 │       │   │   ├── main.tf
 │       │   │   ├── outputs.tf
 │       │   │   └── variables.tf
 │       │   ├── iam-centralised
+│       │   │   ├── .DS_Store
 │       │   │   ├── main.tf
 │       │   │   ├── outputs.tf
 │       │   │   └── variables.tf
@@ -127,11 +247,18 @@
 │       │       ├── outputs.tf
 │       │       └── variables.tf
 │       ├── tree.txt
+│       ├── tree_full.txt
 │       └── tree_terraform.txt
 ├── package.json
 ├── refresh_ari.log
 ├── role_scopes.pdf
 ├── scripts
-└── tree.txt
+│   ├── .DS_Store
+│   ├── ari.txt
+│   ├── purge.sh
+│   ├── refresh_ari.log
+│   └── refresh_ari.sh
+├── tree.txt
+└── tree_full.txt
 
-33 directories, 102 files
+96 directories, 166 files
