@@ -1,0 +1,33 @@
+# ------------------------------------------------------------
+# Allowlists
+# ------------------------------------------------------------
+# Paths and patterns intentionally excluded from scanning.
+# ------------------------------------------------------------
+[allowlist]
+description = "Global allowlist"
+paths = [
+  # gitleaks config itself contains the patterns it's looking for
+  '''\.gitleaks\.toml''',
+
+  # gitignored files are not committed, so no need to scan
+  '''\.gitignore''',
+
+  # local dev directories (already gitignored, but excluded here
+  # too so --no-git scans don't produce thousands of false positives)
+  '''^\.development/''',
+  '''^\.archive/''',
+  '''^scripts/''',
+
+  # logs directory (also gitignored, but belt-and-braces)
+  '''logs/''',
+]
+
+# Regex patterns to allow globally (placeholders, examples, etc.)
+regexes = [
+  # Placeholder patterns commonly used in .tfvars.example files
+  '''<[A-Z_]+_ACCOUNT_ID>''',
+  '''<[A-Z_]+_ID>''',
+  '''<CERT_ID>''',
+  '''<HOSTED_ZONE_ID>''',
+  '''<DOMAIN_NAME>''',
+]
