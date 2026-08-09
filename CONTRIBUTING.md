@@ -1,9 +1,66 @@
 # Contributing
 
 <!--date_added:thurs18jun2026-->
-<!--date_updated:thurs18jun2026-->
+<!--date_updated:sun09aug2026-->
 
 This is a **public repository**
+
+# Contributing to gds-aidr-infrastructure
+
+## Local setup
+
+### Install pre-commit hooks
+
+The repo uses `pre-commit` to run local checks before every commit — including secrets scanning, Terraform formatting, and basic hygiene.
+
+Install `pre-commit` if you don't have it:
+
+```bash
+brew install pre-commit
+```
+
+Then install the hooks in this repo:
+
+```bash
+pre-commit install
+```
+
+Hooks now run automatically on every `git commit`. To run them manually against all files:
+
+```bash
+pre-commit run --all-files
+```
+
+### Install gitleaks (optional but recommended)
+
+The pre-commit hook downloads `gitleaks` automatically, but you can also install it standalone to scan on demand:
+
+```bash
+brew install gitleaks
+gitleaks detect --source . --config .gitleaks.toml
+```
+
+## What's checked
+
+- **Secrets and account IDs** — via `gitleaks`. See `.gitleaks.toml` for the rules
+- **Trailing whitespace, EOL, merge conflict markers** — basic file hygiene
+- **YAML syntax** — catches malformed workflow files early
+- **Terraform formatting** — `terraform fmt` on all `.tf` files
+- **Large files** — files over 1MB are flagged
+
+## Bypassing a hook
+
+Occasionally a hook flags something that's genuinely fine. To skip all hooks for a single commit:
+
+```bash
+git commit --no-verify
+```
+
+To add a permanent exception, edit `.gitleaks.toml` (for secrets) or `.pre-commit-config.yaml` (for other hooks). Document why in the commit message.
+
+## CI checks
+
+The same `gitleaks` scan runs on every PR via `.github/workflows/secrets-scan.yml`. It blocks merge if it finds anything the local hook missed.
 
 > **Note to developers:** 
 > 1. Commit messages follow either the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#specification) or [Angular Commit](https://github.com/angular/angular/blob/main/contributing-docs/commit-message-guidelines.md) specification. Use one commit per logical change — a commit can include multiple file edits, but they must all relate to the same underlying change.
