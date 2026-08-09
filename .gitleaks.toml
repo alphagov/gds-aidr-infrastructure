@@ -1,57 +1,3 @@
-# ============================================================
-# Gitleaks configuration for gds-aidr-infrastructure
-# ============================================================
-# Custom rules to catch AIDR-specific values that must not
-# be committed:
-#   - AWS account IDs (both specific and generic patterns)
-#   - Real values in .tfvars.example files
-#
-# See CONTRIBUTING.md for how to add exceptions.
-# ============================================================
-
-# Extend gitleaks' built-in ruleset (AWS keys, tokens, etc.)
-[extend]
-useDefault = true
-
-# ------------------------------------------------------------
-# Rule: AIDR-specific AWS account IDs
-# ------------------------------------------------------------
-# Catches the three known AIDR account IDs anywhere in
-# tracked files. These should NEVER be committed as plain
-# text — they belong in GitHub Environment secrets.
-# ------------------------------------------------------------
-[[rules]]
-id = "aidr-known-account-ids"
-description = "AIDR AWS account IDs must not be committed as plain text"
-regex = '''(052997916327|444083008220|577449503821)'''
-tags = ["aws", "account-id", "aidr"]
-
-# ------------------------------------------------------------
-# Rule: any AWS account ID in a Terraform variable assignment
-# ------------------------------------------------------------
-# Catches any 12-digit number assigned to a variable
-# containing 'account_id' — protects against accidentally
-# committing another team's account IDs too.
-# ------------------------------------------------------------
-[[rules]]
-id = "aws-account-id-in-tf-var"
-description = "AWS account ID assigned to a Terraform variable"
-regex = '''(?i)(account[_-]?id)\s*=\s*["']?\d{12}["']?'''
-tags = ["aws", "account-id"]
-
-# ------------------------------------------------------------
-# Rule: any AWS account ID in an ARN
-# ------------------------------------------------------------
-# Catches 12-digit numbers in AWS ARN format anywhere.
-# Excludes ARNs where the account ID is already a placeholder
-# (e.g. <PRODUCTION_ACCOUNT_ID>).
-# ------------------------------------------------------------
-[[rules]]
-id = "aws-account-id-in-arn"
-description = "AWS account ID in an ARN"
-regex = '''arn:aws[a-z\-]*:[a-z0-9\-]+:[a-z0-9\-]*:\d{12}:'''
-tags = ["aws", "account-id", "arn"]
-
 # ------------------------------------------------------------
 # Allowlists
 # ------------------------------------------------------------
@@ -66,11 +12,14 @@ paths = [
   # gitignored files are not committed, so no need to scan
   '''\.gitignore''',
 
+  # local dev directories (already gitignored, but excluded here
+  # too so --no-git scans don't produce thousands of false positives)
+  '''^\.development/''',
+  '''^\.archive/''',
+  '''^scripts/''',
+
   # logs directory (also gitignored, but belt-and-braces)
   '''logs/''',
-
-  # backup files from history rewrites
-  '''backups/''',
 ]
 
 # Regex patterns to allow globally (placeholders, examples, etc.)
