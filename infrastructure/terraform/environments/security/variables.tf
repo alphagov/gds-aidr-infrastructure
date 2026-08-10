@@ -19,17 +19,25 @@
 #   sensitive   = true
 # }
 
-variable "development_account_id" {
-  description = "AWS account ID for the Development account. Referenced for cross-account context."
-  type        = string
-  sensitive   = true
-}
+# --- SCAFFOLDING (deferred) ---
+# Not yet used. Uncomment when the development provider alias
+# (currently commented in main.tf) is activated.
+#
+# variable "development_account_id" {
+#   description = "AWS account ID for the Development account. Referenced for cross-account context."
+#   type        = string
+#   sensitive   = true
+# }
 
-variable "staging_account_id" {
-  description = "AWS account ID for the Staging account. Referenced for cross-account context."
-  type        = string
-  sensitive   = true
-}
+# --- SCAFFOLDING (deferred) ---
+# Not yet used. Uncomment when the staging provider alias
+# (currently commented in main.tf) is activated.
+#
+# variable "staging_account_id" {
+#   description = "AWS account ID for the Staging account. Referenced for cross-account context."
+#   type        = string
+#   sensitive   = true
+# }
 
 variable "domain_name" {
   description = "Root domain for the platform. All application subdomains derive from this."
@@ -46,8 +54,12 @@ variable "hosted_zone_id" {
   type        = string
 }
 
-variable "role_prefix" {
-  description = "Prefix for cross-account IAM roles (matches compute env pattern)."
-  type        = string
-  default     = "gds-aidr"
-}
+# --- SCAFFOLDING (deferred) ---
+# Not yet used. Uncomment when development or staging provider
+# aliases (currently commented in main.tf) are activated.
+#
+# variable "role_prefix" {
+#   description = "Prefix for cross-account IAM roles (matches compute env pattern)."
+#   type        = string
+#   default     = "gds-aidr"
+# }
