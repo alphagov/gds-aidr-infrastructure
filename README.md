@@ -2,7 +2,7 @@
 # GDS AIDR Infrastructure Repository
 
 <!--date_created: mon-18-may-2026-->
-<!--date_updated: thurs-06-august-2026-->
+<!--date_updated: fri-07-august-2026-->
 
 
 **Index**
@@ -53,6 +53,7 @@ This is a **public repository**
 │   ├── architecture
 │   │   ├── overview.md
 │   └── infrastructure
+│   │   ├── security.md
 │   │   ├── system-overview.md
 │   │   ├── networking.md
 │   │   ├── compute.md
@@ -69,6 +70,7 @@ This is a **public repository**
 │       │   ├── containers
 │       │   ├── compute
 │       │   ├── data-lake
+│       │   ├── security
 │       │   └── monitoring
 │       └── modules
 │           ├── budget-alerts
@@ -811,6 +813,10 @@ modules
 │   ├── outputs.tf
 │   └── variables.tf
 ├── iam-centralised
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+├── security
 │   ├── main.tf
 │   ├── outputs.tf
 │   └── variables.tf

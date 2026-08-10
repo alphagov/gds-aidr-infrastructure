@@ -37,3 +37,15 @@ variable "team_token" {
   type      = string
   sensitive = true
 }
+
+variable "aliases" {
+  description = "List of custom domain names (CNAMEs) to associate with this CloudFront distribution. Leave empty to use the default *.cloudfront.net domain only."
+  type        = list(string)
+  default     = []
+}
+
+variable "acm_certificate_arn" {
+  description = "ARN of the ACM certificate for the custom domain(s). Must be in us-east-1. Leave null to use the CloudFront default certificate."
+  type        = string
+  default     = null
+}
