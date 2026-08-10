@@ -5,7 +5,7 @@
 # terraform.tfvars is gitignored; do not commit real values.
 # ============================================================
 
-production_account_id  = "<PRODUCTION_ACCOUNT_ID>"
+# production_account_id  = "<PRODUCTION_ACCOUNT_ID>"
 development_account_id = "<DEVELOPMENT_ACCOUNT_ID>"
 staging_account_id     = "<STAGING_ACCOUNT_ID>"
 
