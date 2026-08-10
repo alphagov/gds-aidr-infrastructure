@@ -54,65 +54,80 @@ provider "aws" {
 # Provider: production us-east-1 (for ACM certificate references)
 # --------------------------------------------------------------------------
 
-provider "aws" {
-  alias  = "us_east_1"
-  region = "us-east-1"
-
-  default_tags {
-    tags = {
-      ManagedBy   = "terraform"
-      Team        = "gds-aidr"
-      Environment = "production"
-      Repository  = "alphagov/gds-aidr-infrastructure"
-    }
-  }
-}
+# --- SCAFFOLDING (deferred) ---
+# Not yet used but kept for consistency with compute env pattern.
+# Uncomment when security env deploys resources to us-east-1
+# (e.g. wildcard cert directly managed here).
+#
+# provider "aws" {
+#   alias  = "us_east_1"
+#   region = "us-east-1"
+#
+#   default_tags {
+#     tags = {
+#       ManagedBy   = "terraform"
+#       Team        = "gds-aidr"
+#       Environment = "production"
+#       Repository  = "alphagov/gds-aidr-infrastructure"
+#     }
+#   }
+# }
 
 # --------------------------------------------------------------------------
 # Provider: development
 # --------------------------------------------------------------------------
 
-provider "aws" {
-  alias  = "development"
-  region = "eu-west-2"
-
-  assume_role {
-    role_arn     = "arn:aws:iam::${var.development_account_id}:role/${var.role_prefix}-terraform"
-    session_name = "security-terraform"
-  }
-
-  default_tags {
-    tags = {
-      ManagedBy   = "terraform"
-      Team        = "gds-aidr"
-      Environment = "development"
-      Repository  = "alphagov/gds-aidr-infrastructure"
-    }
-  }
-}
+# --- SCAFFOLDING (deferred) ---
+# Not yet used but kept for consistency with compute env pattern.
+# Uncomment when security env deploys resources to Development
+# (e.g. per-account Cognito user pool, per-account WAF rules).
+#
+# provider "aws" {
+#   alias  = "development"
+#   region = "eu-west-2"
+#
+#   assume_role {
+#     role_arn     = "arn:aws:iam::${var.development_account_id}:role/${var.role_prefix}-terraform"
+#     session_name = "security-terraform"
+#   }
+#
+#   default_tags {
+#     tags = {
+#       ManagedBy   = "terraform"
+#       Team        = "gds-aidr"
+#       Environment = "development"
+#       Repository  = "alphagov/gds-aidr-infrastructure"
+#     }
+#   }
+# }
 
 # --------------------------------------------------------------------------
 # Provider: staging
 # --------------------------------------------------------------------------
 
-provider "aws" {
-  alias  = "staging"
-  region = "eu-west-2"
-
-  assume_role {
-    role_arn     = "arn:aws:iam::${var.staging_account_id}:role/${var.role_prefix}-terraform"
-    session_name = "security-terraform"
-  }
-
-  default_tags {
-    tags = {
-      ManagedBy   = "terraform"
-      Team        = "gds-aidr"
-      Environment = "staging"
-      Repository  = "alphagov/gds-aidr-infrastructure"
-    }
-  }
-}
+# --- SCAFFOLDING (deferred) ---
+# Not yet used but kept for consistency with compute env pattern.
+# Uncomment when security env deploys resources to Staging
+# (e.g. per-account Cognito user pool, per-account WAF rules).
+#
+# provider "aws" {
+#   alias  = "staging"
+#   region = "eu-west-2"
+#
+#   assume_role {
+#     role_arn     = "arn:aws:iam::${var.staging_account_id}:role/${var.role_prefix}-terraform"
+#     session_name = "security-terraform"
+#   }
+#
+#   default_tags {
+#     tags = {
+#       ManagedBy   = "terraform"
+#       Team        = "gds-aidr"
+#       Environment = "staging"
+#       Repository  = "alphagov/gds-aidr-infrastructure"
+#     }
+#   }
+# }
 
 # ------------------------------------------------------------
 # Existing hosted zone and certificate
