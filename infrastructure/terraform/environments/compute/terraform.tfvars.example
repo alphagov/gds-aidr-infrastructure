@@ -11,3 +11,4 @@ bedrock_model_id = "anthropic.claude-haiku-4-5-20251001-v1:0"
 
 role_prefix = "gds-aidr"
 team_token = ""
+development_wildcard_certificate_arn = "arn:aws:acm:us-east-1:<DEVELOPMENT_ACCOUNT_ID>:certificate/<CERT_ID>"
