@@ -7,11 +7,17 @@
 # Staging, Production).
 # ============================================================
 
-variable "production_account_id" {
-  description = "AWS account ID for the Production account. Security resources deploy here."
-  type        = string
-  sensitive   = true
-}
+# --- SCAFFOLDING (deferred) ---
+# Not yet used. Uncomment when security env deploys resources
+# to Production via provider assume_role (currently the default
+# provider uses the caller's session directly, matching compute
+# env pattern).
+#
+# variable "production_account_id" {
+#   description = "AWS account ID for the Production account. Security resources deploy here."
+#   type        = string
+#   sensitive   = true
+# }
 
 variable "development_account_id" {
   description = "AWS account ID for the Development account. Referenced for cross-account context."
