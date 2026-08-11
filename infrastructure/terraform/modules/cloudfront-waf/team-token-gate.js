@@ -39,7 +39,7 @@ function handler(event) {
                 cookies: {
                     team_token: {
                         value: expectedToken,
-                        attributes: "Path=/; Secure; HttpOnly; SameSite=Lax; Max-Age=604800"
+                        attributes: "Path=/; Secure; HttpOnly; SameSite=Lax; Max-Age=2592000"
                     }
                 }
             };
