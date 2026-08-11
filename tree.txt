@@ -182,10 +182,15 @@
 │       │   │   ├── tree.txt
 │       │   │   └── variables.tf
 │       │   └── security
+<<<<<<< HEAD
 │       │       ├── main.tf
 │       │       ├── outputs.tf
 │       │       ├── terraform.tfvars
 │       │       └── variables.tf
+=======
+│       │       ├── .terraform.lock.hcl
+│       │       └── terraform.tfvars
+>>>>>>> 326d7fb (merging with main)
 │       ├── modules
 │       │   ├── .DS_Store
 │       │   ├── alb
@@ -261,4 +266,7 @@
 └── tree.txt
 
 33 directories, 102 files
+<<<<<<< HEAD
 33 directories, 102 files
+=======
+>>>>>>> 326d7fb (merging with main)
