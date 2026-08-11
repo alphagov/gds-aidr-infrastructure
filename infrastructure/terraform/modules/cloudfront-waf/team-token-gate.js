@@ -1,4 +1,3 @@
-
 function handler(event) {
     var request = event.request;
     var cookies = request.cookies;
