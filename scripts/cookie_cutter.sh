@@ -56,7 +56,118 @@ touch "${APP_NAME}/requirements.txt"
 echo "* @gds-aidr-maintainers" > "${APP_NAME}/.github/CODEOWNERS"
 
 # touch/mk core files
-cp "${TEMPLATE_DIR}/Makefile" "${APP_NAME}/" 2>/dev/null || true
+# Generate dynamic Makefile
+echo "APP_NAME = ${APP_NAME}" > "${APP_NAME}/Makefile"
+
+cat << 'EOF' >> "${APP_NAME}/Makefile"
+# Makefile
+#
+# Wraps terraform commands for all three aws accounts
+# Usage:
+#   make tf_plan                          # Development
+#   make tf_plan env=staging              # Staging
+#   make tf_apply env=production          # Production
+#   make tf_auto_apply env=development    # CI auto-approve
+#
+# Prerequisites:
+#   - terraform installed
+#   - AWS credentials exported for the target account
+##  - requires AWS STS SESSION
+#   - TF_VAR_team_token (while we have CloudFront dist versus domain-based)
+#   - For deploys: TF_VAR_api_image_tag and TF_VAR_ui_image_tag exported
+
+-include .env
+export
+
+# deployment follows pattern <environment>-<app_name>-<domain>
+
+# --------------------------------------------------------------------------
+# environment
+# --------------------------------------------------------------------------
+
+ifndef env
+override env = development
+endif
+
+# Maps env shorthand to terraform variable values
+ENV_MAP_development = Development
+ENV_MAP_staging     = Staging
+ENV_MAP_production  = Production
+
+STATE_BUCKET = gds-aidr-terraform-state-$(env)
+STATE_KEY    = apps/$(APP_NAME)/terraform.tfstate
+
+TF_BACKEND_ARGS = \
+	-backend-config=backend.hcl \
+	-backend-config="bucket=$(STATE_BUCKET)" \
+	-backend-config="key=$(STATE_KEY)"
+
+TF_VAR_ARGS = \
+	-var="environment=$(ENV_MAP_$(env))" \
+	-var="account_id=$(ACCOUNT_MAP_$(env))"
+
+# --------------------------------------------------------------------------
+# terraform (app-specific)
+# --------------------------------------------------------------------------
+
+.PHONY: tf_init
+tf_init:
+	terraform -chdir=./infrastructure/ init \
+		$(TF_BACKEND_ARGS) \
+		-reconfigure
+
+.PHONY: tf_plan
+tf_plan: tf_init
+	terraform -chdir=./infrastructure/ plan $(TF_VAR_ARGS) $(args)
+
+.PHONY: tf_apply
+tf_apply: tf_init
+	terraform -chdir=./infrastructure/ apply $(TF_VAR_ARGS) $(args)
+
+.PHONY: tf_auto_apply
+tf_auto_apply: tf_init
+	terraform -chdir=./infrastructure/ apply $(TF_VAR_ARGS) -auto-approve -input=false
+
+# --------------------------------------------------------------------------
+# docker
+# --------------------------------------------------------------------------
+
+ECR_URL = $(AWS_ACCOUNT_ID).dkr.ecr.eu-west-2.amazonaws.com # must always be eu-west-2
+IMAGE_TAG = $$(git rev-parse --short HEAD)-$$(date +%s)
+
+.PHONY: docker_login
+docker_login:
+	aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin $(ECR_URL)
+
+.PHONY: docker_build_api
+docker_build_api:
+	docker buildx build --platform linux/amd64 \
+		-t $(ECR_URL)/$(APP_NAME):api-$(IMAGE_TAG) \
+		api/
+
+.PHONY: docker_build_ui
+docker_build_ui:
+	docker buildx build --platform linux/amd64 \
+		-f ui/Dockerfile \
+		-t $(ECR_URL)/$(APP_NAME):ui-$(IMAGE_TAG) \
+		ui/
+
+# --------------------------------------------------------------------------
+# adhoc
+# --------------------------------------------------------------------------
+
+.PHONY: install
+install:
+	uv lock && uv sync
+
+.PHONY: run
+run:
+	docker compose up -d --wait
+
+.PHONY: stop
+stop:
+	docker compose down
+EOF
 cp "${TEMPLATE_DIR}/.env.example" "${APP_NAME}/" 2>/dev/null || true
 
 # touch/corw infrastructure directory
@@ -117,9 +228,11 @@ EOF
 # using a backup extension (.bak) ensures compatibility with both gnu and macos sed
 # find "${APP_NAME}" -type f -exec sed -i.bak "s/${TEMPLATE_DIR}${APP_NAME}/g" {} +
 
-# substitute the hardcoded app name from the makefile so environment variables propagate
-#find "${APP_NAME}" -type f -exec sed -i.bak "s/${TEMPLATE_DIR}/${APP_NAME}/g" {} +
-find "${APP_NAME}" -type f -exec sed -i.bak "s/${APP_NAME}//g" {} +
+# 1. Dynamically grab the name of the template folder (e.g., synthetic-email-generation)
+TEMPLATE_APP_NAME=$(basename "$(cd "${TEMPLATE_DIR}" && pwd)")
+
+# 2. Find and replace that exact name with the new app name in the copied files
+find "${APP_NAME}" -type f -exec sed -i.bak "s/${TEMPLATE_APP_NAME}/${APP_NAME}/g" {} +
 find "${APP_NAME}" -name "*.bak" -type f -delete
 
 echo "Successfully created project_directory for ${APP_NAME}."
