@@ -119,7 +119,7 @@ EOF
 # find "${APP_NAME}" -type f -exec sed -i.bak "s/${TEMPLATE_DIR}${APP_NAME}/g" {} +
 
 # substitute the hardcoded app name from the makefile so environment variables propagate
-find "${APP_NAME}" -type f -exec sed -i.bak "s/synthetic-email-generation/${APP_NAME}/g" {} +
+find "${APP_NAME}" -type f -exec sed -i.bak "s/{$TEMPLATE_DIR}/${APP_NAME}/g" {} +
 find "${APP_NAME}" -name "*.bak" -type f -delete
 
 echo "Successfully created project_directory for ${APP_NAME}."
