@@ -30,3 +30,4 @@ replacements.txt
 tree_full.txt
 scripts/**
 
+!scripts/cookie_cutter.sh
