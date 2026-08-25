@@ -1,8 +1,8 @@
 
-# GDS AIDR Infrastructure Repository
+# GDS AIDR Team Infrastructure
 
 <!--date_created: mon-18-may-2026-->
-<!--date_updated: fri-07-august-2026-->
+<!--date_updated: tues-25-aug-20266-->
 
 
 **Index**
@@ -17,6 +17,7 @@
  - [Accessing Claude Code in Bedrock](#accessing-claude-code-in-bedrock)
  - [Monitoring and auditing](#monitoring-and-auditing)
  - [Contributing](#contributing)
+ - [New Apps](#new-apps)
 
 > **Note:** to avoid confusion we will not use short forms of any of the environment names. Development and Production will be referred to as that in any code, variables, policies and documents, not *Dev* or *Prod*
 
@@ -83,6 +84,8 @@ This is a **public repository**
 │           ├── workload-iam
 │           ├── ecs-cluster
 │           └── ecs-fargate-service
+├── scripts
+│   └── cookie_cutter.sh
 ├── package.json
 ├── role_scopes.pdf
 └── tree.txt
@@ -870,10 +873,17 @@ This triggers an immediate digest for the Development account. Check your email 
 **To change the recipient email:** Update `digest_email` in `environments/monitoring/terraform.tfvars` and run `terraform apply`. The new subscriber will receive a confirmation email from SNS that must be clicked before digests are delivered.
 
 
-## Contributing
+## Contributing to gds-aidr-infrastructure
 *[(back)](#gds-data-innovation-and-ai-readiness-team-cloud-infrastructure-repository)*
 
+Infrastructure is deliberately decoupled from app infrastructure. 
+
 A full guide is provided on root [CONTRIBUTING.md](./CONTRIBUTING.md)
+
+## New apps
+*[(back)](#gds-data-innovation-and-ai-readiness-team-cloud-infrastructure-repository)*
+
+You can create a new app using the `scripts/cookie_cutter.sh`
 
 ---
 <!--END-->
