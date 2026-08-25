@@ -13,59 +13,114 @@
 # chmod +x ./cookie_cutter.sh | tee -a cookie_cutter.log
 set -euo pipefail
 
-# Prompt for APP_NAME
+# prompts user for APP_NAME
 read -p "Enter the new application name: " RAW_APP_NAME
 
-# Sanitize APP_NAME: replace spaces with dashes, remove special characters (preserving capitalisation and underscores)
+# cleanse APP_NAME: replace spaces with dashes, remove special characters (preserves capitalisation)
 APP_NAME=$(echo "$RAW_APP_NAME" | sed 's/ /-/g' | sed 's/[^A-Za-z0-9_-]//g')
 
-# DERIVE APP_NAME from first argument of current working dir (Commented out)
+# DERIVE APP_NAME from first argument of current working dir
 # APP_NAME=${1:-$(basename "$PWD" | sed 's/^\.//')}
 # APP_NAME := $(shell basename "$$PWD" | sed 's/^\.//') # derives the app name from the current directory, stripping any leading dot
 
-# Automatically set TEMPLATE_DIR to the directory containing this script (Commented out)
+# automaticaly set TEMPLATE_DIR to the directory containing this script
 # TEMPLATE_DIR=$(dirname "$0")
 
-# Set TEMPLATE_DIR to one level up, as the script is inside the /scripts/ folder
+# set TEMPLATE_DIR to one level up, as the script is inside the /scripts/ folder
 TEMPLATE_DIR="$(dirname "$0")/.."
 
 if [ -z "$APP_NAME" ]; then
-  echo "Error: APP_NAME is required and cannot be empty after sanitisation."
+  echo "Error: APP_NAME is required and cannot be empty after regex transform."
   echo "Usage (from directory you want project to sit in): ./cookie_cutter.sh"
   exit 1
 fi
 
-echo "Scaffolding new application: ${APP_NAME}..."
+echo "Creating project for new application: ${APP_NAME}..."
 
-# Create target directory structure
+# create target directory structure
 mkdir -p "${APP_NAME}/.github/workflows"
 mkdir -p "${APP_NAME}/infrastructure"
 mkdir -p "${APP_NAME}/src"
 mkdir -p "${APP_NAME}/tests"
+mkdir -p "${APP_NAME}/api"
+mkdir -p "${APP_NAME}/ui"
+mkdir -p "${APP_NAME}/db"
 
-# Create base empty files
-touch "${APP_NAME}/.github/CODEOWNERS"
+# create base files, empty for now, will populate later
 touch "${APP_NAME}/.gitignore"
 touch "${APP_NAME}/Dockerfile"
 touch "${APP_NAME}/README.md"
 touch "${APP_NAME}/requirements.txt"
 
-# Copy core files
+# populate codeowners file per gds standards
+echo "* @gds-aidr-maintainers" > "${APP_NAME}/.github/CODEOWNERS"
+
+# touch/mk core files
 cp "${TEMPLATE_DIR}/Makefile" "${APP_NAME}/" 2>/dev/null || true
 cp "${TEMPLATE_DIR}/.env.example" "${APP_NAME}/" 2>/dev/null || true
 
-# Copy infrastructure directory
+# touch/corw infrastructure directory
 if [ -d "${TEMPLATE_DIR}/infrastructure" ]; then
   cp -r "${TEMPLATE_DIR}/infrastructure" "${APP_NAME}/"
 fi
 
-# Copy deployment workflows
+# add deployment workflows
 cp "${TEMPLATE_DIR}/.github/workflows/"*.yml "${APP_NAME}/.github/workflows/" 2>/dev/null || true
 
-# Find and replace template name with new app name
-# Using a backup extension (.bak) ensures compatibility with both GNU and macOS sed
-# find "${APP_NAME}" -type f -exec sed -i.bak "s/${TEMPLATE_DIR}${APP_NAME}/g" {} +
-# find "${APP_NAME}" -name "*.bak" -type f -delete
+# scaffold basic deployment workflows for newly created directories
+cat << 'EOF' > "${APP_NAME}/.github/workflows/deploy_api.yml"
+name: deploy api
+on:
+  push:
+    paths:
+      - 'api/**'
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: build api image
+        run: make docker_build_api
+EOF
 
-echo "Successfully scaffolded ${APP_NAME}."
-echo "Configured for development, staging, and production."
+cat << 'EOF' > "${APP_NAME}/.github/workflows/deploy_ui.yml"
+name: deploy ui
+on:
+  push:
+    paths:
+      - 'ui/**'
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: build ui image
+        run: make docker_build_ui
+EOF
+
+cat << 'EOF' > "${APP_NAME}/.github/workflows/deploy_db.yml"
+name: deploy db
+on:
+  push:
+    paths:
+      - 'db/**'
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: build db image
+        run: make docker_build_db
+EOF
+
+# find and replace template name with new app name
+# using a backup extension (.bak) ensures compatibility with both gnu and macos sed
+# (commented out original incorrect substitution)
+# find "${APP_NAME}" -type f -exec sed -i.bak "s/${TEMPLATE_DIR}${APP_NAME}/g" {} +
+
+# substitute the hardcoded app name from the makefile so environment variables propagate
+find "${APP_NAME}" -type f -exec sed -i.bak "s/{$TEMPLATE_DIR}/${APP_NAME}/g" {} +
+find "${APP_NAME}" -name "*.bak" -type f -delete
+
+echo "Successfully created project_directory for ${APP_NAME}."
+echo "Configured for development, staging, and production AWS accounts."
