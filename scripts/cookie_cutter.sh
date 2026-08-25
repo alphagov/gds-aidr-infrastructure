@@ -115,11 +115,11 @@ EOF
 
 # find and replace template name with new app name
 # using a backup extension (.bak) ensures compatibility with both gnu and macos sed
-# (commented out original incorrect substitution)
 # find "${APP_NAME}" -type f -exec sed -i.bak "s/${TEMPLATE_DIR}${APP_NAME}/g" {} +
 
 # substitute the hardcoded app name from the makefile so environment variables propagate
-find "${APP_NAME}" -type f -exec sed -i.bak "s/{$TEMPLATE_DIR}/${APP_NAME}/g" {} +
+#find "${APP_NAME}" -type f -exec sed -i.bak "s/${TEMPLATE_DIR}/${APP_NAME}/g" {} +
+find "${APP_NAME}" -type f -exec sed -i.bak "s/${APP_NAME}//g" {} +
 find "${APP_NAME}" -name "*.bak" -type f -delete
 
 echo "Successfully created project_directory for ${APP_NAME}."
