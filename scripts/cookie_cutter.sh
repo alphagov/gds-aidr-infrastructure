@@ -64,7 +64,7 @@ cp "${TEMPLATE_DIR}/.github/workflows/"*.yml "${APP_NAME}/.github/workflows/" 2>
 
 # Find and replace template name with new app name
 # Using a backup extension (.bak) ensures compatibility with both GNU and macOS sed
-# find "${APP_NAME}" -type f -exec sed -i.bak "s/$S{TEMPLATE_DIR}/${APP_NAME}/g" {} +
+# find "${APP_NAME}" -type f -exec sed -i.bak "s/${TEMPLATE_DIR}${APP_NAME}/g" {} +
 # find "${APP_NAME}" -name "*.bak" -type f -delete
 
 echo "Successfully scaffolded ${APP_NAME}."
