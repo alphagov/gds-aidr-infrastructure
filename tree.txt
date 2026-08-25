@@ -135,7 +135,8 @@
 ├── package.json
 ├── README.md
 ├── role_scopes.pdf
-├── scripts
+├── scripts/
+│       ├── cookie_cutter.sh
 └── tree.txt
 
 33 directories, 106 files
