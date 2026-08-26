@@ -2,7 +2,7 @@
 # GDS AIDR Team Infrastructure
 
 <!--date_created: mon-18-may-2026-->
-<!--date_updated: tues-25-aug-20266-->
+<!--date_updated: weds-26-aug-20266-->
 
 
 **Index**
@@ -344,10 +344,13 @@ eval $(aws sts assume-role \
   --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]' \
   --output text | awk '{print "export AWS_ACCESS_KEY_ID="$1"\nexport AWS_SECRET_ACCESS_KEY="$2"\nexport AWS_SESSION_TOKEN="$3}')
 ```
-```
+
 unset AWS_PROFILE
 aws sts get-caller-identity
 ```
+> **Why `unset AWS_PROFILE`?** If AWS_PROFILE is set in your shell, AWS CLI uses the profile's credentials instead of the environment variables (AWS_ACCESS_KEY_ID etc.) that the eval command just exported. The profile wins over environment variables in the AWS CLI's credential resolution order. `unset AWS_PROFILE` removes that override so the CLI falls back to the exported session credentials from sts assume-role. 
+> If you never set AWS_PROFILE in your shell, you don't need the unset. It's only needed if you've previously run something like export AWS_PROFILE=gds-users in *that* terminal session.
+
 
 Confirm the `ARN` in the output ends in `assumed-role/<ROLE_NAME>/AWS-Session` before retrying. ie `assumed-role/gds-aidr-data-scientist/AWS-Session`
 
