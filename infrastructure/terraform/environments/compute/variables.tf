@@ -38,10 +38,11 @@ variable "role_prefix" {
   default     = "gds-aidr"
 }
 
-variable "bedrock_model_id" {
-  description = "Bedrock model ID or EU cross-region inference profile ID for Claude. Must be confirmed via the Bedrock console or CLI, not guessed."
-  type        = string
-}
+## these are now unused because the ECS service modules that referenced them are commented out
+#variable "bedrock_model_id" {
+#  description = "Bedrock model ID or EU cross-region inference profile ID for Claude. Must be confirmed via the Bedrock console or CLI, not guessed."
+#  type        = string
+#}
 
 variable "team_token" {
   description = "Shared internal access token — used by the API's INTERNAL_ACCESS_TOKEN and now also the CloudFront token gate."

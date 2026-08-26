@@ -112,19 +112,20 @@ data "terraform_remote_state" "networking" {
 # --------------------------------------------------------------------------
 # Remote state: containers
 # --------------------------------------------------------------------------
-
-data "terraform_remote_state" "containers" {
-  backend = "s3"
-
-  config = {
-    bucket = "gds-aidr-terraform-state-production"
-    key    = "containers/terraform.tfstate"
-    region = "eu-west-2"
-  }
-}
+## these are now unused because the ECS service modules that referenced them are commented out
+## (feat/decouple_compute work, PR 48)
+# backend = "s3"
+#data "terraform_remote_state" "containers" {
+#
+#  config = {
+#    bucket = "gds-aidr-terraform-state-production"
+#    key    = "containers/terraform.tfstate"
+#    region = "eu-west-2"
+#  }
+#}
 
 # ------------------------------------------------------------
-# Remote state - security
+# Remote state: security
 # ------------------------------------------------------------
 # Reads the platform domain and wildcard certificate from the
 # security environment's state, so CloudFront distributions can
