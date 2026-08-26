@@ -14,7 +14,7 @@
 set -euo pipefail
 
 # prompts user for APP_NAME
-read -p "Enter the new application name: " RAW_APP_NAME
+read -p "Enter the new application name: " RAW_APP_NAME # RAW_APP_NAME is user input
 
 # cleanse APP_NAME: replace spaces with dashes, remove special characters (preserves capitalisation)
 APP_NAME=$(echo "$RAW_APP_NAME" | sed 's/ /-/g' | sed 's/[^A-Za-z0-9_-]//g')
@@ -75,6 +75,10 @@ cat << 'EOF' >> "${APP_NAME}/Makefile"
 ##  - requires AWS STS SESSION
 #   - TF_VAR_team_token (while we have CloudFront dist versus domain-based)
 #   - For deploys: TF_VAR_api_image_tag and TF_VAR_ui_image_tag exported
+#  	- Each app will have its own state file to allow complete autonomy
+#   - from infrastructure
+
+# NOTE: LT plan is that development work can be asynchronous to infra
 
 -include .env
 export
