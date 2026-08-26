@@ -216,51 +216,52 @@ module "rds_development" {
   }
 }
 
-module "ecs_service_development" {
-  source = "../../modules/ecs-fargate-service"
-
-  providers = {
-    aws = aws.development
-  }
-
-  environment_name = "Development"
-  service_name     = "synthetic-email-generation"
-  cluster_arn      = module.ecs_cluster_development.cluster_arn
-
-  execution_role_arn = module.workload_iam_development.execution_role_arn
-  task_role_arn      = module.workload_iam_development.task_role_arn
-
-  environment_variables = [
-    { name = "LLM_PROVIDER", value = "bedrock" },
-    { name = "LLM_MODEL_OVERRIDE", value = var.bedrock_model_id },
-    { name = "AWS_REGION", value = "eu-west-2" },
-    { name = "INTERNAL_ACCESS_TOKEN", value = var.team_token }
-  ]
-
-  # container_image = "${data.terraform_remote_state.containers.outputs.development_repository_urls["synthetic-email-generation"]}:latest"
-  container_image = "${data.terraform_remote_state.containers.outputs.development_repository_urls["synthetic-email-generation"]}:${var.development_api_image_tag}"
-  container_port  = 3000
-
-  secrets = [
-    { name = "DATABASE_URL", value_from = "${module.rds_development.secret_arn}:url::" }
-  ]
-
-  cpu    = 512
-  memory = 1024
-
-  subnet_ids         = data.terraform_remote_state.networking.outputs.development_private_app_subnet_ids
-  security_group_ids = [data.terraform_remote_state.networking.outputs.development_ecs_task_security_group_id]
-  assign_public_ip   = false
-
-  create_service   = true
-  desired_count    = 1
-  target_group_arn = module.alb_development.additional_target_group_arns["api"]
-
-  tags = {
-    Environment = "development"
-    AccountId   = var.development_account_id
-  }
-}
+# --  # NOTE: moved to synthetic-email-generation repo infrastructure/ in feat/decouple_compute work
+# module "ecs_service_development" {
+#   source = "../../modules/ecs-fargate-service"
+#
+#   providers = {
+#     aws = aws.development
+#   }
+#
+#   environment_name = "Development"
+#   service_name     = "synthetic-email-generation"
+#   cluster_arn      = module.ecs_cluster_development.cluster_arn
+#
+#   execution_role_arn = module.workload_iam_development.execution_role_arn
+#   task_role_arn      = module.workload_iam_development.task_role_arn
+#
+#   environment_variables = [
+#     { name = "LLM_PROVIDER", value = "bedrock" },
+#     { name = "LLM_MODEL_OVERRIDE", value = var.bedrock_model_id },
+#     { name = "AWS_REGION", value = "eu-west-2" },
+#     { name = "INTERNAL_ACCESS_TOKEN", value = var.team_token }
+#   ]
+#
+#   # container_image = "${data.terraform_remote_state.containers.outputs.development_repository_urls["synthetic-email-generation"]}:latest"
+#   container_image = "${data.terraform_remote_state.containers.outputs.development_repository_urls["synthetic-email-generation"]}:${var.development_api_image_tag}"
+#   container_port  = 3000
+#
+#   secrets = [
+#     { name = "DATABASE_URL", value_from = "${module.rds_development.secret_arn}:url::" }
+#   ]
+#
+#   cpu    = 512
+#   memory = 1024
+#
+#   subnet_ids         = data.terraform_remote_state.networking.outputs.development_private_app_subnet_ids
+#   security_group_ids = [data.terraform_remote_state.networking.outputs.development_ecs_task_security_group_id]
+#   assign_public_ip   = false
+#
+#   create_service   = true
+#   desired_count    = 1
+#   target_group_arn = module.alb_development.additional_target_group_arns["api"]
+#
+#   tags = {
+#     Environment = "development"
+#     AccountId   = var.development_account_id
+#   }
+# }
 
 # --------------------------------------------------------------------------
 # Development: UI workload IAM, ALB, CloudFront/WAF, UI service
@@ -379,39 +380,40 @@ module "cloudfront_waf_development" {
   }
 }
 
-module "ecs_service_ui_development" {
-  source = "../../modules/ecs-fargate-service"
-
-  providers = {
-    aws = aws.development
-  }
-
-  environment_name = "Development"
-  service_name     = "synthetic-email-generation-ui"
-  cluster_arn      = module.ecs_cluster_development.cluster_arn
-
-  execution_role_arn = module.workload_iam_ui_development.execution_role_arn
-  task_role_arn      = module.workload_iam_ui_development.task_role_arn
-
-  container_image = "${data.terraform_remote_state.containers.outputs.development_repository_urls["synthetic-email-generation"]}:${var.development_ui_image_tag}"
-  container_port  = 8080
-
-  cpu    = 256
-  memory = 512
-
-  subnet_ids         = data.terraform_remote_state.networking.outputs.development_private_app_subnet_ids
-  security_group_ids = [data.terraform_remote_state.networking.outputs.development_ecs_task_security_group_id]
-  assign_public_ip   = false
-
-  create_service   = true
-  desired_count    = 1
-  target_group_arn = module.alb_development.target_group_arn
-
-  tags = {
-    Environment = "development"
-    AccountId   = var.development_account_id
-  }
-}
+# NOTE: moved to synthetic-email-generation repo infrastructure/ in feat/decouple_compute work
+# module "ecs_service_ui_development" {
+#   source = "../../modules/ecs-fargate-service"
+#
+#   providers = {
+#     aws = aws.development
+#   }
+#
+#   environment_name = "Development"
+#   service_name     = "synthetic-email-generation-ui"
+#   cluster_arn      = module.ecs_cluster_development.cluster_arn
+#
+#   execution_role_arn = module.workload_iam_ui_development.execution_role_arn
+#   task_role_arn      = module.workload_iam_ui_development.task_role_arn
+#
+#   container_image = "${data.terraform_remote_state.containers.outputs.development_repository_urls["synthetic-email-generation"]}:${var.development_ui_image_tag}"
+#   container_port  = 8080
+#
+#   cpu    = 256
+#   memory = 512
+#
+#   subnet_ids         = data.terraform_remote_state.networking.outputs.development_private_app_subnet_ids
+#   security_group_ids = [data.terraform_remote_state.networking.outputs.development_ecs_task_security_group_id]
+#   assign_public_ip   = false
+#
+#   create_service   = true
+#   desired_count    = 1
+#   target_group_arn = module.alb_development.target_group_arn
+#
+#   tags = {
+#     Environment = "development"
+#     AccountId   = var.development_account_id
+#   }
+# }
 
 # --------------------------------------------------------------------------
 # Staging: workload IAM and ECS cluster only, ready for future services
