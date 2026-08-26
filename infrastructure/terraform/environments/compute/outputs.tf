@@ -9,15 +9,19 @@ output "development_cluster_arn" {
   value       = module.ecs_cluster_development.cluster_arn
 }
 
-output "development_service_name" {
-  description = "ECS service name for the API in the Development account."
-  value       = module.ecs_service_development.service_name
-}
+# --- moved to synthetic-email-generation repo infrastructure/ 
+## ... in feat/decouple_compute work---
+# output "development_service_name" {
+#   description = "ECS service name for the API in the Development account."
+#   value       = module.ecs_service_development.service_name
+# }
 
-output "development_task_definition_arn" {
-  description = "Task definition ARN for the API in the Development account."
-  value       = module.ecs_service_development.task_definition_arn
-}
+# --- moved to synthetic-email-generation repo infrastructure/
+## ... in feat/decouple_compute work---
+# output "development_task_definition_arn" {
+#   description = "Task definition ARN for the API in the Development account."
+#   value       = module.ecs_service_development.task_definition_arn
+# }
 
 output "development_execution_role_arn" {
   description = "Execution role ARN for the API service in the Development account."
