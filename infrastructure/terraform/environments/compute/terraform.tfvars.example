@@ -7,7 +7,7 @@ development_account_id = ""
 staging_account_id     = ""
 production_account_id  = ""
 
-bedrock_model_id = "<BEDROCK_MODEL_ID>"  # e.g. eu.anthropic.claude-haiku-4-5-20251001-v1:0
+bedrock_model_id = "<BEDROCK_MODEL_ID>"  # e.g. eu.anthropic.claude-haiku-4-5-20251001-v1:0, or "openai.gpt-oss-safeguard-120b"
 
 role_prefix = "gds-aidr"
 team_token = ""
