@@ -5,15 +5,17 @@ variable "development_account_id" {
   type        = string
 }
 
-variable "development_api_image_tag" {
-  description = "Image tag for the synthetic-email-generation"
-  type        = string
-}
+# moved to synthetic-email-generation repo infrastructure/ in feat/decouple_compute work
+# variable "development_api_image_tag" {
+#   description = "Image tag for the synthetic-email-generation"
+#   type        = string
+# }
 
-variable "development_ui_image_tag" {
-  description = "Image tag for the synthetic-email-generation-ui service, prefixed ui- to distinguish it in the shared repo. No default — must always be supplied explicitly."
-  type        = string
-}
+# moved to synthetic-email-generation repo infrastructure/ in feat/decouple_compute work
+# variable "development_ui_image_tag" {
+#   description = "Image tag for the synthetic-email-generation-ui service, prefixed ui- to distinguish it in the shared repo. No default — must always be supplied explicitly."
+#   type        = string
+# }
 
 variable "development_wildcard_certificate_arn" {
   description = "ARN of the wildcard ACM certificate covering the platform domain, in the Development account. Must be in us-east-1 for CloudFront."
@@ -36,10 +38,11 @@ variable "role_prefix" {
   default     = "gds-aidr"
 }
 
-variable "bedrock_model_id" {
-  description = "Bedrock model ID or EU cross-region inference profile ID for Claude. Must be confirmed via the Bedrock console or CLI, not guessed."
-  type        = string
-}
+## these are now unused because the ECS service modules that referenced them are commented out
+#variable "bedrock_model_id" {
+#  description = "Bedrock model ID or EU cross-region inference profile ID for Claude. Must be confirmed via the Bedrock console or CLI, not guessed."
+#  type        = string
+#}
 
 variable "team_token" {
   description = "Shared internal access token — used by the API's INTERNAL_ACCESS_TOKEN and now also the CloudFront token gate."
