@@ -167,6 +167,15 @@ module "workload_iam_development" {
           "bedrock:InvokeModelWithResponseStream"
         ]
         Resource = "*"
+      },
+      {
+        Sid    = "AllowMarketplaceSubscriptions"
+        Effect = "Allow"
+        Action = [
+          "aws-marketplace:ViewSubscriptions",
+          "aws-marketplace:Subscribe"
+        ]
+        Resource = "*"
       }
     ]
   })
