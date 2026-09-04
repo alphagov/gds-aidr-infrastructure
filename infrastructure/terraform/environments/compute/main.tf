@@ -173,7 +173,8 @@ module "workload_iam_development" {
         Effect = "Allow"
         Action = [
           "aws-marketplace:ViewSubscriptions",
-          "aws-marketplace:Subscribe"
+          "aws-marketplace:Subscribe",
+          "aws-marketplace:Unsubscribe"
         ]
         Resource = "*"
       }
