@@ -318,6 +318,51 @@ resource "aws_iam_role" "team" {
   })
 }
 
+# Data lake read — attached to the team roles named in
+# data_lake_reader_role_names. Read only, limited to the dataset and metadata
+# prefixes, and includes kms:Decrypt so encrypted objects can actually be
+# opened. Every read is recorded by CloudTrail on the bucket.
+resource "aws_iam_role_policy" "team_data_lake_read" {
+  for_each = {
+    for role_name, role_config in local.team_roles : role_name => role_config
+    if contains(var.data_lake_reader_role_names, role_name) && var.data_lake_bucket_arn != ""
+  }
+
+  name = "${var.role_prefix}-data-lake-read"
+  role = aws_iam_role.team[each.key].name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = concat(
+      [
+        {
+          Sid      = "ListDataLake"
+          Effect   = "Allow"
+          Action   = ["s3:ListBucket"]
+          Resource = var.data_lake_bucket_arn
+        },
+        {
+          Sid    = "ReadDataLakeObjects"
+          Effect = "Allow"
+          Action = ["s3:GetObject"]
+          Resource = [
+            "${var.data_lake_bucket_arn}/${var.data_lake_dataset_prefix}*",
+            "${var.data_lake_bucket_arn}/${var.data_lake_metadata_prefix}*"
+          ]
+        }
+      ],
+      var.data_lake_kms_key_arn != "" ? [
+        {
+          Sid      = "DecryptDataLakeObjects"
+          Effect   = "Allow"
+          Action   = ["kms:Decrypt", "kms:DescribeKey"]
+          Resource = var.data_lake_kms_key_arn
+        }
+      ] : []
+    )
+  })
+}
+
 # PowerUserAccess — attached to roles where full_access = true
 resource "aws_iam_role_policy_attachment" "team_power" {
   for_each = { for k, v in local.team_roles : k => v if v.full_access }
