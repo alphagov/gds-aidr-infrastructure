@@ -123,6 +123,22 @@ locals {
 # Developer gets full access but no heavy compute.
 # Analyst and explorer get read-only.
 
+# --------------------------------------------------------------------------
+# Remote state: data lake
+# --------------------------------------------------------------------------
+# The lake is applied separately in the data-lake environment. Reading its
+# outputs here keeps the bucket and key names in one place.
+
+data "terraform_remote_state" "data_lake" {
+  backend = "s3"
+
+  config = {
+    bucket = "gds-aidr-terraform-state-production"
+    key    = "data-lake/terraform.tfstate"
+    region = "eu-west-2"
+  }
+}
+
 module "iam_development" {
   source = "../../modules/iam-centralised"
 
@@ -179,6 +195,14 @@ module "iam_development" {
   github_oidc_allowed_subjects = var.github_oidc_allowed_subjects
   chained_trusted_account_arns = ["arn:aws:iam::${var.production_account_id}:root"]
 
+
+  # Team roles read the lake with the role they already assume, rather than
+  # switching to a separate reader role.
+  data_lake_reader_role_names = var.data_lake_reader_role_names
+  data_lake_bucket_arn        = data.terraform_remote_state.data_lake.outputs.bucket_arn
+  data_lake_kms_key_arn       = data.terraform_remote_state.data_lake.outputs.kms_key_arn
+  data_lake_dataset_prefix    = data.terraform_remote_state.data_lake.outputs.dataset_prefix
+  data_lake_metadata_prefix   = data.terraform_remote_state.data_lake.outputs.metadata_prefix
 
   max_session_duration = var.max_session_duration
 
@@ -246,6 +270,14 @@ module "iam_staging" {
   chained_trusted_account_arns = ["arn:aws:iam::${var.production_account_id}:root"]
 
 
+  # Team roles read the lake with the role they already assume, rather than
+  # switching to a separate reader role.
+  data_lake_reader_role_names = var.data_lake_reader_role_names
+  data_lake_bucket_arn        = data.terraform_remote_state.data_lake.outputs.bucket_arn
+  data_lake_kms_key_arn       = data.terraform_remote_state.data_lake.outputs.kms_key_arn
+  data_lake_dataset_prefix    = data.terraform_remote_state.data_lake.outputs.dataset_prefix
+  data_lake_metadata_prefix   = data.terraform_remote_state.data_lake.outputs.metadata_prefix
+
   max_session_duration = var.max_session_duration
 
   tags = {
@@ -312,6 +344,14 @@ module "iam_production" {
   }
 
   github_oidc_allowed_subjects = var.github_oidc_allowed_subjects
+
+  # Team roles read the lake with the role they already assume, rather than
+  # switching to a separate reader role.
+  data_lake_reader_role_names = var.data_lake_reader_role_names
+  data_lake_bucket_arn        = data.terraform_remote_state.data_lake.outputs.bucket_arn
+  data_lake_kms_key_arn       = data.terraform_remote_state.data_lake.outputs.kms_key_arn
+  data_lake_dataset_prefix    = data.terraform_remote_state.data_lake.outputs.dataset_prefix
+  data_lake_metadata_prefix   = data.terraform_remote_state.data_lake.outputs.metadata_prefix
 
   max_session_duration = var.max_session_duration
 
