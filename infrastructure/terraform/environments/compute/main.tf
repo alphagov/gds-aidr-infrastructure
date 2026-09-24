@@ -124,6 +124,23 @@ data "terraform_remote_state" "networking" {
 #  }
 #}
 
+# --------------------------------------------------------------------------
+# Remote state: data lake
+# --------------------------------------------------------------------------
+# The lake lives in the Production account and is applied separately. Its
+# outputs give the bucket and key the batch task writes to, so the names are
+# not repeated here.
+
+data "terraform_remote_state" "data_lake" {
+  backend = "s3"
+
+  config = {
+    bucket = "gds-aidr-terraform-state-production"
+    key    = "data-lake/terraform.tfstate"
+    region = "eu-west-2"
+  }
+}
+
 # ------------------------------------------------------------
 # Remote state: security
 # ------------------------------------------------------------
@@ -177,6 +194,32 @@ module "workload_iam_development" {
           "aws-marketplace:Unsubscribe"
         ]
         Resource = "*"
+      },
+      # Batch generation writes its output to the data lake in the Production
+      # account. Cross-account writes need this identity policy and the lake's
+      # bucket policy to agree; the bucket policy is set in the data-lake
+      # environment, which must be applied first.
+      {
+        Sid    = "AllowDataLakeWrite"
+        Effect = "Allow"
+        Action = [
+          "s3:PutObject",
+          "s3:AbortMultipartUpload"
+        ]
+        Resource = [
+          "${data.terraform_remote_state.data_lake.outputs.bucket_arn}/${data.terraform_remote_state.data_lake.outputs.dataset_prefix}*",
+          "${data.terraform_remote_state.data_lake.outputs.bucket_arn}/${data.terraform_remote_state.data_lake.outputs.metadata_prefix}*"
+        ]
+      },
+      {
+        Sid    = "AllowDataLakeKeyUse"
+        Effect = "Allow"
+        Action = [
+          "kms:GenerateDataKey",
+          "kms:Encrypt",
+          "kms:DescribeKey"
+        ]
+        Resource = data.terraform_remote_state.data_lake.outputs.kms_key_arn
       }
     ]
   })

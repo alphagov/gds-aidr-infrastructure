@@ -28,6 +28,12 @@ variable "reader_account_arns" {
   default     = []
 }
 
+variable "writer_role_arns" {
+  description = "Role ARNs permitted to write datasets and metadata into the lake cross-account. The batch generation task role in the Development account. Writes are confined to the dataset and metadata prefixes."
+  type        = list(string)
+  default     = []
+}
+
 variable "lakeformation_register_role_arn" {
   description = "ARN of an existing role Lake Formation uses to access the registered metadata location. Only used when create_lakeformation_register_role is false."
   type        = string

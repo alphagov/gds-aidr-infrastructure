@@ -32,7 +32,7 @@ resource "aws_s3_bucket" "data_lake" {
   tags = var.tags
 }
 
-# Block all public access. The lake is never public. External access is
+# Block all public access. The lake is never public. External access is (currently)
 # brokered through the API, not through bucket exposure.
 
 resource "aws_s3_bucket_public_access_block" "data_lake" {
@@ -42,6 +42,18 @@ resource "aws_s3_bucket_public_access_block" "data_lake" {
   block_public_policy     = true
   ignore_public_acls      = true
   restrict_public_buckets = true
+}
+
+# Objects written from another account are owned by this account, so ACLs
+# cannot leave a cross-account writer owning data in the lake. Buckets created
+# since 2023 default to this; setting it explicitly makes it durable.
+
+resource "aws_s3_bucket_ownership_controls" "data_lake" {
+  bucket = aws_s3_bucket.data_lake.id
+
+  rule {
+    object_ownership = "BucketOwnerEnforced"
+  }
 }
 
 # Encrypt at rest with a customer managed key so key access can be controlled
@@ -69,6 +81,22 @@ resource "aws_kms_key" "data_lake" {
           Resource = "*"
         }
       ],
+      length(var.writer_role_arns) > 0 ? [
+        {
+          Sid    = "AllowCrossAccountEncrypt"
+          Effect = "Allow"
+          Principal = {
+            AWS = var.writer_role_arns
+          }
+          # Writing an SSE-KMS object needs a data key, not only decrypt.
+          Action = [
+            "kms:GenerateDataKey",
+            "kms:Encrypt",
+            "kms:DescribeKey"
+          ]
+          Resource = "*"
+        }
+      ] : [],
       length(var.reader_account_arns) > 0 ? [
         {
           Sid    = "AllowCrossAccountDecrypt"
@@ -126,35 +154,63 @@ resource "aws_s3_bucket_versioning" "data_lake" {
 # role writes, through its own identity policy.
 
 resource "aws_s3_bucket_policy" "data_lake" {
-  count = length(var.reader_account_arns) > 0 ? 1 : 0
+  # count = length(var.reader_account_arns) > 0 ? 1 : 0
+  count = length(var.reader_account_arns) > 0 || length(var.writer_role_arns) > 0 ? 1 : 0
 
   bucket = aws_s3_bucket.data_lake.id
 
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [
-      {
-        Sid    = "AllowCrossAccountRead"
-        Effect = "Allow"
-        Principal = {
-          AWS = var.reader_account_arns
-        }
-        Action = [
-          "s3:GetObject",
-          "s3:ListBucket"
-        ]
-        Resource = [
-          aws_s3_bucket.data_lake.arn,
-          "${aws_s3_bucket.data_lake.arn}/${var.dataset_prefix}*",
-          "${aws_s3_bucket.data_lake.arn}/${var.metadata_prefix}*"
-        ]
-        Condition = {
-          Bool = {
-            "aws:SecureTransport" = "true"
+    Statement = concat(
+      length(var.reader_account_arns) > 0 ? [
+        {
+          Sid    = "AllowCrossAccountRead"
+          Effect = "Allow"
+          Principal = {
+            AWS = var.reader_account_arns
+          }
+          Action = [
+            "s3:GetObject",
+            "s3:ListBucket"
+          ]
+          Resource = [
+            aws_s3_bucket.data_lake.arn,
+            "${aws_s3_bucket.data_lake.arn}/${var.dataset_prefix}*",
+            "${aws_s3_bucket.data_lake.arn}/${var.metadata_prefix}*"
+          ]
+          Condition = {
+            Bool = {
+              "aws:SecureTransport" = "true"
+            }
           }
         }
-      }
-    ]
+      ] : [],
+      # Cross-account writes need the bucket policy to allow them as well as
+      # the writer's own identity policy. Confined to the two prefixes, and to
+      # putting objects: the writer cannot read or delete what is already there.
+      length(var.writer_role_arns) > 0 ? [
+        {
+          Sid    = "AllowCrossAccountWrite"
+          Effect = "Allow"
+          Principal = {
+            AWS = var.writer_role_arns
+          }
+          Action = [
+            "s3:PutObject",
+            "s3:AbortMultipartUpload"
+          ]
+          Resource = [
+            "${aws_s3_bucket.data_lake.arn}/${var.dataset_prefix}*",
+            "${aws_s3_bucket.data_lake.arn}/${var.metadata_prefix}*"
+          ]
+          Condition = {
+            Bool = {
+              "aws:SecureTransport" = "true"
+            }
+          }
+        }
+      ] : []
+    )
   })
 }
 
