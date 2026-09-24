@@ -197,3 +197,42 @@ variable "staging_account_id" {
 #  type        = string
 #  default     = ""
 #}
+
+# --------------------------------------------------------------------------
+# Data lake read access for team roles
+# --------------------------------------------------------------------------
+# The lake bucket lives in the Production account and its bucket policy already
+# trusts the Development and Staging account roots. That only delegates the
+# decision: a role in those accounts still needs its own permission to read.
+# These variables attach that permission to named team roles, so people read
+# the lake with the role they already assume.
+
+variable "data_lake_reader_role_names" {
+  description = "Team role names given read access to the data lake, for example [\"data-scientist\"]. Empty means no team role gets lake access."
+  type        = list(string)
+  default     = []
+}
+
+variable "data_lake_bucket_arn" {
+  description = "ARN of the data lake bucket. Required when data_lake_reader_role_names is set."
+  type        = string
+  default     = ""
+}
+
+variable "data_lake_kms_key_arn" {
+  description = "ARN of the data lake encryption key. Reading an encrypted object needs kms:Decrypt as well as s3:GetObject; the AWS managed ReadOnlyAccess policy does not include it."
+  type        = string
+  default     = ""
+}
+
+variable "data_lake_dataset_prefix" {
+  description = "Dataset prefix in the data lake bucket."
+  type        = string
+  default     = "datasets/email/v1/"
+}
+
+variable "data_lake_metadata_prefix" {
+  description = "Metadata prefix in the data lake bucket."
+  type        = string
+  default     = "metadata/email/v1/"
+}
