@@ -117,3 +117,9 @@ variable "budget_alert_emails" {
 # type        = string
 # default     = "metadata/email/v1/"
 # }
+
+variable "data_lake_reader_role_names" {
+  description = "Team roles given read access to the data lake. They read it with the role they already assume."
+  type        = list(string)
+  default     = ["data-scientist", "developer", "analyst", "explorer"]
+}
