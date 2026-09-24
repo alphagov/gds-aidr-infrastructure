@@ -56,6 +56,7 @@ module "data_lake" {
   role_prefix           = var.role_prefix
 
   reader_account_arns = var.reader_account_arns
+  writer_role_arns    = var.writer_role_arns
 
   create_lakeformation_register_role = var.create_lakeformation_register_role
   lakeformation_register_role_arn    = var.lakeformation_register_role_arn
