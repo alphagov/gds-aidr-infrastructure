@@ -17,6 +17,13 @@ reader_account_arns = [
   "arn:aws:iam::REPLACE_WITH_STAGING_ACCOUNT_ID:root"
 ]
 
+# Roles that write generated datasets into the lake. The batch generation task
+# role runs in the Development account and writes to the dataset and metadata
+# prefixes only.
+writer_role_arns = [
+  "arn:aws:iam::REPLACE_WITH_DEVELOPMENT_ACCOUNT_ID:role/gds-aidr-synthetic-email-generation-task"
+]
+
 # Role Lake Formation uses to reach the registered metadata location.
 create_lakeformation_register_role = true
 
