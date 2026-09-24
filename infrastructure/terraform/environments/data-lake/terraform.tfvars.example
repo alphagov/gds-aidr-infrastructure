@@ -21,7 +21,7 @@ reader_account_arns = [
 # role runs in the Development account and writes to the dataset and metadata
 # prefixes only.
 writer_role_arns = [
-  "arn:aws:iam::REPLACE_WITH_DEVELOPMENT_ACCOUNT_ID:role/gds-aidr-synthetic-email-generation-task"
+  ""arn:aws:iam::<DEVELOPMENT_ACCOUNT_ID>:role/gds-aidr-synthetic-email-generation-task""
 ]
 
 # Role Lake Formation uses to reach the registered metadata location.
