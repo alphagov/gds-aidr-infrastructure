@@ -772,6 +772,21 @@ resource "aws_iam_role_policy" "ci_apply" {
         ]
       },
       {
+        # Read-only access to the public AWS price list, used by the weekly
+        # pricing workflow to refresh the Bedrock rates in the generation cost
+        # estimates. The Pricing API has no resource-level permissions, so the
+        # resource must be "*"; the data it returns is public list pricing, not
+        # account billing.
+        Sid    = "ReadPublicPriceList"
+        Effect = "Allow"
+        Action = [
+          "pricing:GetProducts",
+          "pricing:DescribeServices",
+          "pricing:GetAttributeValues"
+        ]
+        Resource = "*"
+      },
+      {
         # Lets ci-apply chain into the existing admin terraform role in
         # Development and Staging, same mechanism the human terraform role
         # already uses for cross-account applies — not new trust, just the
