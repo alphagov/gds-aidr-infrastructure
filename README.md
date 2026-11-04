@@ -2,7 +2,7 @@
 # GDS AIDR Team Infrastructure
 
 <!--date_created: mon-18-may-2026-->
-<!--date_updated: weds-26-aug-20266-->
+<!--date_updated: weds-04-nov-20266-->
 
 
 **Index**
@@ -107,8 +107,9 @@ Plain-English diagrams showing how the platform fits together, written as Mermai
 
 ## Data lake
 
+Guidance can be found at [docs/infrastructure/data-lake.md](https://github.com/alphagov/gds-aidr-infrastructure/blob/main/docs/infrastructure/data-lake.md)
 
-## Mermaid Diagram (data-lake)
+### Mermaid Diagram (data-lake)
 
 ```(mermaid)
 flowchart LR
